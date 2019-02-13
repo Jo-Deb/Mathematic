@@ -12,3 +12,13 @@ nbr_diviseur(){
 	echo "$produit"
 }
 
+proposition_decomposition(){
+	argu=$1
+	limite_crible=$(echo "sqrt($argu)" | bc -l | cut -d "." -f1)
+	while [ $(read line) -eq 0 -a $val -gt 0 -a $line -le $limite_crible ]
+	do	[ $((argu % line)) -eq 0 ] && val=$((line))
+	done < base_nbr_premiers.dat
+	
+	val_canon=$((val))		
+	while [ $((argu % (val*val_canon) )) -eq 0 ]; do val=$((val*val_canon)); done
+}
