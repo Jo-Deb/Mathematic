@@ -33,6 +33,22 @@ do	tmp=$((max * premier))
 	fi
 done
 
-premier=$((premier + 1))
+#premier=$((premier + 1))
 echo "$max:$puissance"
+}
+
+decompose(){
+suite=$1
+chaine=""
+while [ $suite -gt 1 ]
+do	diviseur=$(trouveDiviseur $suite)
+	[ $diviseur -gt 1 ] &&  ligneMax=$(maxPuissance $suite $diviseur)
+	[ $diviseur -gt 1 ] && divMax=$(echo "$ligneMax" | cut -d ":" -f1)
+	if [ $diviseur -gt 1 ]
+	then	chaine="$chaine$diviseur:$(echo "$ligneMax" | cut -d ":" -f2) "
+	else chaine="$chaine 1:2"
+	fi
+	suite=$((suite / divMax))
+done
+echo "$chaine"
 }
