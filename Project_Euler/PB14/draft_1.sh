@@ -1,4 +1,8 @@
 #!/bin/sh
+#idée: retourner la suite afin que la fin soit en premier, cela permettra de sortir
+#de la fonction rempli_tab() sans avoir à parcourir la suite dans sa totalité
+#Mettre la longueur de la suite dans case. Bien faire attention que lors de la
+#concaténation de suite on garde bien l'ordre inverse
 
 tab[0]="0"
 tab[1]="1"
@@ -14,12 +18,17 @@ do	reste=$(echo ${reste#$elt})
 done
 }
 
+length_sequence(){
+argument=$1
+echo "$argument" | wc -w | tr -d " " 
+}
 
 collatz_suite(){
 origin=$1
 res="$1"
 genTerme=$1
 stop=$((0))
+nbrNewElt=$((1))
 #On s'arrete quand la genTerm vaut 1
 [ $genTerme -eq 1 ] && return 0
 #genTerme ne vaut pas un, on itère donc pour calculer toute la suite
@@ -31,15 +40,32 @@ do	[ $genTerme -eq 1 ] && stop=$((1))
 			then	res="$res ${tab[genTerme]}"
 					stop=$((1))
 			else 	res="$res $genTerme"
+					nbrNewElt=$((nbrNewElt+1))
 			fi
 	else genTerme=$((3*genTerme+1))
 			if [ ! -z "${tab[genTerme]}" ] 
 			then	res="$res ${tab[genTerme]}"
 					stop=$((1))
 			else 	res="$res $genTerme"
+					nbrNewElt=$((nbrNewElt+1))
 			fi
 	fi					
 done
 tab[$origin]="$res"
+[ $nbrNewElt -gt 1 ] && rempli_tab "$res"
 }
+
+n=$((3))
+max_length=$((2))
+
+while [ $n -lt 1000 ]
+do	collatz_suite "$n"
+	tmp=$(length_sequence "${tab[n]}")
+	[ $tmp -gt $max_length ] && max_length=$((tmp))
+	echo "la suite Collatz de $n a $tmp elements"
+	n=$((n+1))
+done
+	
+
+
 
