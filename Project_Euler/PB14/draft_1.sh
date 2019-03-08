@@ -57,12 +57,14 @@ tab[$origin]="$res"
 
 n=$((3))
 max_length=$((2))
-
-while [ $n -lt 1000 ]
-do	collatz_suite "$n"
-	tmp=$(length_sequence "${tab[n]}")
-	[ $tmp -gt $max_length ] && max_length=$((tmp))
-	echo "la suite Collatz de $n a $tmp elements"
+maxElt=$((2))
+while [ $n -lt 1000000 ]
+do	if [ -z "${tab[n]}" ]
+	then 	collatz_suite "$n"
+			tmp=$(length_sequence "${tab[n]}")
+			[ $tmp -gt $max_length ] && max_length=$tmp; maxElt=$n
+	fi
+	[ $((n % 50)) -eq 0 ] && echo "calcul de $n en cours; actuellement la plus longue suite calculée est $maxElt et mesure $max_length"
 	n=$((n+1))
 done
 	

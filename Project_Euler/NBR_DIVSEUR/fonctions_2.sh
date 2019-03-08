@@ -18,6 +18,7 @@ done < base_nbr_premiers.dat
 echo "$retour"
 }
 
+#renvoie la puissance max de n tel que $1/X^n 
 maxPuissance(){
 triangulaire=$1
 premier=$2
@@ -37,6 +38,7 @@ done
 echo "$max:$puissance"
 }
 
+#décompose un nombre en ses multiples premiers
 decompose(){
 suite=$1
 chaine=""
@@ -46,9 +48,20 @@ do	diviseur=$(trouveDiviseur $suite)
 	[ $diviseur -gt 1 ] && divMax=$(echo "$ligneMax" | cut -d ":" -f1)
 	if [ $diviseur -gt 1 ]
 	then	chaine="$chaine$diviseur:$(echo "$ligneMax" | cut -d ":" -f2) "
-	else chaine="$chaine 1:2"
+	else chaine="$chaine 1:1"
 	fi
 	suite=$((suite / divMax))
 done
 echo "$chaine"
+}
+
+
+nbr_diviseur(){
+maChaine=$(decompose $1)
+tmp=$((1))
+for elt in $maChaine
+do	valPuissance=$(echo "$elt" | cut -d":" -f2)
+	tmp=$((tmp * (valPuissance + 1)))
+done
+echo "$tmp"
 }
