@@ -7,6 +7,11 @@
 tab[0]="0"
 tab[1]="1"
 tab[2]="2 1"
+array[0]="1"
+
+initiateVal(){
+for ((i=1; i < 1000000; i=i+1)); do array[$i]="1"; done
+}
 
 rempli_tab(){
 chaine=$1
@@ -15,6 +20,7 @@ reste=$1
 for elt in $chaine
 do	reste=$(echo ${reste#$elt})
 	[ -z "${tab[elt]}" ] && tab[$elt]="$elt $reste"
+	[ $elt -lt 1000000 ] && array[$elt]="0"
 done
 }
 
@@ -36,6 +42,7 @@ while [ $stop -ne 1 ]
 do	[ $genTerme -eq 1 ] && stop=$((1))
 	if [ $((genTerme % 2)) -eq 0 ]
 	then	genTerme=$((genTerme/2))
+			[ $genTerme -lt 1000000 ] && array[$genTerme]="0"
 			if [ ! -z "${tab[genTerme]}" ] 
 			then	res="$res ${tab[genTerme]}"
 					stop=$((1))
@@ -43,6 +50,7 @@ do	[ $genTerme -eq 1 ] && stop=$((1))
 					nbrNewElt=$((nbrNewElt+1))
 			fi
 	else genTerme=$((3*genTerme+1))
+			[ $genTerme -lt 1000000 ] && array[$genTerme]="0"
 			if [ ! -z "${tab[genTerme]}" ] 
 			then	res="$res ${tab[genTerme]}"
 					stop=$((1))
@@ -55,17 +63,20 @@ tab[$origin]="$res"
 [ $nbrNewElt -gt 1 ] && rempli_tab "$res"
 }
 
-n=$((3))
+n=$((999999))
 max_length=$((2))
 maxElt=$((2))
-while [ $n -lt 1000000 ]
-do	if [ -z "${tab[n]}" ]
-	then 	collatz_suite "$n"
-			tmp=$(length_sequence "${tab[n]}")
-			[ $tmp -gt $max_length ] && max_length=$tmp; maxElt=$n
+initiateVal
+while [ $n -gt 3 ]
+do	if [ ${array[n]}  -eq 1 ]
+	then 	if [ -z "${tab[n]}" ]
+			then	collatz_suite "$n"
+					tmp=$(length_sequence "${tab[n]}")
+					[ $tmp -gt $max_length ] && max_length=$tmp; maxElt=$n
+			fi
 	fi
 	[ $((n % 50)) -eq 0 ] && echo "calcul de $n en cours; actuellement la plus longue suite calculée est $maxElt et mesure $max_length"
-	n=$((n+1))
+	n=$((n-1))
 done
 	
 
