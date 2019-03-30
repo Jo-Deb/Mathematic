@@ -3,11 +3,17 @@
 #de la fonction rempli_tab() sans avoir à parcourir la suite dans sa totalité
 #Mettre la longueur de la suite dans case. Bien faire attention que lors de la
 #concaténation de suite on garde bien l'ordre inverse
+# Tableau tab: la liste des numéros pour lesquels on souhaite savoir si ils ont 
+# 				ou non la grande suite.
+# Tableau array: la liste des éléments pour lesquels il ne faut pas calculer la 
+#				 longueur de la suite, si la valeur de array est à 0
+
 
 tab[0]="0"
 tab[1]="1"
-tab[2]="2 1"
+tab[2]="2"
 array[0]="1"
+positionTab[0]=0
 
 initiateVal(){
 for ((i=1; i < 1000000; i=i+1)); do array[$i]="1"; done
@@ -36,44 +42,31 @@ genTerme=$1
 stop=$((0))
 nbrNewElt=$((1))
 #On s'arrete quand la genTerm vaut 1
-[ $genTerme -eq 1 ] && return 0
+[ $genTerme -eq 1 ] && stop=$((1))
 #genTerme ne vaut pas un, on itère donc pour calculer toute la suite
 while [ $stop -ne 1 ]
 do	[ $genTerme -eq 1 ] && stop=$((1))
-	if [ $((genTerme % 2)) -eq 0 ]
-	then	genTerme=$((genTerme/2))
-			[ $genTerme -lt 1000000 ] && array[$genTerme]="0"
-			if [ ! -z "${tab[genTerme]}" ] 
-			then	res="$res ${tab[genTerme]}"
-					stop=$((1))
-			else 	res="$res $genTerme"
-					nbrNewElt=$((nbrNewElt+1))
-			fi
-	else genTerme=$((3*genTerme+1))
-			[ $genTerme -lt 1000000 ] && array[$genTerme]="0"
-			if [ ! -z "${tab[genTerme]}" ] 
-			then	res="$res ${tab[genTerme]}"
-					stop=$((1))
-			else 	res="$res $genTerme"
-					nbrNewElt=$((nbrNewElt+1))
-			fi
-	fi					
+	[ $((genTerme % 2)) -eq 0 ] && genTerme=$((genTerme/2)) || genTerme=$((3*genTerme+1))
+	[ $genTerme -lt 1000000 -a $genTerme -lt $origin ] && array[$genTerme]=0
+	nbrNewElt=$((nbrNewElt+1))
+	if [ ! -z "${tab[$genTerme]}" ] #On vérifie si un terme a déjà été calculé pour cette suite
+	then nbrNewElt=$((nbrNewElt + ${tab[$genTerme]})) 
+		 stop=$((1))
+	else [ -z "${positionTab[$genTerme]}" ] && positionTab[$genTerme]=$((nbrNewElt))
+	     [ ${positionTab[$genTerme]} -gt $nbrNewElt ] && stop=$((1)) || positionTab[$genTerme]=$((nbrNewElt))
+	fi
 done
-tab[$origin]="$res"
-[ $nbrNewElt -gt 1 ] && rempli_tab "$res"
+echo "$nbrNewElt"
 }
 
 n=$((999999))
 max_length=$((2))
 maxElt=$((2))
 initiateVal
-while [ $n -gt 3 ]
+while [ $n -gt 13 ]
 do	if [ ${array[n]}  -eq 1 ]
-	then 	if [ -z "${tab[n]}" ]
-			then	collatz_suite "$n"
-					tmp=$(length_sequence "${tab[n]}")
-					[ $tmp -gt $max_length ] && max_length=$tmp; maxElt=$n
-			fi
+	then tmp=$(collatz_suite "$n")
+		 [ $tmp -gt $max_length ] && max_length=$tmp &&  maxElt=$n
 	fi
 	[ $((n % 50)) -eq 0 ] && echo "calcul de $n en cours; actuellement la plus longue suite calculée est $maxElt et mesure $max_length"
 	n=$((n-1))
