@@ -50,26 +50,26 @@ do	[ $genTerme -eq 1 ] && stop=$((1))
 	[ $genTerme -lt 1000000 -a $genTerme -lt $origin ] && array[$genTerme]=0
 	nbrNewElt=$((nbrNewElt+1))
 	if [ ! -z "${tab[$genTerme]}" ] #On vérifie si un terme a déjà été calculé pour cette suite
-	then nbrNewElt=$((nbrNewElt + ${tab[$genTerme]})) 
-		 stop=$((1))
+	then [ ${tab[genTerme]} -ne -1 ] && nbrNewElt=$((nbrNewElt + ${tab[$genTerme]})) && stop=$((1))
 	else [ -z "${positionTab[$genTerme]}" ] && positionTab[$genTerme]=$((nbrNewElt))
-	     [ ${positionTab[$genTerme]} -gt $nbrNewElt ] && stop=$((1)) || positionTab[$genTerme]=$((nbrNewElt))
+	     [ ${positionTab[$genTerme]} -gt $nbrNewElt ] && stop=$((1)) && nbrNewElt=$((-1)) || positionTab[$genTerme]=$((nbrNewElt))
 	fi
 done
 echo "$nbrNewElt"
 }
 
-n=$((999999))
+n=$((3))
 max_length=$((2))
 maxElt=$((2))
 initiateVal
-while [ $n -gt 13 ]
+while [ $n -lt 1000000 ]
 do	if [ ${array[n]}  -eq 1 ]
 	then tmp=$(collatz_suite "$n")
+		  tab[$n]=$((tmp))		
 		 [ $tmp -gt $max_length ] && max_length=$tmp &&  maxElt=$n
 	fi
-	[ $((n % 50)) -eq 0 ] && echo "calcul de $n en cours; actuellement la plus longue suite calculée est $maxElt et mesure $max_length"
-	n=$((n-1))
+	[ $((n % 10000)) -eq 0 ] && echo "calcul de $n en cours; actuellement la plus longue suite calculée est $maxElt et mesure $max_length"
+	n=$((n+1))
 done
 	
 
