@@ -10,11 +10,26 @@ struct node {
 	struct node *droit;
 };
 
-node* createNode (short value, node* genet, node* b, node* d){
+struct node* createNode (short value, struct node* genit, struct node* b, struct node* d){
 	//Allocation mémoire pour le nouveau noeud
 	struct node* noeud = (struct node*)malloc(sizeof(struct node));
 	noeud->value = 1;
-	noeud->genetrice = genet;
+	noeud->genitrice = genit;
 	noeud->bas = b;
 	noeud->droit = d;
+	return(noeud);
+}
+
+int constructionArbre(){
+	
+
+}
+
+int main(){
+	struct node* noeud = createNode(1, NULL, NULL, NULL);
+	printf("Voici la structure du noeud créé\n");
+	printf("valeur du noeud: %10d\n", noeud->value);
+	printf("adresse du noeud géniteur: %p\n", noeud->genitrice);
+	printf("adresse du fils bas: %p\n", noeud->bas);
+	printf("adresse du fils droit: %p\n", noeud->droit);
 }
