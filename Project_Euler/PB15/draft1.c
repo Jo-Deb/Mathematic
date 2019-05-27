@@ -33,7 +33,8 @@ void createTable(int tab[][COLONNE]){
 }
 
 void chemin(char* str, int tab[][COLONNE], short int line , short int col, int* compteur){
-	char val[4]; /*espace pour caster la valeur entière avec sprintf*/
+	char val[5]; /*espace pour caster la valeur entière avec sprintf*/
+	printf("tab[%d][%d]=%3d\n", line, col, tab[line][col]);
 	sprintf(val, "%d", tab[line][col]);
 	str = strcat(str, val); /*on concatene val avec str afin de construire tout le chemin*/
 	
