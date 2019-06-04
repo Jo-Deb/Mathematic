@@ -32,30 +32,57 @@ void createTable(int tab[][COLONNE]){
 	}
 }
 
-void chemin(char* str, int tab[][COLONNE], short int line , short int col, int* compteur){
-	char val[5]; /*espace pour caster la valeur entière avec sprintf*/
-	printf("tab[%d][%d]=%3d\n", line, col, tab[line][col]);
-	sprintf(val, "%d", tab[line][col]);
-	str = strcat(str, val); /*on concatene val avec str afin de construire tout le chemin*/
+
+void affiche(int tab[][COLONNE]){
+	printf("\n le tableau avec ses valeurs\n");
+	for (int i=0; i<20; i++){ 
+		for (int j=0; j<20; j++){printf("%3d ", tab[i][j]);}
+		printf("\n");
+	}
+}
+
+
+void chemin(/*char* str,*/ int tab[][COLONNE], short int line , short int col, int* compteur){
+	//char val[5]; /*espace pour caster la valeur entière avec sprintf*/
+	//sprintf(val, "%d-", tab[line][col]);
+	//str = strcat(str, val); /*on concatene val avec str afin de construire tout le chemin*/
 	
 	if (tab[line][col] == 400) { 
 		(*compteur)++; 
-		printf("chemin %d: %s\n", *compteur, str); 
+//		printf("compteur vaut %d,  line=%d, col=%d \n", *compteur, line, col); 
 		return;
 	}
+if (line <= 20 && col <= 20) {
+		if ((tab[line][col] % 20) == 0){return chemin(/*str,*/ tab, line+1, col, compteur);}
+		if (tab[line][col] >= 380){return chemin(/*str,*/ tab, line, col+1, compteur);}
+		if (col < 19) {chemin(/*str,*/ tab, line, col+1, compteur);}
+		if (line < 19) {chemin(/*str,*/ tab, line+1, col, compteur);}
+	}
+}
 
-	if ((tab[line][col] % 20) == 0){return chemin(str, &tab[COLONNE], line+1, col, compteur);}
-	if (tab[line][col] >= 380){return chemin(str, &tab[COLONNE], line, col+1, compteur);}
-	chemin(str, &tab[COLONNE], line, col+1, compteur);
-	chemin(str, &tab[COLONNE], line+1, col, compteur);
+void triangleDePascal(){
+	unsigned long long int tab[41][41];
+	//Remplissement du tableau
+	for (int i=0; i<=40; i++){
+		for (int j=0; j<=40; j++){
+			if (j == 0 || j==i){tab[i][j] = 1;}
+			if (j > i){tab[i][j] = 0;}
+			if(j > 0 && i > 0 && j < i){tab[i][j] = tab[i-1][j-1] + tab[i-1][j];}
+			if(j<=i) printf("%llu ", tab[i][j]);
+		}
+		printf("\n");
+	}
+	printf("\n\n le résultat recherché est le suivant: %llu\n\n", tab[40][20]);
 }
 
 int main(){
 	int tab[LIGNE][COLONNE];
-	char* str = (char*) malloc(400*sizeof(char));
+	//char* str = (char*) malloc(260*sizeof(char));
 	int* compteur = (int*) malloc(sizeof(int));
-	createTable(tab);
-	chemin(str, &tab[COLONNE], 0, 0, compteur);
+	triangleDePascal();
+//	createTable(tab);
+//	chemin(/*str,*/ tab, 0, 0, compteur);
+//	printf("le nombre de chemin est de %d", *compteur);
 //	printf("sizeof(char) = %lu\n", sizeof(char));
  //  printf("sizeof(short) = %lu\n", sizeof(short));
  //  printf("sizeof(int) = %lu\n", sizeof(int));
