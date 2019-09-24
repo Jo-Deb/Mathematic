@@ -31,3 +31,28 @@ int EstPresent( liste * l, int elt ){
 	if( parcours->value == elt ) { return 0; }
 	return 1;
 }
+
+int detectionDeCycle(liste * l, int elt){
+	int i = 0; int compte = 0; liste * tmp = l;
+	while(tmp != NULL){
+		if(tmp->value == elt) {i++;}
+		if(i > 1){ return compte;}
+		if(i == 1) { compte++;}
+		tmp = tmp->l;
+	}
+	return 0;
+}
+
+void afficheCycle(liste * l, int elt, int taille){
+	int i = 0; liste * tmp = l;
+	while(tmp != NULL){
+		if(tmp->value == elt){
+			for(i=0; i < taille; i++){
+				printf("%d", tmp->value);
+				tmp = tmp->l;
+			}
+			return void;
+		}
+		tmp = tmp->l;
+	}
+}
