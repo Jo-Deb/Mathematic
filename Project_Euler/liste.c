@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "liste.h"
 
 liste * createList( int elt){
@@ -47,12 +48,31 @@ void afficheCycle(liste * l, int elt, int taille){
 	int i = 0; liste * tmp = l;
 	while(tmp != NULL){
 		if(tmp->value == elt){
-			for(i=0; i < taille; i++){
+			for(i=0; i < taille - 1; i++){
 				printf("%d", tmp->value);
 				tmp = tmp->l;
 			}
-			return void;
+			return;
 		}
 		tmp = tmp->l;
 	}
+}
+
+void afficheListe(liste * l){
+	liste * tmp = l;
+	while (tmp != NULL){
+		printf("%d", tmp->value);
+		tmp = tmp->l;
+	}
+}
+
+liste * ajoutEnQueue(liste * l, int elt){
+	if(l == NULL){ return createList(elt);}
+
+	liste * tmp = l; 
+	liste * eltFinal = createList(elt);
+
+	while(tmp->l != NULL){ tmp = tmp->l;}
+	tmp->l = eltFinal;
+	return l;
 }

@@ -4,7 +4,7 @@
 
 typedef struct list{
 	int value;
-	list * l;
+	struct list * l;
 } liste;
 
 extern liste * createList(int elt);
@@ -18,3 +18,7 @@ extern int EstPresent(liste * l, int elt);
 extern int detectionDeCycle(liste * l, int elt);
 
 extern void afficheCycle(liste * l, int elt, int taille);
+
+extern void afficheListe(liste * l);
+
+liste * ajoutEnQueue(liste * l, int elt);
