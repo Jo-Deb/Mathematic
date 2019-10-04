@@ -20,6 +20,7 @@ int main(){
 			if( b < 0){ abs_b = b*-1; neg_b = b;}
 			else{ abs_b = b; neg_b = -1 * b;}
 			for(a=-999; a<1000; a+=2){
+				printf("a = %d b=%d ", a, b);
 				for(n=0; n<abs_b; n++){
 					tmp = n*n + n*a + b;
 					if(isPrime(n*n + n*a + b) == 0){break;}
