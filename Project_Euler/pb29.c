@@ -33,7 +33,7 @@ int epuration(int r, int pr){
 /*r: racine, pr: comme puissance racine*/
 	int limit = 10, wrk[r][limit], tmp, cmpt = 0;
 /* remplissage du tableau */
-	printf("debut de remplissage du tableau \n");
+
 	for(int i = 0; i < pr; i++){
 		tmp = 1;
 		for(int j=0; j < i+1; j++){tmp *= r;}
@@ -42,16 +42,17 @@ int epuration(int r, int pr){
 		printf("\n");
 	}
 /* Suppression des nombres apparaissant plusieurs fois */
+	printf("=================================================\n");
 	for(int i = 0; i < pr; i++){
 		for(int j = 1; j < limit; j++){
-			for(int k = i+1; k < r; k++){
+			for(int k = i+1; k < pr; k++){
 				for(int l = 1; l < limit; l++){ if(wrk[i][j] == wrk[k][l]){ wrk[k][l] = 0; } }
 			}
 			printf("%2d ", wrk[i][j]);
 		}
 		printf("\n");
 	}
-	for(int j = 1; j < limit; j++){ if(wrk[r-1][j] != 0){ cmpt++;} }
+	for(int j = 1; j < limit; j++){ if(wrk[pr-1][j] != 0){ cmpt++;} }
 	return cmpt;
 }
 
@@ -70,7 +71,7 @@ int main(){
 				printf("%d = %d^%d et le nombre de valeurs ajoutées est %d : ", a, tmp, power, cpt);
 				for(int c = limite+1; c <= b; c++){ printf("%d^%d ", tmp, power*c);}
 				printf("===============================================================================================\n");*/
-				printf("%d = %d^%d et le nombre de valeurs ajoutées est %d : \n", a, tmp, power, ajout);
+				printf("%d = %d^%d et le nombre de valeurs ajoutées est %d\n", a, tmp, power, ajout);
 				compteur += ajout;
 			}
 		}

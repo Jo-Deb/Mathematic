@@ -36,9 +36,9 @@ int EstPresent( liste * l, int elt ){
 int detectionDeCycle(liste * l, int elt){
 	int i = 0; int compte = 0; liste * tmp = l;
 	while(tmp != NULL){
-		if(tmp->value == elt) {i++;}
+		if(tmp->value == elt) {++i;}
 		if(i > 1){ return compte;}
-		if(i == 1) { compte++;}
+		if(i == 1) { ++compte;}
 		tmp = tmp->l;
 	}
 	return 0;
@@ -48,8 +48,8 @@ void afficheCycle(liste * l, int elt, int taille){
 	int i = 0; liste * tmp = l;
 	while(tmp != NULL){
 		if(tmp->value == elt){
-			for(i=0; i < taille - 1; i++){
-				printf("%d", tmp->value);
+			for(i=0; i <= taille; i++){
+				printf("%d-", tmp->value);
 				tmp = tmp->l;
 			}
 			return;

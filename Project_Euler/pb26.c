@@ -6,28 +6,26 @@ int division(int num, int den){
 	liste * l = NULL; int taille;
 	if(num < den) {num = 10 * num; printf("0,"); decimal = 1;}
 
-	while( reste != 0 ){
+	while(reste != 0){
 		if(num < den ){ 
 			if(decimal == 0) {printf(","); decimal = 1; num = num * 10;}
 			else{ 
 				printf("0"); 
 				num *= 10; 
-				l = ajoutEnQueue(l, 0);
+			//	l = ajoutEnQueue(l, 0);
 			}
 		}
 		else{
 			reste = num % den; quotien = num / den;
 			printf("%d", quotien);
 			if(reste != 0 && decimal == 1){ 
-				printf("dans la boucle de contrôle de liste\n");
+				l = ajoutEnQueue(l, reste);
 				num = reste * 10;
-				l = ajoutEnQueue(l, quotien);
-				afficheListe(l);
-				taille = detectionDeCycle(l, quotien);
-				if( taille > 1) { 
+				taille = detectionDeCycle(l, reste);
+				if( taille > 0) { 
 					printf(" cycle = "); 
-					afficheCycle(l, quotien, taille);
-					printf(" taille = %d\n", taille-1);
+					afficheCycle(l, reste, taille);
+					printf(" taille = %d", taille);
 					printf("\n"); return taille;
 				}
 			}
@@ -43,12 +41,11 @@ int division(int num, int den){
 
 int main(int argc, char * argv[]){
 	int num, den; int limit = 1000;
-	int tab[1000]; int max = 0; int oldVal = 0; int newVal = 0; int tmp = 0;
+	int max = 0; int maxVal = 0; int newVal = 0; int tmp = 0;
 	//Boucle de calcul
 	for(int i = 0; i < 1000; i++){
 		newVal = division(1, i+1);
-		if(newVal > oldVal){ max = i + 1; }
-		oldVal = newVal;
+		if(newVal > maxVal){ max = i + 1; maxVal=newVal;}
 	}
 	printf("__________________________________________________\n");
 	printf("the max value is %d because 1/%d is : \n", max, max);
