@@ -16,7 +16,7 @@ liste * ajoutEnTete(liste * l, int elt){
 
 liste * supprElt(liste * l, int elt){
 	liste * prec; liste * suiv; liste * parcours = l;
-	if(l->value == elt){ return l->l;}
+	if(l->value == elt){ parcours = l->l; free(l); return parcours;}
 	else {
 		while(parcours->value != elt){ prec = parcours; parcours = parcours->l; }
 		prec->l = parcours->l;
@@ -61,7 +61,7 @@ void afficheCycle(liste * l, int elt, int taille){
 void afficheListe(liste * l){
 	liste * tmp = l;
 	while (tmp != NULL){
-		printf("%d", tmp->value);
+		printf("%d ", tmp->value);
 		tmp = tmp->l;
 	}
 }
@@ -75,4 +75,20 @@ liste * ajoutEnQueue(liste * l, int elt){
 	while(tmp->l != NULL){ tmp = tmp->l;}
 	tmp->l = eltFinal;
 	return l;
+}
+
+int supprimeListe(liste * l){
+	//printf("dans la fonction de suppression de la liste\n");
+	if(l->l == NULL){ free(l); return 0;}
+	liste * tmp = l;
+	liste * tmp2;
+	while(tmp != NULL){
+		tmp2 = tmp->l;
+		free(tmp);
+		tmp = tmp2;
+		//printf("libération du pointeur %p\n", tmp2);
+	}
+	//while(tmp != NULL){ tmp = supprElt(tmp, tmp->value);}
+	//printf("la fonction de suppression est fini\n");
+	return 0;
 }

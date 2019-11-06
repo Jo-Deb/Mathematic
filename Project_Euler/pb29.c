@@ -31,7 +31,7 @@ int crible (int elt, int * power){
 
 int epuration(int r, int pr){
 /*r: racine, pr: comme puissance racine*/
-	int limit = 11, tmp, cmpt = 0;
+	int limit = 100, tmp, cmpt = 0;
 	int wrk[pr][limit];
 /* remplissage du tableau */
 
@@ -53,7 +53,7 @@ int epuration(int r, int pr){
 		}
 	}
 	for(int i = 0; i < pr; i++){
-		for(int j = 1; j < limit; j++) {printf("%2d ", wrk[i][j]);}
+		for(int j = 1; j < limit; j++) {printf("%1d ", wrk[i][j]);}
 		printf("\n");
 	}
 	for(int j = 1; j < limit; j++){ if(wrk[pr-1][j] != 0){ cmpt++;} }
@@ -62,7 +62,7 @@ int epuration(int r, int pr){
 
 int main(){
 	int compteur = 0; int power = 0;
-	int ajout, cpt = 0, b = 11, limite, tmp, calPower;
+	int ajout, cpt = 0, b = 100, limite, tmp, calPower;
 
 	for(int a = 2; a <= b; a++){
 		if( estPremier(a) == 1) {cpt = b-1; compteur += cpt; printf("pour %d, %d valeurs ajoutées\n", a, cpt);}
