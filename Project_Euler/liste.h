@@ -21,6 +21,10 @@ extern void afficheCycle(liste * l, int elt, int taille);
 
 extern void afficheListe(liste * l);
 
-liste * ajoutEnQueue(liste * l, int elt);
+extern liste * ajoutEnQueue(liste * l, int elt);
 
 extern int supprimeListe(liste * l);
+
+extern liste * supprimeFin(liste * l, int elt);
+
+extern int taille(liste * l);

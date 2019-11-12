@@ -26,6 +26,12 @@ liste * supprElt(liste * l, int elt){
 	return l;
 }
 
+int taille(liste * l){
+	int cpt = 0; liste * tmp = l;
+	while(tmp != NULL){++cpt; tmp = tmp->l;}
+	return cpt;
+}
+
 int EstPresent( liste * l, int elt ){
 	liste * parcours;
 	while( parcours->value != elt ){parcours = parcours->l;}
@@ -91,4 +97,19 @@ int supprimeListe(liste * l){
 	//while(tmp != NULL){ tmp = supprElt(tmp, tmp->value);}
 	//printf("la fonction de suppression est fini\n");
 	return 0;
+}
+
+liste * supprimeFin(liste * l, int elt){
+	liste * tmp = l; liste * prec; liste * tmp2;
+	while(tmp->value != elt){ prec = tmp; tmp = tmp->l;}
+	if(tmp->value == elt){
+		prec->l = NULL;
+		while(tmp != NULL){
+			tmp2 = tmp->l;
+			free(tmp);
+			tmp = tmp2;
+		}
+		return l;
+	}
+	return l;
 }
