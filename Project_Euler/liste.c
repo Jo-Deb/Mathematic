@@ -85,6 +85,7 @@ liste * ajoutEnQueue(liste * l, int elt){
 
 int supprimeListe(liste * l){
 	//printf("dans la fonction de suppression de la liste\n");
+	if(l == NULL){return 0;}
 	if(l->l == NULL){ free(l); return 0;}
 	liste * tmp = l;
 	liste * tmp2;
@@ -101,6 +102,7 @@ int supprimeListe(liste * l){
 
 liste * supprimeFin(liste * l, int elt){
 	liste * tmp = l; liste * prec; liste * tmp2;
+	if(l->value == elt) {supprimeListe(l); return NULL;}
 	while(tmp->value != elt){ prec = tmp; tmp = tmp->l;}
 	if(tmp->value == elt){
 		prec->l = NULL;
