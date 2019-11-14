@@ -20,27 +20,26 @@ void generefin(liste * l, int ind, int combi){
 			afficheListe(l);
 			l = supprElt(l, tab[k]);
 		}
+		l=supprimeFin(l, tab[i]);
+		printf("\n=====================Génération suivante==============================\n");
 	}
 }
 
 int generationCombi(int longueur) {
 	int tab[7] = {1, 2, 5, 10, 20, 50, 100}, tmp;
-	//Première boucle pour faire avancer dans les combinaisons
 	for (int i = 0; i < 7-longueur; i++){
 		liste * l =  NULL;
 		//Construction complète de la première combinaison
-		for(int k = i; k <= i+longueur-1; k++){ l = ajoutEnQueue(l, tab[k]);}
+		//for(int k = i; k <= i+longueur-1; k++){ l = ajoutEnQueue(l, tab[k]);}
 		//Curseur indiquant la valeur "pivot"
 		for( int j = i+longueur-1; j >= 0; j--){
 			tmp = i;
-			while(tab[j] >= tab[tmp] && tmp <= 6){++tmp;}
-			printf("\n");
-			afficheListe(l);
-			l = supprimeFin(l, tab[j]);
-			printf("\nDebut de generefin\n");
-			printf("tmp vaut %d et longueur vaut %d\n", tmp, longueur);
+			//while(tab[j] >= tab[tmp] && tmp <= 6){++tmp;}
+			//printf("\n");
+			//afficheListe(l);
+			//l = supprimeFin(l, tab[j]);
+			printf("\ntmp vaut %d et longueur vaut %d\n", tmp, longueur);
 			generefin(l, tmp, longueur);
-			printf("\nFin de generefin\n");
 		}
 		supprimeListe(l);
 	}
