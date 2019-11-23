@@ -102,7 +102,7 @@ int supprimeListe(liste * l){
 
 liste * supprimeFin(liste * l, int elt){
 	liste * tmp = l; liste * prec; liste * tmp2;
-	if(l->value == elt) {supprimeListe(l); return NULL;}
+	if(l != NULL && l->value == elt) {supprimeListe(l); return NULL;}
 	while(tmp != NULL && tmp->value != elt){ prec = tmp; tmp = tmp->l;}
 	//si tmp est null alors elt n'est pas dans la liste et on renvoie l
 	if(tmp == NULL){return l;}
