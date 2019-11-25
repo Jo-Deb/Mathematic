@@ -138,3 +138,13 @@ liste * copie(liste * li, int elt){
 	}
 	return l;
 }
+
+liste * inverse(liste *l){
+	liste * tmp, * res = NULL; 
+	tmp = l;
+	while(tmp != NULL){
+		res = ajoutEnTete(res, tmp->value);
+		tmp = tmp->l;
+	}
+	return res;
+}

@@ -32,3 +32,5 @@ extern int taille(liste * l);
 extern int maxListe(liste * l);
 
 extern liste * copie(liste * l, int elt);
+
+extern liste * inverse(liste * l);
