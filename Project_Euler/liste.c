@@ -117,3 +117,24 @@ liste * supprimeFin(liste * l, int elt){
 	}
 	return l;
 }
+
+int maxListe(liste * l){
+	if(l == NULL){ return 0;}
+	int max = l->value;
+	liste * tmp = l;
+	while(tmp != NULL){
+		if (max < tmp->value) {max = tmp->value;}
+		tmp = tmp->l;
+	}
+	return max;
+}
+
+liste * copie(liste * li, int elt){
+	liste * l = NULL; liste * tmp = li;
+	if(li == NULL){return li;}
+	while(tmp != NULL && tmp->value <= elt){
+		l = ajoutEnQueue(l, tmp->value);
+		tmp = tmp->l;
+	}
+	return l;
+}

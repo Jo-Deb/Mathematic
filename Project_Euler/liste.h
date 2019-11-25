@@ -28,3 +28,7 @@ extern int supprimeListe(liste * l);
 extern liste * supprimeFin(liste * l, int elt);
 
 extern int taille(liste * l);
+
+extern int maxListe(liste * l);
+
+extern liste * copie(liste * l, int elt);
