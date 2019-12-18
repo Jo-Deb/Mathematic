@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int nextVal(int val){
 	char buf[8]; int tmp, taille, res;
@@ -11,10 +12,7 @@ int nextVal(int val){
 		if (buf[tmp - 1] < 57 - (taille - tmp)){
 			buf[tmp - 1] = buf[tmp - 1] + 1;
 			if(tmp < taille){
-				while( tmp < taille ){
-					buf[tmp] = buf[tmp - 1] + 1;
-					tmp++;
-				}
+				while( tmp < taille ){ buf[tmp] = buf[tmp - 1] + 1; tmp++; }
 				if( sscanf(buf, "%d", &res) > 0){ return res; }
 				else { printf("échec de la fonction nextval pour %d\n", val );
 					return -1;
@@ -29,46 +27,85 @@ int nextVal(int val){
 
 int * arrangement(int val){
 	int * res = malloc(20 * sizeof(int));
-	int ind=0, tmp, limit;
-	for(int i = 0; i < 120; i++){ res[i] = 0; }
+	int ind=0, tmp, limit, i, j, id;
+	for(i = 0; i < 24; i++){ res[i] = 0; }
 	char buf[8];
 	*res = val;
 
-	for(int i = 3; i <= 0; i++){
+	for(i = 2; i >= 0; i--){
 		limit = ind;
-		for(int id = 0; id <= limit; id++){
+		for(id = 0; id <= limit; id++){
 			sprintf(buf, "%d", *(res + id));
-			for(int j = i; j < 4; j++){
-				tmp = buf[j];
-				buf[j] = buf[j+1];
-				buf[j+1] = tmp;
-				sscanf(buf, "%d", &tmp);
-				res[++ind] = tmp;
+			for(j = i; j < 3; j++){
+				tmp = buf[j]; buf[j] = buf[j+1]; buf[j+1] = tmp;
+				sscanf(buf, "%d", &tmp); res[++ind] = tmp;
 			}
 		}
 	}
 	return res;
 }
 
-int main(){
-	int tabCombi[126], taille, index = 0; int * result;
-	tabCombi[0]= 12345;
-	int tmp = tabCombi[0];
-	char buf[6];
-	printf("Ci-dessous l'ensemble des combinaisons ________________________: \n");
-	
-	while(tabCombi[index] < 56789){
-		taille = sprintf(buf, "%d", tabCombi[index]);
-		if (taille == 5 && buf[4] < 57){ tabCombi[index+1] = tabCombi[index] + 1; ++index;}	
-		else { tabCombi[index+1] = nextVal(tabCombi[index]); ++index;}
-		printf("%4d: %d\n", index, tabCombi[index]);
-	}
-	printf("_______________________________________________________________: \n");
+/*Renvoie un tableau contenant la moitié des diviseurs de val*/
+int * mesDiviseurs(int val){
+	int limit = 0, i, ind = 0, taille;
+	while (limit * limit < val){ ++limit; }
+	int * res = malloc((limit)*sizeof(int));
+	for(i=0; i < limit; i++){ res[i] = 0; }
 
-	printf("\n_______________120 arrangement de 12345________________________\n");
-	result = arrangement(12345);
-	for( int i = 0; i < 200; i++){
+	for(i=2; i < limit; i++){ if( val % i == 0){ res[ind] = val/i; ++ind;} }
+	return res;
+}
+
+/*Tester si l'argument est un produit pandigital*/
+int panTest(int val, int * tabDiv){
+	int i=0, j=0, k=0, m1, m2, present = 1;
+	char buffer[10], tmp1[5], tmp2[5];
+
+	while(tabDiv[i] > 0){
+		m1 = tabDiv[i]; m2 = val / m1;
+		sprintf(buffer, "%d", val); sprintf(tmp1, "%d", m1); sprintf(tmp2, "%d", m2);
+		strcat(buffer, tmp1); strcat(buffer, tmp2); 
+		j = 57; //représentation ascii de 9 et 0 = 48
+		while(j > 48 && present == 1){
+			present = 0;
+			while( buffer[k] != '\0'){ if(j == buffer[k]){present = 1;} k++;}
+			k = 0; j--;
+		}
+		if(j==48){ printf("%d = %d * %d", val, m1, m2); return 0;}
+		i++;
+	}
+	return 1;
+}
+
+int main(){
+	int tabCombi[126], taille, index = 0; int * result, i, j, cpt = 0;
+	tabCombi[0]= 1234;
+	int tmp = tabCombi[0];
+	char buf[5];
+//	printf("Ci-dessous l'ensemble des combinaisons ________________________: \n");
+	
+	while(tabCombi[index] < 6789){
+		taille = sprintf(buf, "%d", tabCombi[index]);
+		if (taille == 4 && buf[3] < 57){ tabCombi[index+1] = tabCombi[index] + 1; ++index;}	
+		else { tabCombi[index+1] = nextVal(tabCombi[index]); ++index;}
+		//printf("%4d: %d\n", index, tabCombi[index]);
+	}
+	//printf("_______________________________________________________________: \n");
+
+	//printf("\n_______________24 arrangements de 1234________________________\n");
+	
+	for(i=0; i < 126; i++){
+		result = arrangement(tabCombi[i]);
+		for(j=0; j < 24; j++){
+		if( panTest(result[i], mesDiviseurs(result[i])) == 0){ cpt += result[i];}
+		}
+		printf("Opération effectuée pour %d\n", tabCombi[i]);
+	}
+	printf("la somme totale donne : %d\n", cpt);
+
+	/*result = arrangement(1234);
+	for(i = 0; i < 24; i++){
 		printf("%5d : %d\n", i, result[i]);
-	}	
+	}*/	
 	return 0;
 }
