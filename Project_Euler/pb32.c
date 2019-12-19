@@ -26,7 +26,7 @@ int nextVal(int val){
 }
 
 int * arrangement(int val){
-	int * res = malloc(20 * sizeof(int));
+	int * res = malloc(24 * sizeof(int));
 	int ind=0, tmp, limit, i, j, id;
 	for(i = 0; i < 24; i++){ res[i] = 0; }
 	char buf[8];
@@ -35,7 +35,7 @@ int * arrangement(int val){
 	for(i = 2; i >= 0; i--){
 		limit = ind;
 		for(id = 0; id <= limit; id++){
-			sprintf(buf, "%d", *(res + id));
+			sprintf(buf, "%d", res[id]);
 			for(j = i; j < 3; j++){
 				tmp = buf[j]; buf[j] = buf[j+1]; buf[j+1] = tmp;
 				sscanf(buf, "%d", &tmp); res[++ind] = tmp;
@@ -60,6 +60,9 @@ int * mesDiviseurs(int val){
 int panTest(int val, int * tabDiv){
 	int i=0, j=0, k=0, m1, m2, present = 1;
 	char buffer[10], tmp1[5], tmp2[5];
+	//printf("ensemble des diviseurs pour %d :", val);
+	//while(tabDiv[i] > 0){ printf("%d ", tabDiv[i]); i++;}
+	//printf("\n"); i = 0;
 
 	while(tabDiv[i] > 0){
 		m1 = tabDiv[i]; m2 = val / m1;
@@ -71,8 +74,12 @@ int panTest(int val, int * tabDiv){
 			while( buffer[k] != '\0'){ if(j == buffer[k]){present = 1;} k++;}
 			k = 0; j--;
 		}
-		if(j==48){ printf("%d = %d * %d", val, m1, m2); return 0;}
+		if(j==48){ printf("%d = %d * %d\n", val, m1, m2); return 0;}
 		i++;
+		printf("valeur du buffer pour %d : %s\n", val, buffer);
+		while(k < 10){ buffer[k] = '\0'; k++;}
+		printf("%s", buffer);
+		k=0;
 	}
 	return 1;
 }
@@ -97,15 +104,12 @@ int main(){
 	for(i=0; i < 126; i++){
 		result = arrangement(tabCombi[i]);
 		for(j=0; j < 24; j++){
-		if( panTest(result[i], mesDiviseurs(result[i])) == 0){ cpt += result[i];}
+		//printf("Opération en cours pour %d\n", result[j]);
+		if( panTest(result[j], mesDiviseurs(result[j])) == 0){ cpt += result[j];}
 		}
-		printf("Opération effectuée pour %d\n", tabCombi[i]);
+		//printf("Opération effectuée pour %d\n", tabCombi[i]);
 	}
 	printf("la somme totale donne : %d\n", cpt);
 
-	/*result = arrangement(1234);
-	for(i = 0; i < 24; i++){
-		printf("%5d : %d\n", i, result[i]);
-	}*/	
 	return 0;
 }
