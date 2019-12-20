@@ -58,27 +58,24 @@ int * mesDiviseurs(int val){
 
 /*Tester si l'argument est un produit pandigital*/
 int panTest(int val, int * tabDiv){
-	int i=0, j=0, k=0, m1, m2, present = 1;
+	int i=0, k=0, m1, m2, present = 0, incomplet = 0;
+	char j = 0;
 	char buffer[10], tmp1[5], tmp2[5];
-	//printf("ensemble des diviseurs pour %d :", val);
-	//while(tabDiv[i] > 0){ printf("%d ", tabDiv[i]); i++;}
-	//printf("\n"); i = 0;
 
 	while(tabDiv[i] > 0){
 		m1 = tabDiv[i]; m2 = val / m1;
 		sprintf(buffer, "%d", val); sprintf(tmp1, "%d", m1); sprintf(tmp2, "%d", m2);
 		strcat(buffer, tmp1); strcat(buffer, tmp2); 
-		j = 57; //représentation ascii de 9 et 0 = 48
-		while(j > 48 && present == 1){
+		//représentation ascii de 9 = 57 et 0 = 48
+		for(j = 57; j >= 49; j--){
+			for(k=0; k < 9; k++){ if (buffer[k] == j) {present = 1;}}
+			if(present == 0) { incomplet = 1;}
 			present = 0;
-			while( buffer[k] != '\0'){ if(j == buffer[k]){present = 1;} k++;}
-			k = 0; j--;
 		}
-		if(j==48){ printf("%d = %d * %d\n", val, m1, m2); return 0;}
-		i++;
-		printf("valeur du buffer pour %d : %s\n", val, buffer);
+		if(incomplet == 0){ printf("%d = %d * %d\n", val, m1, m2); return 0;}
+		i++; incomplet = 0;
+		//printf("valeur du buffer pour %d : %s\n", val, buffer);
 		while(k < 10){ buffer[k] = '\0'; k++;}
-		printf("%s", buffer);
 		k=0;
 	}
 	return 1;
