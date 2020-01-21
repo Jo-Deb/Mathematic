@@ -81,7 +81,7 @@ int taille(genList * l){
 genList * enleveDoublon(genList * l, int (*func_tri)(void *, void *)){
 	genList * tmp = l; genList * tp;
 	
-	while(tmp->suiv != NULL){
+	while(tmp!=NULL && tmp->suiv != NULL){
 		tp = tmp->suiv;
 		while(tp != NULL){
 			if((*func_tri)(tp->ptr, tmp->ptr) == 0){ l = supprElt(l, tmp->ptr);}

@@ -63,10 +63,11 @@ genList * genFraction(int num, int deno, int gen){
 }
 
 genList * testFrac(fraction * init, fraction * gen, genList * l){
-	int t_pgcd = pgcd(gen->den, gen->num);
-	fraction * tmp = createFraction(gen->num / t_pgcd, gen->den / t_pgcd);
-	if((init->num % tmp->num) == 0 && (init->den % tmp->den) == 0){
-		l = ajoutEnTete(l, gen);
+//	int t_pgcd = pgcd(gen->den, gen->num);
+//	fraction * tmp = createFraction(gen->num / t_pgcd, gen->den / t_pgcd);
+	if((init->num * gen->den) == (init->den * gen->num)){
+		//l = ajoutEnTete(l, gen);
+		l = ajoutEnTete(l, init);
 		printf("la fraction %d/%d peut se réduire à %d/%d\n", gen->num, gen->den, init->num, init->den);
 	}
 	return l;
@@ -76,18 +77,49 @@ int main(){
 /*******************TESTS UNITAIRES ******************************************/
 //	fraction * f = createFraction(1, 2);
 //	printf("la fraction définie est la suivante : %d/%d\n", f->num, f->den);
-	genList * l = genFraction(4,8,9);
-	fraction * f;
-	fraction * init = createFraction(4, 8);
-	genList * result = NULL;
-	/*On devrait avoir une liste de 4 fractions 
-	 *12/22, 21/22 + 2 doublons*/
-	while(l != NULL){
-		f = l->ptr;
-		printf("la fraction %d/%d\n", f->num, f->den);
-		result = testFrac(init, f, result);
-		l = l->suiv;
-	}
+//	genList * l = genFraction(4,8,9);
+//	fraction * f;
+//	fraction * init = createFraction(4, 8);
+//	genList * result = NULL;
+//	/*On devrait avoir une liste de 4 fractions 
+//	 *12/22, 21/22 + 2 doublons*/
+//	while(l != NULL){
+//		f = l->ptr;
+//		printf("la fraction %d/%d\n", f->num, f->den);
+//		result = testFrac(init, f, result);
+//		l = l->suiv;
+//	}
 /*****************************************************************************/
+
+/***********************************MAIN PART*********************************/
+	genList * l = NULL; genList * result = NULL; genList * tmp;
+	fraction * f = NULL; fraction * init;
+	int finalDen=1, finalNum=1;
+	for(int i=1; i<=9; i++){
+		for(int j=i+1; j<=9; j++){
+			for(int k=1; k<=9; k++){
+				supprimeListe(l);
+				l = NULL;
+				init = createFraction(i, j);
+				l = genFraction(i, j, k);
+				tmp = l;
+				while(tmp!=NULL){
+					f = tmp->ptr;
+					result = testFrac(init, f, result);
+					tmp = tmp->suiv;
+				}
+			}
+		}
+	}
+	while(result!=NULL){
+		f=result->ptr; 
+		finalDen = finalDen * f->den; finalNum = finalNum * f->num; 
+		result = result->suiv; 
+	}
+	fraction * res = createFraction(finalNum, finalDen);
+	int f_pgcd = pgcd(res->den, res->num);
+	printf("le produit des 4 fractions est %d/%d\n", res->num, res->den);
+	printf("après simplification on obtient %d/%d\n", res->num/f_pgcd, res->den/f_pgcd);
+	//printf("le dénominateur après produit des 4 fractions résultantes: %d\n", res->den/f_pgcd);
 	return 0;
 }
