@@ -34,3 +34,7 @@ extern int maxListe(liste * l);
 extern liste * copie(liste * l, int elt);
 
 extern liste * inverse(liste * l);
+
+extern liste * recopie(liste * l);
+
+extern liste * remplace(liste *l, int t, int r);

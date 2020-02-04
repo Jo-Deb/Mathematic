@@ -148,3 +148,22 @@ liste * inverse(liste *l){
 	}
 	return res;
 }
+
+liste * recopie(liste * l){
+	if(l==NULL){return NULL;}
+	liste * res = NULL; liste * ex = l;
+	while(ex != NULL){
+		res = ajoutEnQueue(res, ex->value);
+		ex = ex->l;
+	}	
+	return res;
+}
+
+liste * remplace(liste * l, int t, int r){
+	liste * pcr = l;
+	while(pcr != NULL){
+		if(pcr->value == t){ pcr->value = r; return l;}
+		pcr = pcr->l;
+	}
+	return l;	
+}

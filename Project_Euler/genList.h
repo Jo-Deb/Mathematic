@@ -7,18 +7,18 @@ typedef struct genListe{
 	struct genListe * suiv;
 } genList;
 
-extern genList * createList(void * elt);
+extern genList * g_createList(void * elt);
 
-extern genList * ajoutEnTete(genList * l, void * elt);
+extern genList * g_ajoutEnTete(genList * l, void * elt);
 
-extern genList * ajoutEnQueue(genList * l, void * elt);
+extern genList * g_ajoutEnQueue(genList * l, void * elt);
 
-extern genList * supprElt(genList * l, void * elt);
+extern genList * g_supprElt(genList * l, void * elt);
 
-extern void supprimeListe (genList * l);
+extern void g_supprimeListe (genList * l);
 
-extern genList * supprimeFin(genList * l, void * elt);
+extern genList * g_supprimeFin(genList * l, void * elt);
 
-extern int taille(genList * l);
+extern int g_taille(genList * l);
 
-extern genList * enleveDoublon(genList * l, int (* func_tri)(void *, void *));
+extern genList * g_enleveDoublon(genList * l, int (* func_tri)(void *, void *));
