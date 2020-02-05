@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "liste.h"
-#include "genList.c"
+#include "genList.h"
 
 int TAB[9]={1, 2, 3, 4, 5, 6, 7, 8, 9};
 
@@ -35,7 +35,10 @@ int calCombinatoireRepetition(int taille, int nbrElt){
 	return res;
 }
 
-/*Il s'agit de faire des combinaisons avec répétition*/
+/*Il s'agit de faire des combinaisons avec répétition
+ *Je comprends que le 2ème argument int nbr se sert
+ *absolument à rien
+*/
 genList * combi2(int limit, int nbr){
 	if(limit == nbr){
 		liste * res = NULL;
@@ -65,10 +68,41 @@ void afficheList(genList * l){
 		while(lt != NULL){
 			if(lt->l != NULL){printf("%d, ", lt->value);}
 			else{ printf("%d\n", lt->value);}
+			lt = lt->l;
 		}
 		tmp = tmp->suiv;
 	}
 	printf("\n");
+}
+
+/*On commence avec des listes de taille 2
+ *et on augmente au fur et à mesure*/
+genList * augmente(genList * l, int limit){
+	genList * res = NULL; genList * p = l; liste * pcr = NULL;
+	
+	while(p != NULL){
+		pcr = p->ptr;
+		int i = maxListe(pcr);
+		for(int j = i; j<=limit; j++){
+			liste * tmp = recopie(pcr);
+			tmp = ajoutEnQueue(tmp, j);
+			res = g_ajoutEnQueue(res, tmp);
+		}
+		supprimeListe(pcr);
+		p = p->l;
+	}
+	g_supprimeListe(l);
+	return res;
+}
+
+/*On commence avec des listes de taille 2
+ *et on augmente au fur et à mesure*/
+genList * combinaison(int limit, int taille){
+	genList * res = NULL;
+	res = combi2(limit, taille);
+
+	for(int i = 3; i<=taille; i++){res = augmente(res, limit);}
+	return res;
 }
 
 /*Fonction récursive pour la génération des combinaisons
@@ -77,7 +111,6 @@ genList * combinaison(genList * l, int taille){
 	if (taille == 2){l = combi2();}	
 }
 */
-
 int main(int argc, char ** argv){
 	if(argc != 3 ){printf("le nombre de paramètres est incorrect, assurez-vous de passer deux entiers non signés en paramètres.\nArrêt du programme.\n"); return EXIT_FAILURE;}
 	int taille = 0, nbr = 0;
@@ -86,5 +119,6 @@ int main(int argc, char ** argv){
 	printf("voici les valeurs des paramètres : taille = %d et nbr = %d\n", taille, nbr);
 	int ret = calCombinatoireRepetition(taille, nbr);
 	printf("le nombre de combinaison avec répétition de %d pris dans 9 est : %d\n",nbr, ret);
+	afficheList(combi2(taille, nbr));
 	return EXIT_SUCCESS;
 }
