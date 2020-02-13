@@ -89,7 +89,7 @@ genList * augmente(genList * l, int limit){
 			res = g_ajoutEnQueue(res, tmp);
 		}
 		supprimeListe(pcr);
-		p = p->l;
+		p = p->suiv;
 	}
 	g_supprimeListe(l);
 	return res;
@@ -105,6 +105,43 @@ genList * combinaison(int limit, int taille){
 	return res;
 }
 
+
+int factorielle(int n){ 
+	if (n == 1) {return 1; } else {return n * factorielle(n-1);}
+}
+
+
+int tailleEntier (int elt){
+	int compteur = 0; int tmp = elt;
+	while((tmp = elt / 10) > 0){++compteur;}
+	return ++compteur; 	
+}
+
+
+int compare(liste * lst, int elt){
+	liste * tmp = lst; int val = elt;
+	if(taille(lst) == tailleEntier(elt)){
+		while(val > 0){
+			if(EstPresent(lst, val%10) == 1){return 1;}
+			val = val / 10;
+		}
+		return 0;	
+	}
+	return 1;
+}
+
+genList * test (genList * lst){
+	genList * res = NULL; genList * pcr = lst; liste * lt = NULL;
+	int somme;
+	while( pcr != NULL){
+		lt = pcr->ptr; somme = 0;
+		while(lt!=NULL){somme += factorielle(lt->value); lt = lt->l;}
+		if (compare(lt, somme) == 0){res = g_ajoutEnQueue(res, pcr->ptr);}
+		pcr = pcr->suiv;
+	}
+	g_supprimeListe(lst);
+	return res;
+}
 /*Fonction récursive pour la génération des combinaisons
  *avec répétitions 
 genList * combinaison(genList * l, int taille){
@@ -116,9 +153,18 @@ int main(int argc, char ** argv){
 	int taille = 0, nbr = 0;
 	sscanf(argv[1], "%d", &taille);
 	sscanf(argv[2], "%d", &nbr);
-	printf("voici les valeurs des paramètres : taille = %d et nbr = %d\n", taille, nbr);
-	int ret = calCombinatoireRepetition(taille, nbr);
-	printf("le nombre de combinaison avec répétition de %d pris dans 9 est : %d\n",nbr, ret);
-	afficheList(combi2(taille, nbr));
+	genList * res = NULL;
+	/*
+		printf("voici les valeurs des paramètres : taille = %d et nbr = %d\n", taille, nbr);
+		int ret = calCombinatoireRepetition(taille, nbr);
+		printf("le nombre de combinaison avec répétition de %d pris dans 9 est : %d\n",nbr, ret);
+		afficheList(combi2(taille, nbr));
+		return EXIT_SUCCESS;
+	*/
+	res = test(combinaison(6,3));
+	afficheList(res);
+	res = test(combinaison(6,4));
+	afficheList(res);
 	return EXIT_SUCCESS;
+	
 }
