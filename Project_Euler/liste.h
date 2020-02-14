@@ -38,3 +38,5 @@ extern liste * inverse(liste * l);
 extern liste * recopie(liste * l);
 
 extern liste * remplace(liste *l, int t, int r);
+
+extern liste * supprimeDoublon(liste *l);

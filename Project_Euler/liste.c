@@ -33,9 +33,9 @@ int taille(liste * l){
 }
 
 int EstPresent( liste * l, int elt ){
-	liste * parcours;
-	while( parcours->value != elt ){parcours = parcours->l;}
-	if( parcours->value == elt ) { return 0; }
+	liste * parcours = l;
+	while( parcours != NULL && parcours->value != elt ){parcours = parcours->l;}
+	if( parcours != NULL && parcours->value == elt ) { return 0; }
 	return 1;
 }
 
@@ -166,4 +166,15 @@ liste * remplace(liste * l, int t, int r){
 		pcr = pcr->l;
 	}
 	return l;	
+}
+
+liste * supprimeDoublon(liste * l){
+	liste * pcr1 = l; liste * pcr2;
+	while(pcr1 != NULL){
+		if(EstPresent(pcr1->l, pcr1->value) == 0){
+			l = supprElt(l, pcr1->value);
+			pcr1 = l;
+		} else { pcr1 = pcr1->l;}
+	}
+	return l;
 }
