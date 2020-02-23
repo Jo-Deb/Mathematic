@@ -107,7 +107,11 @@ genList * combinaison(int limit, int taille){
 
 
 int factorielle(int n){ 
-	if (n == 1) {return 1; } else {return n * factorielle(n-1);}
+	if (n == 1 || n == 0) {return 1; } 
+	else {
+		if(n < 0 ){return 0;}  
+		else {return n * factorielle(n-1);}
+	}
 }
 
 
@@ -118,17 +122,14 @@ int tailleEntier (int elt){
 }
 
 
-int compare(liste * lst, int elt){
-	liste * tmp = lst; int val = elt;
-	if(taille(lst) == tailleEntier(elt)){
-		while(val > 0){
-			if(EstPresent(lst, val%10) == 1){return 1;}
-			val = val / 10;
-		}
-		return 0;	
-	}
-	return 1;
+int sommeFactorielle(liste * l){
+	liste * tmp = l; int somme = 0;
+	while(tmp!=NULL){ somme += factorielle(tmp->value); tmp = tmp->l; }
+	return somme;
 }
+
+int compare(liste * lst, int elt){return compareList(lst, split(elt));}
+
 
 genList * test (genList * lst){
 	genList * res = NULL; genList * pcr = lst; liste * lt = NULL;
@@ -165,38 +166,18 @@ liste *  print(genList * res, liste * collection){
 }
 
 int main(int argc, char ** argv){
-	if(argc != 3 ){printf("le nombre de paramètres est incorrect, assurez-vous de passer deux entiers non signés en paramètres.\nArrêt du programme.\n"); return EXIT_FAILURE;}
 	int taille = 0, nbr = 0, j, i, somme = 0;
-	sscanf(argv[1], "%d", &taille);
-	sscanf(argv[2], "%d", &nbr);
-	genList * res = NULL; liste * collection = NULL;
-	/*
-		printf("voici les valeurs des paramètres : taille = %d et nbr = %d\n", taille, nbr);
-		int ret = calCombinatoireRepetition(taille, nbr);
-		printf("le nombre de combinaison avec répétition de %d pris dans 9 est : %d\n",nbr, ret);
-		afficheList(combi2(taille, nbr));
-		return EXIT_SUCCESS;
-	*/
+//	sscanf(argv[1], "%d", &taille);
+//	sscanf(argv[2], "%d", &nbr);
+	genList * res = NULL; liste * collection = NULL; liste * tmp = NULL;
 
-	res = test(combinaison(6,3));
-	collection = print(res, collection);
-	res = test(combinaison(6,4));
-	collection = print(res, collection);
-	res = test(combinaison(7,4));
-	collection = print(res, collection);
-	res = test(combinaison(7,5));
-	collection = print(res, collection);
-	res = test(combinaison(8,5));
-	collection = print(res, collection);
-	res = test(combinaison(8,6));
-	collection = print(res, collection);
-	res = test(combinaison(9,6));
-	collection = print(res, collection);
-	collection = supprimeDoublon(collection);
-	while(collection != NULL){
-		if(collection->l == NULL) {printf("%d = %d\n", collection->value, somme);}
-		else {printf("%d + ", collection->value); somme += collection->value;}
-		collection=collection->l;
+	for(int i = 3; i < 3000000; i++){
+		tmp = split(i);
+		j = sommeFactorielle(tmp);
+		if(j == i){afficheListe(tmp); printf(" = %d\n", j);}
+		//if(compare(tmp, j) == 0){afficheListe(tmp); printf(" = %d\n", j);}
+		supprimeListe(tmp);
+		tmp = NULL;
 	}
 	return EXIT_SUCCESS;
 	

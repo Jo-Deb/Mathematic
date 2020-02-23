@@ -178,3 +178,46 @@ liste * supprimeDoublon(liste * l){
 	}
 	return l;
 }
+
+liste * split(int elt){
+	int tmp = elt; liste * sortie=NULL;
+	while(tmp > 0){sortie = ajoutEnTete(sortie, tmp%10); tmp = tmp / 10;}
+	return sortie;
+}
+
+int compareList(liste * l1, liste * l2){
+	
+	liste * cp=recopie(l1); liste * cp1 = recopie(l2);
+	liste * tmp = cp; liste * tmp1 = cp1;
+	while(tmp!=NULL){
+		if(EstPresent(tmp1, tmp->value) == 0){
+			cp1=remplace(cp1, tmp->value, 0);
+			tmp->value=0; tmp = tmp->l;
+		}else{tmp=tmp->l;}
+	}
+	int somme = 0; int somme1 = 0;
+	tmp = cp;
+	while(tmp1!=NULL){somme1 += tmp1->value; tmp1 = tmp1->l;}
+	while(tmp!=NULL){somme += tmp->value; tmp = tmp->l;}
+	if(somme1 > 0 || somme > 0){return 1;}else{return 0;}
+}
+
+
+liste * listTrie(liste * l){
+	/*On va au plus simple et on commence par un tri à bulle*/
+	liste * l1 = l; liste * l2 = NULL;
+	int tmp;
+	while(l1 != NULL && l1->l != NULL){
+		l2 = l1->l;
+		while(l2!=NULL){
+			if(l2->value < l1->value){
+				tmp = l2->value; 
+				l2->value = l1->value;
+				l1->value = tmp;
+			}
+			l2 = l2->l;
+		}
+		l1 = l1->l;
+	}
+	return l;
+}

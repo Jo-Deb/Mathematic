@@ -40,3 +40,9 @@ extern liste * recopie(liste * l);
 extern liste * remplace(liste *l, int t, int r);
 
 extern liste * supprimeDoublon(liste *l);
+
+extern liste * split(int elt);
+
+extern int compareList(liste * l1, liste * l2);
+
+extern liste * listTrie(liste * l);
