@@ -46,3 +46,13 @@ extern liste * split(int elt);
 extern int compareList(liste * l1, liste * l2);
 
 extern liste * listTrie(liste * l);
+
+extern liste * sousListe(liste * l, int start, int end);
+
+extern int getPosition(liste *l, int elt);
+
+extern int getValue(liste * l, int pos);
+
+extern liste * setPosition(liste * l, int pos, int elt);
+
+extern liste * inversePosition(liste * l, int pos1, int pos2);

@@ -202,7 +202,6 @@ int compareList(liste * l1, liste * l2){
 	if(somme1 > 0 || somme > 0){return 1;}else{return 0;}
 }
 
-
 liste * listTrie(liste * l){
 	/*On va au plus simple et on commence par un tri à bulle*/
 	liste * l1 = l; liste * l2 = NULL;
@@ -219,5 +218,54 @@ liste * listTrie(liste * l){
 		}
 		l1 = l1->l;
 	}
+	return l;
+}
+
+liste * sousListe(liste * l, int start, int end){
+	liste * pcr = l; liste * res = NULL;
+	if(start + end > taille(l)) {
+		printf("l'intervalle demandé n'existe pas \n");
+		return NULL;
+	}
+	int position = 0;
+	while(position < start){++position; pcr = pcr->l;}
+	if(start == end){ return ajoutEnTete(res, pcr->value); }
+	while(position < end){
+		res = ajoutEnTete(res, pcr->value);
+		if(pcr->l != NULL){pcr = pcr->l;}
+	}
+	return res;
+}
+
+int getPosition(liste * l, int elt){
+	liste * pcr = l; int position = 1;
+	while(l!=NULL){
+		if(l->value == elt){ return position;}
+		if(l->l != NULL){ l = l->l; ++position;}
+	}
+	printf("la valeur %d n'a pas été retrouvé dans la liste :", elt);
+	afficheListe(l);
+	printf("\n La valeur -1 sera retournée\n");
+	return -1;
+}
+
+liste * setPosition(liste *l, int pos, int elt){
+	liste * pcr = l; int position = 1;
+	while(position < pos){ pcr = pcr->l; ++position;}
+	pcr->value = elt;
+	return l;
+}
+
+int getValue(liste * l, int pos){
+	liste * pcr = l; int position = 1;
+	while(position < pos){pcr = pcr->l; ++position;}
+	return pcr->value;
+}
+
+liste * inversePosition(liste * l, int pos1, int pos2){
+	int pos1Value = getValue(l, pos1);
+	int pos2Value = getValue(l, pos2);
+	l = setPosition(l, pos2, pos1Value);
+	l = setPosition(l, pos1, pos2Value);
 	return l;
 }
