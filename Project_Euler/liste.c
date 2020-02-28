@@ -269,3 +269,63 @@ liste * inversePosition(liste * l, int pos1, int pos2){
 	l = setPosition(l, pos1, pos2Value);
 	return l;
 }
+
+liste * triInverse(liste * l){
+	/*On va au plus simple et on commence par un tri à bulle*/
+	liste * l1 = l; liste * l2 = NULL;
+	int tmp;
+	while(l1 != NULL && l1->l != NULL){
+		l2 = l1->l;
+		while(l2!=NULL){
+			if(l2->value > l1->value){
+				tmp = l2->value; 
+				l2->value = l1->value;
+				l1->value = tmp;
+			}
+			l2 = l2->l;
+		}
+		l1 = l1->l;
+	}
+	return l;
+}
+
+liste * listeToInt(liste * l){
+	int res = 0;
+	liste * pcr = l;
+	while(pcr != NULL){ res = res * 10 + pcr->value; pcr = pcr->l;}
+	return res;
+}
+
+int precedent(liste * l, int elt){
+	liste * prec = NULL; liste * pcr = l;
+	while(pcr!=NULL && pcr->value != elt){ prec = pcr; pcr = pcr->l;}
+	if(pcr->value == elt) {return prec->value;}
+	else{ printf("la valeur %d n'est pas présente dans la liste, échec\n", elt); return -1;}
+}
+
+int suivant(liste * l, int elt){
+	liste * pcr = l;
+	while(pcr!=NULL && pcr->value!=elt){ pcr = pcr->l;}
+	if(pcr->value == elt){ return pcr->l->value;}
+	else{printf("la valeur %d n'est pas présente dans la liste, échec\n", elt); return -1;}
+}
+
+liste * trieSousListe(liste * l, int start){
+	liste * pcr = l; liste * taf = NULL;
+	int posi = 1; int tmp;
+	/*Permet de se positionner*/
+	while(posi < start){ pcr = pcr->l; ++posi;}
+	while(pcr!=NULL){
+		taf = pcr->l;
+		while(taf != NULL){
+			if(taf->value < pcr->value){ 
+				tmp = pcr->value; 
+				pcr->value = taf->value; 
+				taf->value = tmp;
+			}
+			taf = taf->l;
+		}
+		pcr = pcr->l;
+	}
+	return l;
+}

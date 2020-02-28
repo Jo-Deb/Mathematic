@@ -56,3 +56,13 @@ extern int getValue(liste * l, int pos);
 extern liste * setPosition(liste * l, int pos, int elt);
 
 extern liste * inversePosition(liste * l, int pos1, int pos2);
+
+extern liste * triInverse(liste * l);
+
+extern liste * listeToInt(liste * l);
+
+extern int precedent(liste * l, int elt);
+
+extern int suivant(liste * l, int elt);
+
+extern liste * trieSousListe(liste * l, int start);
