@@ -289,7 +289,7 @@ liste * triInverse(liste * l){
 	return l;
 }
 
-liste * listeToInt(liste * l){
+int listeToInt(liste * l){
 	int res = 0;
 	liste * pcr = l;
 	while(pcr != NULL){ res = res * 10 + pcr->value; pcr = pcr->l;}

@@ -59,7 +59,7 @@ extern liste * inversePosition(liste * l, int pos1, int pos2);
 
 extern liste * triInverse(liste * l);
 
-extern liste * listeToInt(liste * l);
+extern int listeToInt(liste * l);
 
 extern int precedent(liste * l, int elt);
 
