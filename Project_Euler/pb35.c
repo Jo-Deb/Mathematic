@@ -3,6 +3,13 @@
 #include "liste.h"
 #include "genList.h"
 
+int isPrime(int val){
+	int limite = 0, i;
+	while((limite * limite) < val){++limite;}
+	for(i = 2; i <= limite; i++){if( (val%i) == 0) {return 0;} }
+	return 1;
+}
+
 void triTab(int tab[], int start, int taille){
 	int i, j, tmp;
 	for(i=start; i<taille; i++){
@@ -12,11 +19,20 @@ void triTab(int tab[], int start, int taille){
 	}
 }
 
+void inverseTriTab(int tab[], int start, int taille){
+	int i, j, tmp;
+	for(i = start; i<taille; i++){
+		for(j=i+1; j<taille && i<taille; j++){
+			if(tab[j] > tab[i]){ tmp = tab[j]; tab[j] = tab[i]; tab[i] = tmp;}
+		}
+	}
+}
+
 /*Chercher le pivot le plus éloigné*/
 int pivot(int tab[], int taille, int start){
 	int pos = 0, pivot = 0, find = 0, i, lim = taille - 1;
 	for(i=start; i<lim; i++){
-		if(tab[i] > tab[i+1]){pos = i; find=1;}	
+		if(tab[i] < tab[i+1]){pos = i+1; find=1;}	
 	}
 	if(find == 1){return pos;}
 	else{printf("Aucun pivot trouvé, la liste est entièrement triée\n"); return taille-1;}
@@ -81,24 +97,32 @@ int sup(int tab[], int taille){
 	return tabToInt(tab, taille); 
 }
 
-void testPermutation(int val, liste * res, int * decompte, int start){
-	liste * l = split(val); liste * pcr = l; int pos = 1;
-	/*Positionnement*/
-	while(pos < start){ pcr = pcr->l; ++pos;}
-	l = trieSousListe(l, start);
-	res = ajoutEnTete(res, listeToInt(l));
-	
+int isPrimeCircular(int val, int * decompte){
+	if(isPrime(val) == 1){
+		int taille = calculTailleEntier(val);
+		int * tmp = intToTab(val);
+		inverseTriTab(tmp, 0, taille);
+		int limite = tabToInt(tmp, taille);
+		tmp = intToTab(val);
+		triTab(tmp, 0, taille);
+		int depart = tabToInt(tmp, taille);
+		while(depart < limite){
+			if(isPrime(depart) == 0){return 0;}
+			else{depart = sup(intToTab(depart), taille);}
+		}
+	}
+	else { return 0; }
+	++(*decompte); return 1;
 }
 
-
 int main(int argc, char ** argv){
-	int in1, in2;
+	int in1, in2, i, cptLine = 0, decompte=0;
 	if(argc != 2){ 
 		printf("Vous devez donner deux valeurs entières; le programme va s'arrêter en échec\n"); 
 		exit(EXIT_FAILURE);
 	}
 	sscanf(argv[1], "%d", &in1);
-	
+/*	
 	liste * l1 = split(in1);
 	l1 = listTrie(l1);
 	l1 = triInverse(l1);
@@ -107,10 +131,22 @@ int main(int argc, char ** argv){
 	int taille = calculTailleEntier(in1);
 	printf("taille = %d\n", taille);
 	printf("____________________début des permutations : \n");
+	printf("%d\n", in1); int decompte = 1;
 	while(in1 < limite){
 		in1 = sup(intToTab(in1), taille);
-		printf("%d\n", in1);
+		printf("%d\n", in1); ++decompte;
 	}
 	printf("____________________Fin des permutations\n");
+	printf("au total %d permutations\n", decompte);
+*/
+	printf("vérification : decompte = %d\n", decompte);
+	printf("ci-contre est le déroulement de la liste : ");
+	for(int i = 100; i < 1000000; i++){
+		if(isPrimeCircular(i, &decompte) == 1){
+			if( (cptLine%10) == 0 ){printf("\n %d ", i); ++cptLine;}
+			else{printf(" %d", i); ++cptLine;}
+		}
+	}
+	printf("\nIl y a %d nombres premiers circulaires\n", decompte);
 	return EXIT_SUCCESS;
 }
