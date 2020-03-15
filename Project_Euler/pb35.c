@@ -1,12 +1,17 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<math.h>
 #include "liste.h"
 #include "genList.h"
 
 int isPrime(int val){
-	int limite = 0, i;
-	while((limite * limite) < val){++limite;}
-	for(i = 2; i <= limite; i++){if( (val%i) == 0) {return 0;} }
+	int limite = 2, i;
+/*	for(i=0; primeTab[i]<=lim; i++){ if((val % primeTab[i]) == 0) {return 0;} }*/
+	while((limite * limite) < val){
+		if((val % limite) == 0){return 0;}
+		else {++limite;}
+	}
+	
 	return 1;
 }
 
@@ -35,7 +40,7 @@ int pivot(int tab[], int taille, int start){
 		if(tab[i] < tab[i+1]){pos = i+1; find=1;}	
 	}
 	if(find == 1){return pos;}
-	else{printf("Aucun pivot trouvé, la liste est entièrement triée\n"); return taille-1;}
+	else{/*printf("Aucun pivot trouvé, la liste est entièrement triée\n");*/ return taille-1;}
 }
 
 /*Dans la sous-liste je cherche le plus petit entier supérieur tab[j_pos]*/
@@ -97,56 +102,82 @@ int sup(int tab[], int taille){
 	return tabToInt(tab, taille); 
 }
 
-int isPrimeCircular(int val, int * decompte){
-	if(isPrime(val) == 1){
-		int taille = calculTailleEntier(val);
-		int * tmp = intToTab(val);
-		inverseTriTab(tmp, 0, taille);
-		int limite = tabToInt(tmp, taille);
-		tmp = intToTab(val);
-		triTab(tmp, 0, taille);
-		int depart = tabToInt(tmp, taille);
-		while(depart < limite){
-			if(isPrime(depart) == 0){return 0;}
-			else{depart = sup(intToTab(depart), taille);}
-		}
+/*Il faut écrire une fonction qui génère la liste générique des permutations pour les nombres de :
+ *3 chiffres (999), 4 chiffres (9 999), 5 chiffres (99 999) et 6 chiffres (999 999)*/
+void **  generePermutations(){
+	int i, * tmp = NULL, j, foo, depart, limite;
+	void ** res = malloc(4*sizeof(void));
+	for(i = 3; i<=6; i++){
+		foo = 0;
+		for(j=1; j<=i; j++){ foo = foo * 10 + j;}
+		tmp = intToTab(foo); triTab(tmp, 0, i); depart = tabToInt(tmp, i);
+		tmp = intToTab(foo); inverseTriTab(tmp, 0, i); limite = tabToInt(tmp, i);
+		liste * l = NULL; l = ajoutEnQueue(l, depart); 
+		while(depart < limite){depart = sup(intToTab(depart), i); l = ajoutEnQueue(l, depart);}
+		res[i - 3] = (void*)l;
 	}
-	else { return 0; }
-	++(*decompte); return 1;
+	return res;
+}
+
+int valPermute(int depart, int ordre, int taille){
+	int * tab_dep = intToTab(depart), tmp = ordre, index = taille-1;
+	int * tab_permut = malloc(taille * sizeof(int));
+	while(tmp > 0){
+		tab_permut[index] = tab_dep[(tmp % 10) - 1];
+		tmp = tmp / 10;
+		--index;
+	}
+	free(tab_dep); // La fonction intToTab effectue une allocation mémoire.
+	return tabToInt(tab_permut, taille); //La fonction tabToInt effectue un free
+	//Il ne faut donc pas effectuer un free sur le pointeur tab_permut
+}
+
+int isPrimeCircular(int val, int * decompte, liste * ordre, int taille){
+	liste * tmp  = ordre;
+	if(isPrime(val) == 1){
+		while(tmp != NULL){
+			if(isPrime(valPermute(val, tmp->value, taille)) == 0 ){ return 0;}
+			tmp = tmp->l;
+		}
+		++(*decompte);
+		return 1;
+	}
+	return 0;
 }
 
 int main(int argc, char ** argv){
-	int in1, in2, i, cptLine = 0, decompte=0;
-	if(argc != 2){ 
-		printf("Vous devez donner deux valeurs entières; le programme va s'arrêter en échec\n"); 
-		exit(EXIT_FAILURE);
+	int in1, in2, i=0, cptLine = 0, decompte=0, buff, lim;
+	int * tmp, taille, depart;
+	void ** tab = generePermutations();
+/*
+//TEST DE GENERATION DES PERMUTATIONS OK
+	for(i=0; i<4; i++){
+		afficheListe(tab[i]); printf("\n");
 	}
-	sscanf(argv[1], "%d", &in1);
-/*	
-	liste * l1 = split(in1);
-	l1 = listTrie(l1);
-	l1 = triInverse(l1);
-	int limite = listeToInt(l1);
-	printf("limite = %d\n", limite);
-	int taille = calculTailleEntier(in1);
-	printf("taille = %d\n", taille);
-	printf("____________________début des permutations : \n");
-	printf("%d\n", in1); int decompte = 1;
-	while(in1 < limite){
-		in1 = sup(intToTab(in1), taille);
-		printf("%d\n", in1); ++decompte;
-	}
-	printf("____________________Fin des permutations\n");
-	printf("au total %d permutations\n", decompte);
 */
-	printf("vérification : decompte = %d\n", decompte);
-	printf("ci-contre est le déroulement de la liste : ");
-	for(int i = 100; i < 1000000; i++){
-		if(isPrimeCircular(i, &decompte) == 1){
-			if( (cptLine%10) == 0 ){printf("\n %d ", i); ++cptLine;}
-			else{printf(" %d", i); ++cptLine;}
+/*
+	//TEST DE L'APPLICATION DES PERMUTATIONS OK
+	liste * tmp = tab[1];
+	while(tmp != NULL){
+		i = 1024; printf("i = 1024");
+		i = valPermute(i, tmp->value, 4);
+		printf(" et après permutation on a i = %d\n", i);
+		tmp = tmp->l;
+	}
+*/	
+	printf("\n");
+	for(i = 100; i < 1000000; i++){
+		switch (calculTailleEntier(i)){
+			case 3: if(isPrimeCircular(i, &decompte, tab[0], 3) == 1){printf("%d ", i);}
+						break;
+			case 4: if(isPrimeCircular(i, &decompte, tab[1], 4) == 1){printf("%d ", i);}
+						break;
+			case 5: if(isPrimeCircular(i, &decompte, tab[2], 5) == 1){printf("%d ", i);}
+						break;
+			case 6: if(isPrimeCircular(i, &decompte, tab[3], 6) == 1){printf("%d ", i);}
+						break;
 		}
 	}
-	printf("\nIl y a %d nombres premiers circulaires\n", decompte);
+	printf("\n\nLe nombre total de nombre premier circulaire est : %d\n", decompte);
 	return EXIT_SUCCESS;
 }
