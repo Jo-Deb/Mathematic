@@ -79,7 +79,7 @@ int * intToTab(int val){
 int tabToInt(int tab[], int taille){
 	int i, res = 0;
 	for(i=0; i<taille; i++){res = res * 10 + tab[i];}
-	free(tab);
+//	free(tab);
 	return res;
 }
 
@@ -133,10 +133,17 @@ int valPermute(int depart, int ordre, int taille){
 }
 
 int isPrimeCircular(int val, int * decompte, liste * ordre, int taille){
-	liste * tmp  = ordre;
-	if(isPrime(val) == 1){
+	liste * tmp  = ordre; int foo = 0;
+	if(isPrime(val) == 1){	
+//		printf("la taille de l'entier est %d\n", taille);
+		printf("la liste des ordre est : "); afficheListe(tmp);
+		printf("%d en cours et les différentes valeurs d'ordres sont : \n", val);
 		while(tmp != NULL){
-			if(isPrime(valPermute(val, tmp->value, taille)) == 0 ){ return 0;}
+			foo = valPermute(val, tmp->value, taille);
+			printf("ordre %d et on obtient %d pour %d \n", tmp->value, val, foo);
+			if(isPrime(foo) == 0 ){ 
+				return 0;
+			}
 			tmp = tmp->l;
 		}
 		++(*decompte);
@@ -145,36 +152,22 @@ int isPrimeCircular(int val, int * decompte, liste * ordre, int taille){
 	return 0;
 }
 
+
 int main(int argc, char ** argv){
 	int in1, in2, i=0, cptLine = 0, decompte=0, buff, lim;
 	int * tmp, taille, depart;
 	void ** tab = generePermutations();
-/*
-//TEST DE GENERATION DES PERMUTATIONS OK
-	for(i=0; i<4; i++){
-		afficheListe(tab[i]); printf("\n");
-	}
-*/
-/*
-	//TEST DE L'APPLICATION DES PERMUTATIONS OK
-	liste * tmp = tab[1];
-	while(tmp != NULL){
-		i = 1024; printf("i = 1024");
-		i = valPermute(i, tmp->value, 4);
-		printf(" et après permutation on a i = %d\n", i);
-		tmp = tmp->l;
-	}
-*/	
 	printf("\n");
-	for(i = 100; i < 1000000; i++){
+	
+	for(i = 100; i < 200; i++){
 		switch (calculTailleEntier(i)){
-			case 3: if(isPrimeCircular(i, &decompte, tab[0], 3) == 1){printf("%d ", i);}
+			case 3: if(isPrimeCircular(i, &decompte, *tab, 3) == 1){printf("%d ", i);}
 						break;
-			case 4: if(isPrimeCircular(i, &decompte, tab[1], 4) == 1){printf("%d ", i);}
+			case 4: if(isPrimeCircular(i, &decompte, *(tab+1), 4) == 1){printf("%d ", i);}
 						break;
-			case 5: if(isPrimeCircular(i, &decompte, tab[2], 5) == 1){printf("%d ", i);}
+			case 5: if(isPrimeCircular(i, &decompte, *(tab+2), 5) == 1){printf("%d ", i);}
 						break;
-			case 6: if(isPrimeCircular(i, &decompte, tab[3], 6) == 1){printf("%d ", i);}
+			case 6: if(isPrimeCircular(i, &decompte, *(tab+3), 6) == 1){printf("%d ", i);}
 						break;
 		}
 	}
