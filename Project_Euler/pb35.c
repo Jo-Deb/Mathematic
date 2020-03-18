@@ -132,21 +132,22 @@ int valPermute(int depart, int ordre, int taille){
 	//Il ne faut donc pas effectuer un free sur le pointeur tab_permut
 }
 
-int isPrimeCircular(int val, int * decompte, liste * ordre, int taille){
-	liste * tmp  = ordre; int foo = 0;
+int decale35(int * tab, int taille){
+	int tmp = tab[0], i;
+	for(i=0; i<taille-1; i++){ tab[i] = tab[i+1]; }
+	tab[taille-1] = tmp;
+	return tabToInt(tab, taille);
+}
+
+int isPrimeCircular(int val){
 	if(isPrime(val) == 1){	
-//		printf("la taille de l'entier est %d\n", taille);
-		printf("la liste des ordre est : "); afficheListe(tmp);
-		printf("%d en cours et les différentes valeurs d'ordres sont : \n", val);
-		while(tmp != NULL){
-			foo = valPermute(val, tmp->value, taille);
-			printf("ordre %d et on obtient %d pour %d \n", tmp->value, val, foo);
-			if(isPrime(foo) == 0 ){ 
-				return 0;
-			}
-			tmp = tmp->l;
+		int * tmp = intToTab(val);
+		int taille = calculTailleEntier(val);
+		int per = decale35(tmp, taille);
+		while(per != val){
+			if(isPrime(per) == 0){return 0;}
+			per = decale35(tmp, taille);	
 		}
-		++(*decompte);
 		return 1;
 	}
 	return 0;
@@ -154,23 +155,14 @@ int isPrimeCircular(int val, int * decompte, liste * ordre, int taille){
 
 
 int main(int argc, char ** argv){
-	int in1, in2, i=0, cptLine = 0, decompte=0, buff, lim;
-	int * tmp, taille, depart;
-	void ** tab = generePermutations();
-	printf("\n");
-	
-	for(i = 100; i < 200; i++){
-		switch (calculTailleEntier(i)){
-			case 3: if(isPrimeCircular(i, &decompte, *tab, 3) == 1){printf("%d ", i);}
-						break;
-			case 4: if(isPrimeCircular(i, &decompte, *(tab+1), 4) == 1){printf("%d ", i);}
-						break;
-			case 5: if(isPrimeCircular(i, &decompte, *(tab+2), 5) == 1){printf("%d ", i);}
-						break;
-			case 6: if(isPrimeCircular(i, &decompte, *(tab+3), 6) == 1){printf("%d ", i);}
-						break;
+	int i, decompte = 0;
+	for(i=100; i<1000000; i++){
+		if(isPrimeCircular(i) == 1){ 
+			++decompte; 
+			printf("%d ", i);
+			if(decompte % 10 == 0){ printf("\n");}
 		}
-	}
-	printf("\n\nLe nombre total de nombre premier circulaire est : %d\n", decompte);
+	}	
+	printf("\n\nLe nombre total de nombre premier circulaire est decompte + 13 = %d + 13 = %d\n", decompte, decompte+13);
 	return EXIT_SUCCESS;
 }
