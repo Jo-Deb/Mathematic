@@ -12,3 +12,28 @@ extern table * additionLongue(table * elt1, table * elt2);
 extern table * resize(table * to_resize);
 
 extern int * addition_demesurer(int * arg1, int * arg2);
+
+extern int calculTailleEntier(int val);
+
+extern  int * intToTab(int val);
+
+extern int isPrime(int val);
+
+extern int tabToInt(int * tab, int taille);
+
+extern void triTab(int * tab, int taille);
+
+extern void triSousTab(int * tab, int taille,  int start);
+
+extern void inverseTriTab(int * tab, int taille);
+
+extern void inverseTriSousTab(int * tab, int taille,  int start);
+
+extern int getPositionMin(int * tab, int  depart, int taille);
+
+extern void invert(int * tab, int taille1, int taille2);
+
+extern int positionPivot(int * tab, int depart, int taille);
+
+/*chercher le Plus Grand Nombre Inférieur à tab[depart-1]*/
+extern int positionPgnf(int * tab, int depart, int taille);

@@ -8,6 +8,27 @@
 } table;
 */
 
+/*Cette méthode de conversion implémente l'algorithme d'Euclide*/
+
+int calculTailleEntier(int val){
+	int taille = 0, reste = 0, tmp = val;
+	while(tmp > 0){
+		reste = tmp % 10;
+		tmp = tmp/10;
+		++taille;
+	}
+	return taille;
+}
+
+int * intToTab(int val){
+	int taille = calculTailleEntier(val);
+	int * res = malloc(taille * sizeof(int)); 
+	int i, tmp = val;
+	for(i=taille-1; i>=0; i--){ res[i] = tmp % 10; tmp = tmp/10;}
+	return res;
+}
+
+
  table * createStruct(int taille){
  	table * ptr = malloc(sizeof(table));
  	ptr->tab = malloc(sizeof(int)*taille);
@@ -96,4 +117,106 @@ int * addition_demesurer(int * elt1, int * elt2){
 	for (int i = 0; i < taille; i++) { printf("%d", result[i]); }
 	printf("\n");
 	return result;
+}
+
+int isPrime(int val){
+	if(val == 1){return 0;}
+	if(val == 2){return 1;}
+	int limite = 2;
+	while (limite * limite <= val){
+		if(val % limite == 0){ return 0;}
+		++limite;
+	}
+	return 1;
+}
+
+int tabToInt(int * tab, int taille){
+	int res = 0, i;
+	for(i=0; i<taille; i++){ res = res * 10 + tab[i]; }
+	return res;
+}
+
+/*Il s'agit d'un tri croissant */
+void triTab(int * tab, int taille){
+	int i, j, tmp;
+	for(i=0; i<taille-1; i++){
+		for(j=i+1; j<taille; j++){
+			if(tab[i]>tab[j]){ 
+				tmp=tab[i];
+				tab[i]=tab[j];
+				tab[j]=tmp; 
+			}
+		}
+	}
+}
+
+/*Il s'agit d'un tri croissant */
+void triSousTab(int * tab, int taille, int start){
+	int i, tmp, j;
+	for(i=start; i<taille-1; i++){
+		for(j=j+1; j<taille; j++){
+			if(tab[i]>tab[j]){tmp=tab[i]; tab[i]=tab[j]; tab[j]=tmp;}
+		}
+	}
+}
+
+/*Il s'agit d'un tri décroissant */
+void inverseTriTab(int * tab, int taille){
+	int i, j, tmp;
+	for(i=0; i<taille-1; i++){
+		for(j=i+1; j<taille; j++){
+			if(tab[i]<tab[j]){ 
+				tmp=tab[i];
+				tab[i]=tab[j];
+				tab[j]=tmp; 
+			}
+		}
+	}
+}
+
+/*Il s'agit d'un tri décroissant */
+void inverseTriSousTab(int * tab, int taille, int start){
+	int i, tmp, j;
+	for(i=start; i<taille-1; i++){
+		for(j=i+1; j<taille; j++){
+			if(tab[i]<tab[j]){tmp=tab[i]; tab[i]=tab[j]; tab[j]=tmp;}
+		}
+	}
+}
+
+int getMinTab(int * tab, int depart, int taille){
+	int i, pos=depart;
+	for(i=depart; i<taille; i++){
+		if(tab[i]<tab[pos]){ pos = i;}
+	}
+	return pos;
+}
+
+void invert(int * tab, int taille1, int taille2){
+	int tmp;
+	tmp = tab[taille1]; 
+	tab[taille1]=tab[taille2];
+	tab[taille2]=tmp;
+}
+
+int positionPivot(int * tab, int depart, int taille){
+	int i;
+	for(i=depart; i<taille-1; i++){ if(tab[i]<tab[i+1]){return i;} }
+	return taille-1;
+}
+
+int getPositionMin(int * tab, int start, int taille){
+	int i, min=start;
+	for(i=start; i<taille; i++){
+		if(tab[i] < tab[min]){ min = i;}
+	}
+	return min;
+}
+
+/*chercher le Plus Grand Nombre Inférieur à tab[depart-1]*/
+int positionPgnf(int * tab, int depart, int taille){
+	int etalon=depart-1, res=depart, i;
+	for(i=depart; i<taille; i++){ if(tab[i] > tab[res] && tab[i] < tab[etalon]){res=i;} }
+	if(tab[res]>=tab[etalon]){ return -1; }
+	return res;
 }
