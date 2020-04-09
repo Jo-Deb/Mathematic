@@ -200,9 +200,12 @@ void invert(int * tab, int taille1, int taille2){
 }
 
 int positionPivot(int * tab, int depart, int taille){
-	int i;
-	for(i=depart; i<taille-1; i++){ if(tab[i]<tab[i+1]){return i;} }
-	return taille-1;
+	int i, posPivot = depart;
+	for(i=depart; i<taille-1; i++){ 
+		if(tab[i]<tab[i+1] && tab[i] < tab[posPivot]){posPivot = i;} 
+	}
+	if(posPivot==0){return taille-1;}
+	return posPivot;
 }
 
 int getPositionMin(int * tab, int start, int taille){
