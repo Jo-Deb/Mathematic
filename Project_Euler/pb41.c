@@ -59,10 +59,23 @@ int pppPandigital(int * tab, int * depart, int taille){
 	return tabToInt(tab,taille);
 }
 
-
+int run_se(int val){
+    printf("début des tests pour les nombres pandigitaux déduits de %d\n", val);
+    int taille = calculTailleEntier(val), i, lim=1, dcp=1, res=val;
+    int * tab = intToTab(val), depart=0;
+    for(i=1; i<=taille; i++){lim *= i;}
+    
+    while(dcp <= lim){
+        if(pandigitalPrime(res)==1){free(tab); printf("%d est premier\n", res); return 1;}
+        res = pppPandigital(tab, &depart, taille);
+        ++dcp;
+    }
+    free(tab);
+    return 0;
+}
 
 int main(){
-	int test=52314, * tb = intToTab(test), dp=0, j, tmp=
+	int test=52314, * tb = intToTab(test), dp=0, j, tmp=0, res = 0, k;
 	pppPandigital(tb, &dp, 5); 
 	int i=987654321;
 	int dcpt = 0, taille=calculTailleEntier(i), depart=0;
@@ -74,7 +87,15 @@ int main(){
 		++dcpt;
 	}
 */
-	
+    for(j=9; j>=4; j--){
+        for(k=(taille-j); k+j<=taille; k++){
+            free(tab);
+            tab = intToTab(i);
+            res = sousTabtoInt(tab, k, taille);
+            if(run_se(res)==1){ free(tab); return EXIT_SUCCESS;}
+        }
+    }
+    /*
 	while(i>=123456789){
 			i = pppPandigital(tab, &depart, 9);
 	//	printf("scan de %d\n", i);
@@ -84,5 +105,6 @@ int main(){
 		}
 	//	--i;
 	} 
+    */
 	return EXIT_SUCCESS;
 }

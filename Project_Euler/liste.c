@@ -16,7 +16,7 @@ liste * ajoutEnTete(liste * l, int elt){
 
 liste * supprElt(liste * l, int elt){
 	liste * prec; liste * suiv; liste * parcours = l;
-	if(l->value == elt){ parcours = l->l; free(l); return parcours;}
+	if(l->value == elt){ parcours = l->l; free(l);return parcours;}
 	else {
 		while(parcours->value != elt){ prec = parcours; parcours = parcours->l; }
 		prec->l = parcours->l;

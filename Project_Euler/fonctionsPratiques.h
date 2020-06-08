@@ -15,11 +15,17 @@ extern int * addition_demesurer(int * arg1, int * arg2);
 
 extern int calculTailleEntier(int val);
 
+extern int l_calculTailleEntier(unsigned long int val);
+
 extern  int * intToTab(int val);
+
+extern  int * l_intToTab(unsigned long val);
 
 extern int isPrime(int val);
 
 extern int tabToInt(int * tab, int taille);
+
+extern unsigned long int l_tabToInt(int * tab, int taille);
 
 extern void triTab(int * tab, int taille);
 
@@ -37,3 +43,11 @@ extern int positionPivot(int * tab, int depart, int taille);
 
 /*chercher le Plus Grand Nombre Inférieur à tab[depart-1]*/
 extern int positionPgnf(int * tab, int depart, int taille);
+
+extern int sousTabtoInt(int * tab, int depart, int taille);
+
+extern unsigned long int l_sousTabtoInt(int * tab, int depart, int taille);
+
+extern int pppPandigital(int * tab, int * depart, int taille);
+
+extern int * generatePrimes();

@@ -20,6 +20,17 @@ int calculTailleEntier(int val){
 	return taille;
 }
 
+int l_calculTailleEntier(unsigned long int val){
+	int taille = 0, reste = 0; 
+    unsigned long int tmp = val;
+	while(tmp > 0){
+		reste = tmp % 10;
+		tmp = tmp/10;
+		++taille;
+	}
+	return taille;
+}
+
 int * intToTab(int val){
 	int taille = calculTailleEntier(val);
 	int * res = malloc(taille * sizeof(int)); 
@@ -28,6 +39,13 @@ int * intToTab(int val){
 	return res;
 }
 
+int * l_intToTab(unsigned long val){
+	int taille = calculTailleEntier(val);
+	int * res = malloc(taille * sizeof(int)); 
+	int i, tmp = val;
+	for(i=taille-1; i>=0; i--){ res[i] = tmp % 10; tmp = tmp/10;}
+	return res;
+}
 
  table * createStruct(int taille){
  	table * ptr = malloc(sizeof(table));
@@ -136,6 +154,16 @@ int tabToInt(int * tab, int taille){
 	return res;
 }
 
+unsigned long int l_tabToInt(int * tab, int taille){
+	unsigned long res = 0;
+    int i;
+    for(i=0; i<taille; i++){printf("%d ", tab[i]);}
+	for(i=0; i<taille; i++){ res = res * 10 + tab[i]; }
+    printf(" res = %lu\n", res);
+	return res;
+}
+
+
 /*Il s'agit d'un tri croissant */
 void triTab(int * tab, int taille){
 	int i, j, tmp;
@@ -222,4 +250,55 @@ int positionPgnf(int * tab, int depart, int taille){
 	for(i=depart; i<taille; i++){ if(tab[i] > tab[res] && tab[i] < tab[etalon]){res=i;} }
 	if(tab[res]>=tab[etalon]){ return -1; }
 	return res;
+}
+
+int sousTabtoInt(int * tab, int depart, int taille){
+    int i, res = 0;
+    for(i=depart; i<taille; i++){ res = res*10+tab[i];}
+    return res;
+}
+
+unsigned long int l_sousTabtoInt(int * tab, int depart, int taille){
+    int i;
+    unsigned long res = 0;
+    for(i=depart; i<taille; i++){ res = res*10+tab[i];}
+    return res;
+}
+
+int pppPandigital(int * tab, int * depart, int taille){
+	int i, positionMin = getPositionMin(tab, *depart, taille);
+	if(positionMin == taille-1){ 
+		invert(tab, taille-2, taille-1);
+//		if(taille - *depart == 2){ *depart = 0;}
+		if(taille - *depart == 2){ --(*depart);}
+		return tabToInt(tab, taille);
+	}
+	if((taille - *depart)==2){
+		triSousTab(tab, taille, *depart); 
+//		*depart = 0;
+		--(*depart);
+		return tabToInt(tab, taille);
+	}
+	int posPivot = positionPivot(tab, *depart, taille);
+//	printf("positionPivot:%d\t",posPivot);
+	int posPgnf = positionPgnf(tab, posPivot, taille);
+//	printf("posPgnf:%d\t",posPgnf);
+//	if(posPgnf==-1){ ++(*depart); return pppPandigital(tab, depart, taille);}
+	if(posPgnf==-1){ --(*depart); return pppPandigital(tab, depart, taille);}
+	invert(tab, posPivot-1, posPgnf);
+	inverseTriSousTab(tab, taille, posPivot);
+	*depart = posPivot;
+	return tabToInt(tab,taille);
+}
+
+
+int * generatePrimes(){
+    int * tab = malloc(10000 * sizeof(int));
+    int i=2, tmp=5;
+    tab[0] = 2; tab[1]=3;
+    while(i<10000){
+        if(isPrime(tmp)==1){tab[i]=tmp; ++i;}
+        tmp += 2;
+    }
+    return tab;
 }
