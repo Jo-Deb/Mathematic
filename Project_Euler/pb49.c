@@ -38,6 +38,45 @@ int regularite(liste * lst){
     return 1;
 }
 
+
+int listEcart(liste * lst){
+    lst = listTrie(lst);
+    int nb_elt = taille(lst); 
+    int nb_l = nb_elt*(nb_elt-1)/2, i=0, j, wrk[nb_l][3], cpt = 0;
+    liste *it1=lst, *it2=it1, *tmp = NULL, *all_sort = NULL, *pcr = NULL;
+    
+    while(i < nb_l){
+        while(it2!=NULL){
+            wrk[i][0]= it2->value - it1->value; //ecart
+            wrk[i][1]= it2->value; //sup
+            wrk[i][2]= it1->value; //min
+            it2 = it2->l; ++i;
+        }
+        it1 = it1->l;
+        if(it1!=NULL){it2 = it1->l;}
+        else {it2=it1;}
+    }
+    
+    for(i=0; i<nb_l; i++){
+        tmp=ajoutEnTete(tmp, i);
+        for(j=i+1; j<nb_l; j++){ if(wrk[i][0] == wrk[j][0]){tmp = ajoutEnTete(tmp, j);} }
+        //On élimine les doublons, trie et on voit si on obtient une suite arithmétique
+        pcr = tmp;
+        while(pcr != NULL){
+            all_sort = ajoutEnTete(all_sort, wrk[pcr->value][1]);
+            all_sort = ajoutEnTete(all_sort, wrk[pcr->value][2]);
+            pcr = pcr->l;
+        }
+        supprimeListe(tmp); tmp=NULL; pcr = NULL;
+        all_sort = supprimeDoublon(all_sort);
+        all_sort = listTrie(all_sort);
+        if(regularite(all_sort) > 0 && taille(all_sort) > 2){++cpt;}
+        supprimeListe(all_sort); all_sort = NULL;
+    }
+    return cpt;
+}
+
+
 int howMany (int val){
     liste * lst = ajoutEnTete(NULL,val);
     int len = calculTailleEntier(val), depart = 0, i, decompte = 1, incr = 1, tmp;
@@ -57,13 +96,15 @@ int howMany (int val){
     }
     lst = supprimeDoublon(lst);
     tmp = taille(lst);
-    if(tmp>2){
+    if(tmp>2 && listEcart(lst) > 0){
         printf("suite à %d membre:", tmp);
         afficheListe(lst);
         printf("\n");
+        supprimeListe(lst);
+        return tmp;
     }
     supprimeListe(lst);
-    return tmp;
+    return 0;
 }
 
 

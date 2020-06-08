@@ -84,7 +84,6 @@ liste * ajoutEnQueue(liste * l, int elt){
 }
 
 int supprimeListe(liste * l){
-	//printf("dans la fonction de suppression de la liste\n");
 	if(l == NULL){return 0;}
 	if(l->l == NULL){ free(l); return 0;}
 	liste * tmp = l;
@@ -93,10 +92,7 @@ int supprimeListe(liste * l){
 		tmp2 = tmp->l;
 		free(tmp);
 		tmp = tmp2;
-		//printf("libération du pointeur %p\n", tmp2);
 	}
-	//while(tmp != NULL){ tmp = supprElt(tmp, tmp->value);}
-	//printf("la fonction de suppression est fini\n");
 	return 0;
 }
 
