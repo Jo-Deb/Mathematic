@@ -109,10 +109,18 @@ int howMany (int val){
 
 
 int main(){
-    int i;
+    int i, cpt, prec, act;
     liste * tmp=NULL;
     for(i=1000; i<9999; i++){
         if(isPrime(i)==1){
+            cpt = 1; act = i+3330; prec = i;
+            while(isPrime(act)==1 && sameDigits(act, prec)==1){
+                if(cpt==1){printf("\nNouvelle tentative: %d %d", prec, act);}
+                if(cpt > 1){printf(" %d", act);}
+                prec = act;
+                act = act + 3330;
+                ++cpt;
+            }
             if(howMany(i)==3){tmp = ajoutEnTete(tmp, i);}
         }
     }
