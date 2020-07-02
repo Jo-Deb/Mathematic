@@ -37,11 +37,14 @@ liste * combinaison(int * tab, liste * combi, int len, int comb){
 
 
 liste ** genCombinaison(int tab[]){
-    liste ** res = malloc(5*sizeof(liste*));
+    liste ** res = malloc(5*sizeof(liste*)), * wrk;
     int i;
     for(i=0; i<5; i++){ 
         if(i==0) {res[i] = combinaison(tab, NULL, 6, i+1);}
-        else { res[i] = combinaison(tab, res[i-1], 6, i+1);}
+        else{
+            wrk = recopie(res[i-1]);
+            res[i] = combinaison(tab, wrk, 6, i+1);
+        }
     }
     return res;
 }
@@ -52,7 +55,7 @@ int substitution51(int val, int combi, int replacementValue){
     int * combinaison = intToTab(combi), * valTab = intToTab(val);
     /*On s'assure que ne contient pas les bornes, c-à-d le 1er digit et le 
      * le dernier digit */
-    if(combinaison[0] == 1 || combinaison[combiLen-1] == valLen){
+    if(combinaison[0] == 1 || combinaison[combiLen-1] >= valLen){
         return -1;
     }
     for(res=0; res<combiLen; res++){valTab[combinaison[res]-1] = replacementValue;}
@@ -68,7 +71,7 @@ liste * longestList(liste ** genCombi, int primeVal, int l_genCombi){
     for(i=0; i<l_genCombi; i++){
         pcr = genCombi[i];
         while(pcr != NULL){
-            for(j = 0; j<9; j++){
+            for(j = 0; j<10; j++){
                 tmp = substitution51(primeVal, pcr->value, j);
                 if(tmp > 0 && isPrime(tmp) == 1){wrk = ajoutEnTete(wrk, tmp);}
             }
@@ -84,47 +87,32 @@ liste * longestList(liste ** genCombi, int primeVal, int l_genCombi){
 
 int main(){
     int tab[6] = {1, 2, 3, 4, 5, 6}, tmp, val, i=0, j;
+    int primeVal[100000];
     liste ** combiLists = genCombinaison(tab);
     //affichage des combinaison obtenues
     for(i=0; i<5; i++){
-
+        printf("Combinaison de %d : ", i+1);
+        afficheListe(combiLists[i]);
+        printf("\n");
     }
-/*    
-    liste * lst = combinaisonDe2(tab, 6), * pcr = NULL;
-    printf("Voici les combinaisions de 2 pour {1, 2, 3, 4, 5, 6}:");
-    afficheListe(lst);
-    printf("\n");
-    
+    //faire un tableau de nombres premiers
     FILE * fp = fopen("base_nbr_premiers.dat", "r");
-    int db_of_prime[10000];
-    while(fscanf(fp, "%d",&val) != EOF  && i < 10000){ if(val > 56003){ db_of_prime[i]=val; ++i;} }
-
-    lst = combinaison(tab, lst, 6, 3);
-    liste * lp = NULL;
-    printf("Voici les combinaisions de 3 pour {1, 2, 3, 4, 5, 6}:");
-    afficheListe(lst);
-    printf("\n\n\n");
-    
     i = 0;
-    while(i < 10000){
-        pcr = lst;
-        while(pcr!=NULL){
-            for(j=0; j <= 9; j++){
-            tmp=substitution51(db_of_prime[i], pcr->value, j);
-            if(tmp > 0 && isPrime(tmp) == 1){lp = ajoutEnTete(lp, tmp);}
-            }
-            if(taille(lp) == 8){
-                printf("\nune liste de 8 premier a été trouvé ");
-                afficheListe(lp);
-                supprimeListe(lp);
-                return 0;
-            }
-            if(taille(lp) >= 1 ){afficheListe(lp); printf("\n"); supprimeListe(lp);}
-            lp = NULL;
-            pcr = pcr->l;
-        }
-        ++i;
+    liste * wrk = NULL;
+    while(fscanf(fp, "%d", &tmp) != EOF && i<100000){
+        if(tmp >= 56003){primeVal[i]=tmp; ++i;}
     }
-*/
+    //On lance les substitutions pour la liste des premiers calculés
+    liste * wrk = NULL;
+    for(i=0; i<100000; i++){
+        wrk = longestList(combiLists, primeVal[i], 5);
+        if(taille(wrk) >= 8){
+            printf("la plus grande liste pour %d: ", primeVal[i]);
+            afficheListe(wrk); printf("\n");
+        }
+        supprimeListe(wrk);
+    }
+    fclose(fp);
+    for(i=0; i<5; i++){supprimeListe(combiLists[i]);}
     return 0;
 }
