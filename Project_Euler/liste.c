@@ -15,7 +15,7 @@ liste * ajoutEnTete(liste * l, int elt){
 }
 
 liste * supprElt(liste * l, int elt){
-	liste * prec; liste * suiv; liste * parcours = l;
+	liste * prec; liste * parcours = l;
 	if(l->value == elt){ parcours = l->l; free(l);return parcours;}
 	else {
 		while(parcours->value != elt){ prec = parcours; parcours = parcours->l; }
@@ -24,12 +24,6 @@ liste * supprElt(liste * l, int elt){
 		return l;
 	}
 	return l;
-}
-
-int taille(liste * l){
-	int cpt = 0; liste * tmp = l;
-	while(tmp != NULL){++cpt; tmp = tmp->l;}
-	return cpt;
 }
 
 int EstPresent( liste * l, int elt ){
@@ -70,6 +64,12 @@ void afficheListe(liste * l){
 		printf("%d ", tmp->value);
 		tmp = tmp->l;
 	}
+}
+
+int taille(liste * l){
+	int cpt = 0; liste * tmp = l;
+	while(tmp != NULL){++cpt; tmp = tmp->l;}
+	return cpt;
 }
 
 liste * ajoutEnQueue(liste * l, int elt){
