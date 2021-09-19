@@ -39,7 +39,7 @@ long int produitList(liste * lst){
 
 long int calCombinaison(int n, int r){
     //r allant de 0 à n/2 ou (n-1)/2 en fonction de la parité, n-r sera toujours supérieur ou égal
-    long int numerateur=1; long int denominateur;
+    long int numerateur=1, denominateur;
     int j = n;
     liste * num = NULL, * den = NULL;
     while(j >= n-r+1){ num = ajoutEnTete(num, j); --j;}
@@ -52,18 +52,21 @@ long int calCombinaison(int n, int r){
 }
 
 int main(){
-    int n, r, limit, cpt = 0;
+    int n, r, limit, cpt = 0, arret;
     long int tmp;
     //test sur la factoriel
     for(n=3; n<=100; n++){
+        arret = 0;
         if(n % 2 == 0){limit = n/2;}
         else {limit = (n-1)/2;}
-        for(r=1; r<=limit; r++){
+        for(r=1; r<=limit && arret==0; r++){
             tmp = calCombinaison(n, r);
-            printf("calcul de combinaison(%d, %d) = %ld\n", n, r, tmp);
             if(tmp > 1000000){
-                printf("combinaison(%d, %d) > 1,000,000\n", n, r);
-                ++cpt;
+                tmp = (limit - (r-1))*2;
+                if(n%2==0){--tmp;}
+                printf("combinaison(%d, %d), %ld valeurs au-dessus de 1,000,000\n", n, r, tmp);
+                cpt += tmp;
+                arret = 1;
             }
         }
     }

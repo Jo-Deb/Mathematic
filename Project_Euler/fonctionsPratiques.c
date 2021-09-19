@@ -157,9 +157,9 @@ int tabToInt(int * tab, int taille){
 unsigned long int l_tabToInt(int * tab, int taille){
 	unsigned long res = 0;
     int i;
-    for(i=0; i<taille; i++){printf("%d ", tab[i]);}
+    //for(i=0; i<taille; i++){printf("%d ", tab[i]);}
 	for(i=0; i<taille; i++){ res = res * 10 + tab[i]; }
-    printf(" res = %lu\n", res);
+    //printf(" res = %lu\n", res);
 	return res;
 }
 
@@ -182,7 +182,7 @@ void triTab(int * tab, int taille){
 void triSousTab(int * tab, int taille, int start){
 	int i, tmp, j;
 	for(i=start; i<taille-1; i++){
-		for(j=j+1; j<taille; j++){
+		for(j=i+1; j<taille; j++){
 			if(tab[i]>tab[j]){tmp=tab[i]; tab[i]=tab[j]; tab[j]=tmp;}
 		}
 	}
@@ -269,21 +269,16 @@ int pppPandigital(int * tab, int * depart, int taille){
 	int i, positionMin = getPositionMin(tab, *depart, taille);
 	if(positionMin == taille-1){ 
 		invert(tab, taille-2, taille-1);
-//		if(taille - *depart == 2){ *depart = 0;}
 		if(taille - *depart == 2){ --(*depart);}
 		return tabToInt(tab, taille);
 	}
 	if((taille - *depart)==2){
 		triSousTab(tab, taille, *depart); 
-//		*depart = 0;
 		--(*depart);
 		return tabToInt(tab, taille);
 	}
 	int posPivot = positionPivot(tab, *depart, taille);
-//	printf("positionPivot:%d\t",posPivot);
 	int posPgnf = positionPgnf(tab, posPivot, taille);
-//	printf("posPgnf:%d\t",posPgnf);
-//	if(posPgnf==-1){ ++(*depart); return pppPandigital(tab, depart, taille);}
 	if(posPgnf==-1){ --(*depart); return pppPandigital(tab, depart, taille);}
 	invert(tab, posPivot-1, posPgnf);
 	inverseTriSousTab(tab, taille, posPivot);
@@ -301,4 +296,22 @@ int * generatePrimes(){
         tmp += 2;
     }
     return tab;
+}
+
+void supprimeDoublon(int * tab, int taille, int sub){
+    int i;
+    triTab(tab, taille);
+    for(i=0; i<taille; ++i){ if(tab[i+1]==tab[i]){tab[i]=sub;} }
+    triTab(tab, taille);
+}
+
+int factoriel(int n){
+    if (n==1 || n==0){ return 1;}
+    else{return n*factoriel(n-1);}
+}
+
+int getMax(int * tab, int len){
+    int i, max=tab[0];
+    for(i=0; i<len; i++){if(tab[i]>max){max=tab[i];}}
+    return max;
 }

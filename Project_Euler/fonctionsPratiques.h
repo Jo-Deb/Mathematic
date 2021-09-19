@@ -51,3 +51,9 @@ extern unsigned long int l_sousTabtoInt(int * tab, int depart, int taille);
 extern int pppPandigital(int * tab, int * depart, int taille);
 
 extern int * generatePrimes();
+/*supprimer les doublons*/
+extern void supprimeDoublon(int * tab, int taille, int sub);
+
+extern int factoriel(int n);
+
+extern int getMax(int * tab, int len);
