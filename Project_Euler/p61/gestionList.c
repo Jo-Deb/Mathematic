@@ -63,7 +63,7 @@ void afficheList(list * l){
 		else{printf("%d", tmp->elt);}
 		tmp=tmp->l;
 	}
-	printf("\n");
+	//printf("\n");
 }
 
 list * getPartList(list * l, int n){

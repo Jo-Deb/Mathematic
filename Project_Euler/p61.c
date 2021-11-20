@@ -159,7 +159,7 @@ void afficheIntPile(pile * p){
 	pile * tmp = p;
 	if(tmp == NULL){printf("la pile en entrée est nulle\n"); return;}
 	while(tmp != NULL){
-		if(tmp->back != NULL){printf("%d->", *((int*)(tmp->data)));}
+		if(tmp->back != NULL && tmp->data!= NULL) {printf("%d->", *((int*)(tmp->data)));}
 		else {printf("%d\n", *((int*)(tmp->data)));}
 		tmp = tmp->back;
 	}
