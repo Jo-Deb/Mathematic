@@ -104,20 +104,113 @@ char * bigSoustraction(char * a1, char * b1) /* a-b */ {
     return res;
 }
 
-/*
+void triTab(char *a){ /* tri croissant */
+    int i = 0, pos, j, tmp;
+    while(a[i]=='a'){++i;}
+    pos = i;
+    for(i=pos; i<999; ++i){
+        for(j=i+1; j<=999; ++j){
+            if(a[i] > a[j]){
+                tmp = a[i];
+                a[i] = a[j];
+                a[j] = tmp;
+            }
+        }
+    }
+}
+
+void inverseTri(char * a){ /* tri décroissant */
+    int i = 0, pos, j, tmp;
+    while(a[i]=='a'){++i;}
+    pos = i;
+    for(i=pos; i<999; ++i){
+        for(j=i+1; j<=999; ++j){
+            if(a[i] < a[j]){
+                tmp = a[i];
+                a[i] = a[j];
+                a[j] = tmp;
+            }
+        }
+    }
+}
+
+/*Retourne une la position où il y a une cassure
+ * où on ne se retrouve plus dans une suite décroissante
+ */
+int debutPermutation(char *a){
+    int i = 999;
+    while(a[i-1]>=a[i] && a[i-1]!='a'){--i;}
+    if(a[i-1]=='a'){return -1;}else{return i-1;}
+}
+
+void sortSubString(char *a, int place){
+    int i = place + 1, j, tmp;
+    for(i=place+1; i<999; ++i){
+        for(j=i+1; j<=999; ++j){
+            if(a[i] > a[j]){
+                tmp = a[i];
+                a[i] = a[j];
+                a[j] = tmp;
+            }
+        }
+    }
+}
+
+void findAndPlacePivot(char *a, int place){
+    int posPivot = place + 1, curval = a[place+1], tmp, i; 
+    for(i=place+1; i<=999; i++){
+        if(a[i] > a[place] && a[i] < curval){
+            posPivot = i; curval=a[i];
+        }
+    }
+    tmp = a[place];
+    a[place] = a[posPivot];
+    a[posPivot] = tmp;
+    sortSubString(a, place);
+}
+
+char * plusGrandeValeur(char *a){
+    char * b = (1001*sizeof(char));
+    b[1000] = '\0';
+    int i;
+    for(i=0; i<=999; ++i){b[i]=a[i];}
+    inverseTri(b);
+    return b;
+}
+
+int egalite(char *a, char *b){
+    int counta = 0, countb = 0, i=0;
+    while(i<1000){
+        if(a[i]!='a'){++counta;}
+        if(b[i]!='a'){++countb;}
+    }
+    if(counta == countb){
+        for(i=999; i>=999-counta; --i){ if(a[i]!=b[i]){return 0;} }
+    }
+    if(counta != countb){return 0;}
+    return 1;
+}
+
+void permuteValeurSuperieur(char *a, char *max){
+    int cassure;
+    if(egalite(a, max)==0){
+        cassure = debutPermutation(a);
+        findAndPlacePivot(a, cassure);
+    }
+    else{
+        bigAffiche(a); printf(" = "); bigAffiche(max); printf("\n"); 
+    }
+}
+
+
 int main(){
-	int i, j;
-	char * pt; char * fl; char * res;
-	
-	for(i=2; i<=100; i++){
-		for(j=2; j<=1000; j++){ 
-			pt = intToTab(i); fl=intToTab(j);
-            res = bigSoustraction(pt, fl);
-            printf("soustraction %d et %d, donne : ", i, j);
-            bigAffiche(res); printf("\n");
-			free(pt); free(fl);
-		}
+	int j;
+	char * pt, * max;
+
+	for(j=12; j<=1000; j++){ 
+		pt = intToTab(j);
+        max = plusGrandeValeur(j);
+        permuteValeurSuperieur(pt, max);
 	}
 	return 0;
 }
-*/

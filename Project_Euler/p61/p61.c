@@ -104,60 +104,98 @@ void afficheRacine(glist * res){
 	while(parcours != NULL){
 		printf("%4d->[", *((int *)parcours->elt));
 		afficheList(parcours->lst); printf("]");
-		printf("\n  |\n");
+		printf("\n  |");
+        if(parcours!=NULL){printf("\tparcours:%p and parcours->elt : %p et parcours->next : %p\n", parcours, parcours->elt, parcours->next);}	
+        else{printf("\n");}
 		parcours = parcours->next;
-	}
+    }
 	printf(" /|\\\n");
 }
 
-list * genereList(int val, list * idx_fct_list){
-	int n = getval61(val);
-	int idx = getIdx61(val);
-	int deuxPremierDigit = get2last(n);
-	//Pour faire la boucle il faut uniquement incrémenter les listes
-	list * tmp = idx_fct_list;
-	list * res = NULL, * cur_list = NULL;
-	printf("genereList: les indices de fonctions suivants seront essayés: ");
-	afficheList(idx_fct_list); printf("\n");
+/*
+ * Générer la liste des idx qui ne doivent pas être testé lors
+ * de la génération des listes
+ */
+list * idxToDelete(int value, glist * res){
+	glist * parcours = res;
+	list * idx_lst = NULL;
+	int val = 0, idx = 0;
+	idx_lst = ajoutFin(idx_lst, getIdx61(value));
+	while(parcours != NULL){
+		val = *((int *)parcours->elt);
+		idx = getIdx61(val);
+		idx_lst = ajoutFin(idx_lst, idx);
+		parcours = parcours->next;
+	}
+	return idx_lst;
+}
+
+
+list * computeIdxList(list * lelt){
+	list * tmp = initListFunc();
+	list * parcours = lelt;
+	while(parcours != NULL){
+		tmp = supprimElt(tmp, parcours->elt);
+		parcours = parcours->l;
+	}
+	return tmp;
+}
+
+
+list * genereList(int val, glist * res){
+	list * lelt = idxToDelete(val, res);
+	list * idxToTest = computeIdxList(lelt);
+	printf("genereList: liste des indices : "); afficheList(idxToTest); printf("\n");
+	int deuxPremierDigit = get2last(getval61(val));
+	list * result = NULL, * cur_list = NULL, * tmp = idxToTest;
 	while(tmp != NULL){
 		cur_list = gatherData(deuxPremierDigit, tmp->elt);
 		if(cur_list == NULL){printf("genereList: cur_list est vide pour les tmp->elt = %d et deuxPremierDigit=%d\n", tmp->elt, deuxPremierDigit);} 
-		res = concatList(res, cur_list); 
+		else{result = concatList(result, cur_list);} 
 		tmp = tmp->l;
 	}
-	//suppression de l'idx dans la liste d'index de fonction
-	printf("genereList: suppression de la valeur %d dans : ", idx);
-	afficheList(idx_fct_list); printf("\n");
-	idx_fct_list = supprimElt(idx_fct_list, idx);
-	if(res == NULL){printf("genereList: la valeur retournée res est nulle\n");}
-	return res;
+	//suppression des listes qui ne seront pas retournées
+	freeList(lelt); 
+	freeList(idxToTest);
+	if(result == NULL){printf("genereList: la valeur retournée res est nulle pour %d\n", getval61(val));}
+	return result;
 }
 
 /*
- * Ajouter une valeur et une liste générée à partir d'elle
+ * Ajouter une valeur et une liste générée à partir d')elle
  * Cet ajout sera fait en tête de la liste de résultat
  */
 glist * ajoutDansRes(int val, list * racine, glist * res){
-	int * pt = malloc(sizeof(int)); 
-	*pt = val;
-	res = g_ajoutTete(res, (void *)pt, racine);
-	return res;
+    glist * head = (glist *) malloc(sizeof(glist));
+    glist * tmp = res;
+    head->elt = malloc(sizeof(int));
+    *((int *)head->elt) = val;
+    head->lst = racine;
+    if(tmp==NULL){head->next = NULL;}else{head->next=tmp;}
+	return head;
 }
 
-/*On suppose que la liste donnée en argument n'est pas vide. De plus
- * on retire la valeur de la liste en tête.
+/* On suppose que la liste donnée en argument n'est pas vide. De plus
+ * on retire la valeur de la liste en tête. Par conséquent cette fonction
+ * aura deux objectifs, faire le ménage dans res et mettre à disposition 
+ * la nouvelle valeur à partir de laquelle la construction de la liste se poursuit.
+ * mettre à jour un entier pour lui assigner la valeur de tête de la liste générique
+ * et retourner un pointeur qui sera le début de la liste générique, après que les
+ * suppressions, si nécessaire, aient été faites.
  */
-int getNextVal(glist * res){
-	glist * head = res;
-	if(head->lst == NULL){
-		res = g_supprimElt(res, head->elt);
-		return getNextVal(res);
+glist * getNextVal(glist * res, int flag, int headValue){
+	if(res == NULL) {return 0;}
+	if(res->lst == NULL){
+        printf("getNextVal: valeur de res avant suppression: %p\n", res);
+		res = g_supprimElt(res, res->elt);
+        printf("getNextVal: valeur de res après suppression:%p\n", res);
+		return getNextVal(res, 1, headValue);
 	}
-	int result = 0;
-	if ((result = head->lst->elt) > 1000){
-		head->lst = supprimElt(head->lst, head->lst->elt);
-		return result;
-	} else {return result;}
+    if(flag==1){printf("getNextVal: valeur de res après appel récursif:%p\n", res);}
+	if ((headValue = res->lst->elt) > 1000){
+		res->lst = supprimElt(res->lst, res->lst->elt);
+		return res;
+	} else {headValue=0; return res;}
 }
 
 
@@ -170,11 +208,17 @@ void deRacineAsommet(int val, list * racine, glist * res, list * idx_fct_list){
 	res = ajoutDansRes(val, racine, res);
 	if(res == NULL){printf("deRacineAsommet: la liste générique res est nulle \n");}
 	while(res != NULL && g_listLongueur(res) < 6){
-		nextVal = getNextVal(res);
+		res = getNextVal(res, 0, nextVal);
+        printf("deRacineAsommet: valeur de res après getNextVal:%p\n", res);
+        afficheRacine(res);
 		printf("deRacineAsommet: go pour la valeur %d\n", nextVal);
-		cur_list = genereList(nextVal, idx_fct_list);
+        printf("deRacineAsommet: res avant appel genereList :%p\n", res);
+		cur_list = genereList(nextVal, res);
+        printf("deRacineAsommet: res après appel genereList :%p\n", res);
 		if(cur_list == NULL){printf("deRacineAsommet: liste nulle pour la valeur %d\n", nextVal);}
-		if(cur_list != NULL){res = ajoutDansRes(nextVal, cur_list, res);}
+		if(cur_list != NULL){
+            printf("deRacineAsommet: res avant appel ajoutDansRes :%p\n", res);
+            res = ajoutDansRes(nextVal, cur_list, res);}
 		afficheRacine(res);
 	}
 }
@@ -199,7 +243,7 @@ int main(){
 		printf("main: Lancement d'un run avec la valeur %d\n", val);
 		idx_fct_list = initListFunc();
 		idx_fct_list = supprimElt(idx_fct_list, 0);
-		cur_list = genereList(val, idx_fct_list);
+		cur_list = genereList(val, res);
 		if(cur_list != NULL){
 			//appel d'une fonction qui va prendre cur_list et 
 			//qui va essayer de remplir res

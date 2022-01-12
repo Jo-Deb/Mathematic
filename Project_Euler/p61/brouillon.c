@@ -30,6 +30,18 @@ void afficheRacine(glist * res){
 	}
 }
 
+/*On va faire une autre fonction ajoutTete pour tout 
+ *initialiser et insérer directement la valeur
+ */
+
+glist * g_intAjoutTete(glist *l, int data, list * inner_list){
+	glist * head = (glist *) malloc(sizeof(glist));
+	(int *)head->elt = (int *) malloc(sizeof(int));
+	*(head->elt) = data;
+	head->lst = inner_list;
+	if(l == NULL){head->next = NULL;} else { inst->next = l;}
+	return head;
+}
 
 /*Au niveau de genereList il me faut calculer idx_fct_list en fonction
 * de la liste générique.
@@ -51,11 +63,49 @@ list * genereListe(int val, list * idx_fct_list){
  * doivent être éliminés de la liste
  */
 
+list * idxToDelete(int value, glist * res){
+	glist * parcours = res;
+	list * idx_lst = NULL;
+	int val = 0, idx = 0;
+	idx_lst = ajoutFin(idx_lst, getIdx61(value));
+	while(parcours != NULL){
+		val = *((int *)parcours->elt);
+		idx = getIdx61(val);
+		idx_lst = ajoutFin(idx_lst, idx);
+		parcours = parcours->next;
+	}
+	return idx_lst;
+}
 
+list * computeIdxList(list * lelt){
+	list * tmp = initListFunc();
+	list * parcours = lelt;
+	while(parcours != NULL){
+		tmp = supprimElt(tmp, parcours->elt);
+		parcours = parcours->l;
+	}
+	printf("computeIdxList: voici les indices qui restent : ");
+	afficheList(tmp); printf("\n");
+	return tmp;
+}
 
 list * genereList(int val, glist * res){
-	list * tmp = initListFunc();
-	list * lelt = idxToDelete(res);
+	list * lelt = idxToDelete(val, res);
+	list * idxToTest = computeIdxList(lelt);
+	printf("genereList: liste des indices : "); afficheList(idxToTest); printf("\n");
+	int deuxPremierDigit = get2last(getval61(val));
+	list * res = NULL, * cur_list = NULL, * tmp = idxToTest;
+	while(tmp != NULL){
+		cur_list = gatherData(deuxPremierDigit, tmp->elt);
+		if(cur_list == NULL){
+			printf("genereList: cur_list est vide pour tmp->elt=%d et deuxPremierDigit=%d\n"\
+				, tmp->elt, deuxPremierDigit);
+		} else { res =c oncatList(res, cur_list);}
+		tmp = tmp->l;
+	}
+	free(lelt); free(idxToTest);
+	if(res == NULL){printf("genereList: la valeur retournée res est nulle\n");}
+	return res;
 }
 
 //Ajouter une valeur et liste généréé à partir d'elle.
@@ -89,7 +139,7 @@ void deRacineAsommet(int val, list * racine, glist * res, list * idx_fct_list){
 		ajoutDansRes(val, racine, res);
 		while(res!=NULL && g_listLongueur(res) < 6){
 			nextVal = getNextVal(res);
-			cur_list = genereListe(nextVal, idx_fct_list);
+			cur_list = genereListe(nextVal, res);
 			if(cur_list != NULL){ajoutDansRes(nextVal, cur_list, res);}
 			afficheRacine(res);
 		}

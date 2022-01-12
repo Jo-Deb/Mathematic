@@ -17,7 +17,7 @@ int listLongueur(list * l){
 }
 
 list * ajoutFin(list *l, int n){
-	list * tmp= malloc(sizeof(list *));
+	list * tmp= malloc(sizeof(list));
 	tmp->elt = n; tmp->l = NULL;
 	if(l==NULL){tmp->prev = NULL; return tmp;}
 	else{
@@ -73,7 +73,7 @@ list * getPartList(list * l, int n){
 	if(n>0){
 		while(i<n){
 			prev=tmp;
-			tmp=malloc(sizeof(list *));
+			tmp=malloc(sizeof(list));
 			tmp->elt = pcr->elt; tmp->l=NULL;
 			tmp->prev = prev; if(prev!=NULL){prev->l=tmp;}
 			if(ll==NULL){ll = tmp;}
@@ -86,7 +86,7 @@ list * getPartList(list * l, int n){
 		i=0; int lim=listLongueur(l); int dist=lim+n;
 		while(i<dist){pcr=pcr->l; ++i;}	
 		while(i<lim){
-			tmp=malloc(sizeof(list *)); tmp->prev=NULL; tmp->l=NULL;
+			tmp=malloc(sizeof(list)); tmp->prev=NULL; tmp->l=NULL;
 			tmp->elt=pcr->elt;
 			if(ll==NULL){ll=tmp; ll->prev=NULL;}
 			if(prev!=NULL){tmp->prev = prev; prev->l = tmp;}
@@ -99,7 +99,7 @@ list * getPartList(list * l, int n){
 }
 
 void freeList(list * l){
-	if(l==NULL){printf("La liste est nulle, pas de free possible\n"); return;}
+	if(l==NULL){printf("freeList: La liste est nulle, pas de free possible\n"); return;}
 	list * current=NULL, *next=NULL;
 	current = l; next = current->l;
 	while(next!=NULL){free(current); current=next; next = next->l;}
