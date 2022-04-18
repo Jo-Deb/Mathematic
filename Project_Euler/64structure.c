@@ -56,3 +56,5 @@ int nearestRoot(irrationel * a){
 	--i;
 	return i;
 }
+
+/*Il faut faire la suite du programme*/
