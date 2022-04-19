@@ -24,9 +24,19 @@ glist * g_ajoutTete(glist * l, void * data, list * inner_list){
 	glist * inst = malloc(sizeof(glist));
 	inst->elt = data;
 	inst->lst = inner_list;
-	inst->next = l;
+	if(l==NULL){inst->next = NULL;} else {inst->next = l;} 
 	return inst;
 }
+
+
+glist * g_intAjoutTete(glist * l, int data, list * inner_list){
+    glist * head = (glist *) malloc(sizeof(glist));
+    head->elt = malloc(sizeof(int));
+    *((int *)head->elt) = data;
+    head->lst = inner_list;
+    if(l==NULL){head->next = NULL;}else{head->next=l;}
+    return head;
+}  
 
 //On suppose que les listes n'ont pas de doublons
 //Le 1er élément trouvé sera le seul supprimé
@@ -34,14 +44,22 @@ glist * g_supprimElt(glist * l, void * data){
 	glist * tmp = l, * prec = NULL, * suiv = NULL, * cibl = NULL;
 	while(tmp!=NULL){
 		if(tmp->elt == data){
+            printf("g_supprimElt: suppression du pointeur : %p\n", tmp);
 			cibl = tmp;
 			if(prec !=NULL){prec->next = tmp->next;}
 			else{suiv = tmp->next;}
-			free(cibl->elt);
-			freeList(cibl->lst);
- 			free(cibl);
-			if(prec!=NULL){return prec;}
-			else{return suiv;}
+			free(cibl->elt); cibl->elt = NULL;
+			freeList(cibl->lst); cibl->lst = NULL;
+ 			free(cibl); cibl = NULL;
+            printf("g_supprimElt: tous les pointeurs supprimés ont été mis à NULL\n");
+			if(prec!=NULL){
+            printf("g_supprimElt: prec retournée : %p\n", prec);
+            return prec;
+        }
+			else{
+            printf("g_supprimElt: suiv retournée : %p\n", suiv);
+            return suiv;
+         }
 		}
 		prec = tmp; tmp=tmp->next;
 	}

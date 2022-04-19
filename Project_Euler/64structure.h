@@ -30,4 +30,5 @@ void freeIrrationnel(irrationnel * a);
 void freeFractir(fractir * a);
 void freecFrac(cfrac * a);
 int nearestRoot(irrationnel * a);
-
+fractir * irraToFractir(irrationnel * a);
+cfrac * fractirToCfrac(fractir * a);

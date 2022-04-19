@@ -27,3 +27,19 @@ extern char * plusGrandeValeur(char * a);
 extern int egalite(char *a, char *b);
 
 extern void permuteValeurSuperieur(char *a, char * max);
+
+extern char * incremente(char * a);
+
+extern char * division(char * a, char * b);
+
+extern char * power(char * b, int c);
+
+extern int estDivisible(char * m, char * d);
+
+extern char * quotient(char * m, char * div);
+
+extern char * reste(char * a, char * b);
+
+extern int determinePuissance(char * nbr, char * tmp);
+
+extern int tailleChaine(char * a);

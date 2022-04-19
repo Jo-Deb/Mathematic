@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define PRINT(pt) bigAffiche(pt); printf("\n");
+
 void bigAffiche(char * a){
 	int i;
 	for(i=0; i<=999; i++){ 
@@ -21,7 +23,7 @@ char * intToTab(int a){
 }
 
 char * plusGrand(char * a, char * b){
-    int i=999; char * tp;
+    int i=999; char * tp=NULL;
     while(i>=0 && (a[i]!='a'|| b[i]!='a')){
         if(a[i]!='a' && b[i]!='a' && a[i] > b[i]){ tp=a; }
         if(a[i]!='a' && b[i]!='a' && a[i] < b[i]){ tp=b; }
@@ -169,8 +171,8 @@ void findAndPlacePivot(char *a, int place){
     sortSubString(a, place);
 }
 
-char * plusGrandeValeur(char *a){
-    char * b = (1001*sizeof(char));
+char * plusGrandeValeur(char * a){
+    char * b = malloc(1001*sizeof(char));
     b[1000] = '\0';
     int i;
     for(i=0; i<=999; ++i){b[i]=a[i];}
@@ -183,6 +185,7 @@ int egalite(char *a, char *b){
     while(i<1000){
         if(a[i]!='a'){++counta;}
         if(b[i]!='a'){++countb;}
+        ++i;
     }
     if(counta == countb){
         for(i=999; i>=999-counta; --i){ if(a[i]!=b[i]){return 0;} }
@@ -198,19 +201,102 @@ void permuteValeurSuperieur(char *a, char *max){
         findAndPlacePivot(a, cassure);
     }
     else{
-        bigAffiche(a); printf(" = "); bigAffiche(max); printf("\n"); 
+        bigAffiche(a); printf(" = "); PRINT(a)
     }
 }
 
+char * incremente(char * a){
+    int i=999, ret=1, tmp;
+    if(a[i]+ret == 10){
+        while(a[i]+ret == 10){
+            tmp = a[i]+ret;
+            a[i]=tmp%10;
+            ret=tmp/10;
+            --i;
+        }
+    } else {a[i] = a[i]+ret;}
+    return a;
+}
 
+char * division(char * a, char * b){ // a/b
+    //La fonction retourne NULL s'il y a un reste
+    char * diviseur = b, * tmp; 
+    char * quotient = intToTab(2);
+    if(egalite(a,b)==0){ return intToTab(1);}
+    tmp = bigMultiplication(diviseur, quotient);
+    if(egalite(a, tmp)==1){return quotient;}
+    int flag;
+    while(plusGrand(a, tmp)==a && (flag=egalite(a,tmp))==0){
+        quotient = incremente(quotient);
+        tmp = bigMultiplication(diviseur, quotient);
+    }
+    if(flag==1){return quotient;} else {return NULL;}
+}
+
+char * power(char * b, int c){
+    int i = 1; char * res = b;
+    for(i=1; i < c; ++i){
+        res = bigMultiplication(res, b);
+    }
+    return res;
+}
+
+int estDivisible(char * m, char * d){
+    if(division(m, d) != NULL){return 1;}
+    else{return 0;}
+}
+
+char * quotient(char * m, char * div){
+    char * q = intToTab(2);
+    if(egalite(m, div)==1){ return intToTab(1); }
+    char * tmp = bigMultiplication(q, div);
+    while(plusGrand(tmp, m) == m && egalite(tmp, m) == 0){
+        q = incremente(q);
+        tmp = bigMultiplication(q, div);
+    }
+    if(plusGrand(tmp, m) == tmp && egalite(tmp, m) == 0){
+        return bigSoustraction(q, intToTab(1));
+    }
+    if(egalite(tmp, m) == 1){return q;}
+    return NULL;
+}
+
+char * reste(char * a, char * b){
+    char * q = quotient(a, b);
+    char * tmp = bigMultiplication(q, b);
+    return bigSoustraction(a, tmp);
+}
+
+/*
+ * En argument, on a deux tableaux de char représentant des nombres.
+ * Le 1er argument est un multiple du 2ème (ceci est l'hypothèse de la fonction). L'objectif de la fonction est de déterminer le degré de ce facteur premier
+ * */
+int determinePuissance(char * nbr, char * tmp){
+    int p = 1;
+    while(estDivisible(nbr, power(tmp, p+1))==1){p=p+1;}
+    return p;
+}
+
+int tailleChaine(char *a){
+	int i, taille=0;
+	for(i=0; i<=999; i++){ if(a[i]!='a' && a[i]!='-'){++taille;} }
+    return taille;
+}
+
+/*
 int main(){
 	int j;
 	char * pt, * max;
 
 	for(j=12; j<=1000; j++){ 
 		pt = intToTab(j);
-        max = plusGrandeValeur(j);
-        permuteValeurSuperieur(pt, max);
+        max = plusGrandeValeur(pt);
+        if(egalite(pt, max)==1){printf("pas de permutation pour %d\n",j);}
+        while(egalite(pt, max)==0){
+            permuteValeurSuperieur(pt, max);
+            printf("après permutation sur %d : ", j); PRINT(pt)
+        }
 	}
 	return 0;
 }
+*/
