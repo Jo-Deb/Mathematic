@@ -68,6 +68,13 @@ fraction * createFraction(cfrac * num, cfrac * deno){
     return res;
 }
 
+fracB * createFracB(int num, irrationnel * deno){
+    fracB * res = malloc(sizeof(fracB));
+    res->num = num;
+    res->deno = deno;
+    return res;
+}
+
 /*___________Fonctions d'affichage______________________*/
 void afficheIrrationnel(irrationnel * a){
     if(a->racine < 0){
@@ -94,9 +101,10 @@ void afficheIrrationnel(irrationnel * a){
 
 void afficheFractir(fractir * b){
    irrationnel * a = b->num;
+   printf(" %d/", b->deno);
    printf("(");
    afficheIrrationnel(a);
-   printf(") / (%d)", b->deno);
+   printf(")");
 }
 
 void afficheCfrac(cfrac * c){
@@ -104,4 +112,11 @@ void afficheCfrac(cfrac * c){
     afficheFractir(c->frac);
     printf(" )");
 }
+
+/*L'argument reçu doit être un pointeur de type fractir
+ * car un cast est fait dans la fonction*/
+void showFractir(void * pt){
+    afficheFractir((fractir *)(pt));
+}
+/*------------fonction de libération des pointeurs---------------------*/
 

@@ -68,5 +68,19 @@ glist * g_supprimElt(glist * l, void * data){
 
 void g_freeList(glist * l){
 	glist * tmp = l;
-	while(tmp!=NULL){g_supprimElt(tmp, tmp->elt); }
+	while(tmp!=NULL){tmp = g_supprimElt(tmp, tmp->elt);}
 }
+
+void g_afficheList(glist * l, void (* pt_show)(void *)){
+    if(l==NULL){printf("La liste en argument est nulle\n"); return;}
+    glist * tmp = l;
+    while(tmp!=NULL){
+       if(tmp->next != NULL){
+           pt_show(tmp->elt);
+           printf(" -> ");
+       } else {pt_show(tmp->elt);}
+       tmp = tmp->next;
+    }
+    printf("\n");
+}
+
