@@ -44,20 +44,20 @@ glist * g_supprimElt(glist * l, void * data){
 	glist * tmp = l, * prec = NULL, * suiv = NULL, * cibl = NULL;
 	while(tmp!=NULL){
 		if(tmp->elt == data){
-            printf("g_supprimElt: suppression du pointeur : %p\n", tmp);
+            //printf("g_supprimElt: suppression du pointeur : %p\n", tmp);
 			cibl = tmp;
 			if(prec !=NULL){prec->next = tmp->next;}
 			else{suiv = tmp->next;}
 			free(cibl->elt); cibl->elt = NULL;
 			freeList(cibl->lst); cibl->lst = NULL;
  			free(cibl); cibl = NULL;
-            printf("g_supprimElt: tous les pointeurs supprimés ont été mis à NULL\n");
+            //printf("g_supprimElt: tous les pointeurs supprimés ont été mis à NULL\n");
 			if(prec!=NULL){
-            printf("g_supprimElt: prec retournée : %p\n", prec);
+            //printf("g_supprimElt: prec retournée : %p\n", prec);
             return prec;
         }
 			else{
-            printf("g_supprimElt: suiv retournée : %p\n", suiv);
+            //printf("g_supprimElt: suiv retournée : %p\n", suiv);
             return suiv;
          }
 		}

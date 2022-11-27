@@ -23,9 +23,11 @@ int nearestSquare(int a){
 
 /*Si N est un carré entier alors on retourne 0 sinon la retournée est 
  * celle qu'aurait renvoyée nearestSquare */
-int perfectSquare(int N){ int i = 2, tmp;
+int perfectSquare(int N){ 
+    int i = 2, tmp;
     if(i > N) {return 1;}
     tmp = i * i;
+    if(tmp == N){return 0;}
     while(tmp < N){ i++; tmp = i*i; if(tmp == N) {return 0;} }
     --i;
     return i;
