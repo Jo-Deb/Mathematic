@@ -28,30 +28,15 @@ int main(int argc, char ** argv){
         printf("l'approximation de e à la réduite %d est : 3\n", idx);
         return 0;
     }
-
-    for(i=idx; i>=1; --i){
+    if(idx % 3 == 0){num = 2*(idx/3);}
+    for(i=idx-1; i>=1; --i){
         tmp = num; num = deno; deno = tmp;
-        if(i == 1){ num += 2*deno;}
+        if(i==1){ num += 2*deno; }
         else{
-            if(i==idx){
-                //On réalise les deux premières opérations du calcul soit, par exemple, 2 + 1/(1 + 1/1)
-                if(i % 3 == 2){
-                    q = (i - 2) / 3; num += deno;
-                    tmp = num; num = 2*q*num + 1;
-                    deno = num; i = i - 1;
-                }
-                else{
-                    if(i % 3 == 1){ q = (i-1)/3; } else{ q = i/3; }
-                    num = 2*q + deno; tmp = num;
-                    num += 1; deno = tmp;
-                    i = i - 1;
-                }
-            }
-            else{
-                if(i % 3 != 0){num += deno;}else{ q = i / 3; num += 2*q*deno;}
-            }
+            if(i % 3 == 0){ num += 2*(i/3)*deno; } else { num += deno; }
         }
     }
-    printf("l'approximation de e à la réduite %d est : %d/%d\n", idx, num, deno);
+    printf("l'approximation de e à la réduite %d est : %d/%d et la somme des chiffres du numérateur est : %d\n"\
+            , idx, num, deno, integerSum(num));
     return 0;
 }
