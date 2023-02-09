@@ -2,11 +2,15 @@ extern void bigAffiche(char * a);
 
 extern char * intToTab(int a);
 
+extern char * copieTab(char * a);
+
 extern char * plusGrand(char * a, char * b);
 
 extern char * bigSomme(char * a, char *b);
 
 extern char * bigMultiplication(char * a, char *b);
+
+extern int sommePositifChriffe(char * a);
 
 extern char * rendNegatif(char * a);
 

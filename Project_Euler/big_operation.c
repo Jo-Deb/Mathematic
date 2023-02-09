@@ -22,6 +22,15 @@ char * intToTab(int a){
 	return res;
 }
 
+char * copieTab(char * a){
+    int i;
+    char * res = malloc(1001*sizeof(char));
+    //On effectue une copie pure du tableau a
+    res[1000]='\0';
+    for(i=0; i<=999; ++i){res[i]=a[i];}
+    return res;
+}
+
 char * plusGrand(char * a, char * b){
     int i=999; char * tp=NULL;
     while(i>=0 && (a[i]!='a'|| b[i]!='a')){
@@ -283,6 +292,14 @@ int tailleChaine(char *a){
     return taille;
 }
 
+int sommePositifChriffe(char * a){
+    int i, res = 0;
+    for(i=999; i>=0; --i){
+        if(a[i]!='a' && a[i]!='\0'){ res += a[i]; }
+        if(a[i]=='a'){return res;}
+    }
+    return res;
+}
 /*
 int main(){
 	int j;
