@@ -30,17 +30,21 @@ liste * facteurPremier(int a){
 long int estCarre(long int a){
     printf("calcul pour %ld\n", a);
     long int prec = 0, next = 50000;
+    int cpt = 0;
     while(next - prec > 1){
         while(CARRE[prec] < a && CARRE[next] > a && next - prec > 1){ 
             next -= (next - prec)/2;
+            ++cpt;
             printf("boucle while: prec = %ld et next = %ld, CARRE[prec] = %lu, CARRE[next] = %lu\n", prec, next, CARRE[prec], CARRE[next]);
         }
         if(CARRE[prec] < a && CARRE[next] < a){
             prec = next; next += (100000 - next)/2; 
+            ++cpt;
             printf("1er if: prec = %ld et next = %ld\n", prec, next);
         }
-        if(CARRE[prec] == a || CARRE[next] == a){ return a; }
+        if(CARRE[prec] == a || CARRE[next] == a){ printf("%d divisions\n", cpt); return a; }
     }
+    printf("%d divisions\n", cpt); 
     return 0;
 }
 
