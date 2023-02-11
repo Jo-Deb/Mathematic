@@ -29,21 +29,15 @@ liste * facteurPremier(int a){
 //retourne a s'il est carré parmis les 100000 premiers carrés
 long int estCarre(long int a){
     printf("calcul pour %ld\n", a);
-    long int prec = 0, next = 99999, tmp, old_prec, old_next;
+    long int prec = 0, next = 50000;
     while(next - prec > 1){
         while(CARRE[prec] < a && CARRE[next] > a && next - prec > 1){ 
-            old_prec = prec, old_next = next;
-            next -= (next - prec)/2; prec +=(next - prec)/2;
+            next -= (next - prec)/2;
             printf("boucle while: prec = %ld et next = %ld, CARRE[prec] = %lu, CARRE[next] = %lu\n", prec, next, CARRE[prec], CARRE[next]);
         }
-        if(CARRE[prec] > a && CARRE[next] > a){
-            next = prec; prec = old_prec;
-            printf("1er if: prec = %ld et next = %ld\n", prec, next);
-        }
         if(CARRE[prec] < a && CARRE[next] < a){
-            //tmp = next; next += (next - prec)/2; prec = tmp;
-            next = old_next;
-            printf("2ème if: prec = %ld et next = %ld\n", prec, next);
+            prec = next; next += (100000 - next)/2; 
+            printf("1er if: prec = %ld et next = %ld\n", prec, next);
         }
         if(CARRE[prec] == a || CARRE[next] == a){ return a; }
     }
