@@ -40,9 +40,9 @@ long int estCarre(long int a){
             next = prec; prec = old_prec;
             printf("prec = %ld et next = %ld\n", prec, next);
         }
-        while(CARRE[prec] < a && CARRE[next] < a){
+        if(CARRE[prec] < a && CARRE[next] < a){
             //tmp = next; next += (next - prec)/2; prec = tmp;
-            tmp = next; next += (next - prec); prec = tmp;
+            next = old_next;
             printf("prec = %ld et next = %ld\n", prec, next);
         }
         if(CARRE[prec] == a || CARRE[next] == a){ return a; }
