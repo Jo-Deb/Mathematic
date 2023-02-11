@@ -39,7 +39,7 @@ long int estCarre(long int a){
             printf("boucle while: prec = %ld et next = %ld, CARRE[prec] = %lu, CARRE[next] = %lu\n", prec, next, CARRE[prec], CARRE[next]);
         }
         if(CARRE[prec] < a && CARRE[next] < a){
-            prec = next; next += (old_next - next)/2; 
+            prec = next; next = old_next; 
             ++cpt;
             printf("1er if: prec = %ld et next = %ld\n", prec, next);
         }
