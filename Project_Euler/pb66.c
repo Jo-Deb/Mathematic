@@ -34,16 +34,16 @@ long int estCarre(long int a){
         while(CARRE[prec] < a && CARRE[next] > a && next - prec > 1){ 
             old_prec = prec, old_next = next;
             next -= (next - prec)/2; prec +=(next - prec)/2;
-            printf("prec = %ld et next = %ld, CARRE[prec] = %lu, CARRE[next] = %lu\n", prec, next, CARRE[prec], CARRE[next]);
+            printf("boucle while: prec = %ld et next = %ld, CARRE[prec] = %lu, CARRE[next] = %lu\n", prec, next, CARRE[prec], CARRE[next]);
         }
         if(CARRE[prec] > a && CARRE[next] > a){
             next = prec; prec = old_prec;
-            printf("prec = %ld et next = %ld\n", prec, next);
+            printf("1er if: prec = %ld et next = %ld\n", prec, next);
         }
         if(CARRE[prec] < a && CARRE[next] < a){
             //tmp = next; next += (next - prec)/2; prec = tmp;
             next = old_next;
-            printf("prec = %ld et next = %ld\n", prec, next);
+            printf("2ème if: prec = %ld et next = %ld\n", prec, next);
         }
         if(CARRE[prec] == a || CARRE[next] == a){ return a; }
     }
