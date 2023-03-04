@@ -2,12 +2,21 @@
 #include <stdlib.h>
 #include <limits.h>
 #include "liste.h"
+#include "big_operation.h"
 
 #define LI  long int
 #define ULI unsigned long int
-ULI CARRE[100000]; 
-int PREMIER[50000];
+ULI CARRE[200000]; 
+//int PREMIER[50000];
+int PREMIER[100000], N_alpha, N;
 LI  IDX_SQR = 0;
+
+struct nombre_algebrique{
+    int a;
+    int b;
+} typedef nbr_alg;
+
+nbr_alg Alpha, Beta;
 
 struct diophante_elt{
     int valeur;
@@ -17,14 +26,14 @@ struct diophante_elt{
 void fillCarre(){
     printf("début de fillCarre\n");
     int i;
-    for(i=0; i<100000; ++i){ CARRE[i]=(i+1)*(i+1); }
+    for(i=0; i<200000; ++i){ CARRE[i]=(i+1)*(i+1); }
     printf("fin de fillCarre\n");
 }
 
 void fillPremier(){
    int i = 0; ULI tmp = 0;
    FILE * fd = fopen("base_nbr_premiers.dat", "r");
-   while(fscanf(fd, "%lu", &tmp)!=EOF && i < 50000){PREMIER[i]=tmp; ++i;}
+   while(fscanf(fd, "%lu", &tmp)!=EOF && i < 100000){PREMIER[i]=tmp; ++i;}
 }
 
 liste * facteurPremier(int a){
@@ -97,6 +106,7 @@ int isSolution(dio D, LI X){
 int estSolution(int D, LI X_sqr, LI nterm){
     liste * res = facteurPremier(D);
     if(X_sqr - nterm == 1){
+        afficheListe(res);
         if(premierAvecFacteur(res, X_sqr)){ return 0; } // n'est pas premier
         else { return 1; }
     }
@@ -119,22 +129,30 @@ LI treat_D(int D){
     return Y_sqr;
 }
 
-int main(){
+//faire des fonctions qui permettent de calculer les alpha_i, les beta_i et les N_alphai
+
+int nearestSqurare(){
+    int min, tmp;
+    if(estCarre(N) > 0){ printf("N = %d est carré\n", N); return 0;}
+    else {
+        min = abs((int)CARRE[IDX_SQR] - N);
+        if(min > abs((int)CARRE[IDX_SQR+1] - N)){return IDX_SQR;} else {return IDX_SQR+1;}
+    }
+}
+
+void calculNorme(){
+    char * a = power(intToTab(Alpha.a), 2), * b = power(intToTab(Alpha.b), 2);
+    char * c = bigSoustraction(*a, bigMultiplication(*b, intToTab(N)));
+    
+}
+
+void next(alpha){
+
+}
+
+int main(int argc, char ** argv){
     fillCarre();
     fillPremier();
-    //printf("CHAR_BIT       = %d\n", CHAR_BIT);
-    //printf("MB_LEN_MAX     = %d\n\n", MB_LEN_MAX);
-
-    //printf("CHAR_MIN       = %+d\n", CHAR_MIN);
-    //printf("CHAR_MAX       = %+d\n", CHAR_MAX);
-    //printf("SCHAR_MIN      = %+d\n", SCHAR_MIN);
-    //printf("SCHAR_MAX      = %+d\n", SCHAR_MAX);
-    //printf("UCHAR_MAX      = %u\n\n", UCHAR_MAX);
-
-    //printf("SHRT_MIN       = %+d\n", SHRT_MIN);
-    //printf("SHRT_MAX       = %+d\n", SHRT_MAX);
-    //printf("USHRT_MAX      = %u\n\n", USHRT_MAX);
-
     printf("INT_MIN        = %+d\n", INT_MIN);
     printf("INT_MAX        = %+d\n", INT_MAX);
     printf("UINT_MAX       = %u\n\n", UINT_MAX);
@@ -147,18 +165,11 @@ int main(){
     printf("LLONG_MAX      = %+lld\n", LLONG_MAX);
     printf("ULLONG_MAX     = %llu\n\n", ULLONG_MAX);
 
-    //printf("PTRDIFF_MIN    = %td\n", PTRDIFF_MIN);
-    //printf("PTRDIFF_MAX    = %+td\n", PTRDIFF_MAX);
-    //printf("SIZE_MAX       = %zu\n", SIZE_MAX);
-    //printf("SIG_ATOMIC_MIN = %+jd\n",(intmax_t)SIG_ATOMIC_MIN);
-    //printf("SIG_ATOMIC_MAX = %+jd\n",(intmax_t)SIG_ATOMIC_MAX);
-    //printf("WCHAR_MIN      = %+jd\n",(intmax_t)WCHAR_MIN);
-    //printf("WCHAR_MAX      = %+jd\n",(intmax_t)WCHAR_MAX);
-    //printf("WINT_MIN       = %jd\n", (intmax_t)WINT_MIN);
-    //printf("WINT_MAX       = %jd\n", (intmax_t)WINT_MAX);
+    printf("la valeur carré la plus grande est : %lu\n", CARRE[199999]);
+    printf("le premier le plus grande est : %d\n", PREMIER[99999]);
     LI nterm;
     int D, result,  Y_idc = 0, X_idc = 0, X_max = 0;
-    //for(D=0; D <50000; ++D){printf("PREMIER[%d] = %d\n", D, PREMIER[D]);}
+
     for(D=2; D<=1000; ++D){
         printf("traitement pour D = %d\n", D);
         while( estCarre((LI)D) ){
@@ -168,7 +179,11 @@ int main(){
         while(result != 1){
             ++Y_idc;
             nterm = D*CARRE[Y_idc];
-            if(estCarre(nterm) == 0){X_idc = IDX_SQR + 1;}
+            if(estCarre(nterm) == 0){
+                X_idc = IDX_SQR + 1;
+                //printf("test pour X_carre = %lu indice %d et Y_carre = %lu indice %d et D = %d et D*Y_carre = %lu\n"
+               //        , CARRE[X_idc], X_idc, CARRE[Y_idc], Y_idc,  D, nterm);
+            }
             else{ printf("il y a un problème avec D=%d, Y=%li, DY_carré=%li, X_carré=%li\n", D, CARRE[Y_idc], nterm, CARRE[X_idc]); 
                 return 0;
             }
