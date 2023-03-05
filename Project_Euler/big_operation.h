@@ -1,5 +1,7 @@
 extern void bigAffiche(char * a); 
 
+extern long long tabToInt(char * a); 
+
 extern char * intToTab(int a);
 
 extern char * copieTab(char * a);

@@ -11,6 +11,17 @@ void bigAffiche(char * a){
     }
 }
 
+long long tabToInt(char *a){
+    long long res = 0;
+    int i;
+	for(i=0; i<=999; i++){ 
+        if(a[i]!='a' && a[i]!='-'){ res = 10*res + a[i]; }
+        if(a[i]=='-'){res = -1*a[++i];} 
+    }
+    return res;
+}
+
+//l'unité occupe le rang 999
 char * intToTab(int a){
 	int i, j, c, d;
 	char * res = malloc(1001*sizeof(char));
@@ -99,11 +110,17 @@ char * bigSoustraction(char * a1, char * b1) /* a-b */ {
     res[1000]='\0';
     for(i=999; i>=0 && (a[i]!='a'|| b[i]!='a' || ret!=0); i--){
 		if(a[i]!='a'&& b[i]!='a'){
-            if(a[i] > b[i] + ret){ val=a[i]-b[i]-ret; res[i]= val;}
-            if(a[i] == b[i] + ret){ res[i]=0;}
+            if(a[i] > b[i] + ret){ val=a[i]-b[i]-ret; res[i]= val; ret=0;}
+            if(a[i] == b[i] + ret){ res[i]=0; ret = 0;}
             if(a[i] < b[i] + ret){ 
                 if(a[i-1]!='a'){val=10+a[i]-b[i]-ret; ret=1; res[i]=val;}
-                else { printf("comportement non pris en compte, a[%d]=%d\n", i, a[i]);}
+                else {
+                    printf("a = %s\n", a);
+                    printf("a = %s\n", b);
+                    PRINT(a);
+                    PRINT(b);
+                    printf("comportement non pris en compte, a[%d]=%d\n", i, a[i]);
+                }
             }
         }
         if(a[i]!='a' && b[i]=='a'){
@@ -304,6 +321,7 @@ int sommePositifChriffe(char * a){
 int main(){
 	int j;
 	char * pt, * max;
+    for(j=-100; j<=100; ++j){printf("%lli\n", tabToInt(intToTab(j)));}
 
 	for(j=12; j<=1000; j++){ 
 		pt = intToTab(j);
@@ -317,3 +335,4 @@ int main(){
 	return 0;
 }
 */
+

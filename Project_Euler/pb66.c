@@ -136,18 +136,32 @@ int nearestSqurare(){
     if(estCarre(N) > 0){ printf("N = %d est carré\n", N); return 0;}
     else {
         min = abs((int)CARRE[IDX_SQR] - N);
-        if(min > abs((int)CARRE[IDX_SQR+1] - N)){return IDX_SQR;} else {return IDX_SQR+1;}
+        if(min > abs((int)CARRE[IDX_SQR+1] - N)){return IDX_SQR+1;} else {return IDX_SQR;}
     }
 }
 
 void calculNorme(){
     char * a = power(intToTab(Alpha.a), 2), * b = power(intToTab(Alpha.b), 2);
-    char * c = bigSoustraction(*a, bigMultiplication(*b, intToTab(N)));
-    
+    char * c = bigSoustraction(a, bigMultiplication(b, intToTab(N)));
+    N_alpha = (int) tabToInt(c);
 }
 
-void next(alpha){
+void calcule_beta(){
+    int m=1, tmp= Alpha.a + Alpha.b*m;
+    while(tmp % N_alpha != 0){++m; tmp = Alpha.a + Alpha.b*m;} 
+    Beta.a = m; Beta.b = 1;
+}
 
+void next_alpha(){
+    if(Alpha.a == 1 && Alpha.b == 0){
+        Alpha.b = 1; Alpha.a = nearestSqurare() + 1; 
+        calculNorme(); return; 
+    }
+    calculNorme();
+    calcule_beta();
+    int tmaa = Alpha.a, tmab = Alpha.b, tmba = Beta.a;
+    Alpha.a = (tmaa*tmba + tmab*N) / abs(N_alpha);
+    Alpha.b = (tmaa + tmab*tmba) / abs(N_alpha);
 }
 
 int main(int argc, char ** argv){
@@ -165,32 +179,16 @@ int main(int argc, char ** argv){
     printf("LLONG_MAX      = %+lld\n", LLONG_MAX);
     printf("ULLONG_MAX     = %llu\n\n", ULLONG_MAX);
 
-    printf("la valeur carré la plus grande est : %lu\n", CARRE[199999]);
-    printf("le premier le plus grande est : %d\n", PREMIER[99999]);
-    LI nterm;
-    int D, result,  Y_idc = 0, X_idc = 0, X_max = 0;
-
-    for(D=2; D<=1000; ++D){
-        printf("traitement pour D = %d\n", D);
-        while( estCarre((LI)D) ){
-            printf("%d est carré, on va l'incrémenter\n", D); ++D;
+    for(N=2; N<=100; ++N){
+        while(estCarre(N) > 0){++N;}
+        Alpha.a = 1, Alpha.b = 0, Beta.a = 0, Beta.b = 1;
+        N_alpha = INT_MAX;
+        printf("___________________calcul des suites pour N = %d____________________\n", N);
+        while(abs(N_alpha) > 4 || abs(N_alpha) == 3){
+            next_alpha();
+            printf("Apha = %d + %d x sqrt(%d), Beta = %d + sqrt(%d) et N_alpha = %d\n", 
+                    Alpha.a, Alpha.b, N, Beta.a, N, N_alpha);
         }
-        result = 0, Y_idc = -1;
-        while(result != 1){
-            ++Y_idc;
-            nterm = D*CARRE[Y_idc];
-            if(estCarre(nterm) == 0){
-                X_idc = IDX_SQR + 1;
-                //printf("test pour X_carre = %lu indice %d et Y_carre = %lu indice %d et D = %d et D*Y_carre = %lu\n"
-               //        , CARRE[X_idc], X_idc, CARRE[Y_idc], Y_idc,  D, nterm);
-            }
-            else{ printf("il y a un problème avec D=%d, Y=%li, DY_carré=%li, X_carré=%li\n", D, CARRE[Y_idc], nterm, CARRE[X_idc]); 
-                return 0;
-            }
-            result = estSolution(D, CARRE[X_idc], nterm);
-        }
-        if(result == 1 && X_max > CARRE[X_idc]){X_max = CARRE[X_idc];}
-        printf("solution pour D=%d, X_carré=%li et Y_carré=%li\n", D, CARRE[X_idc], CARRE[Y_idc]);
     }
     return 0;
 }
