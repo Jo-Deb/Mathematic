@@ -144,7 +144,7 @@ int nearestSqurare(){
 void calculNorme(){
     char * a = power(intToTab(Alpha.a), 2), * b = power(intToTab(Alpha.b), 2);
     char * c = bigSoustraction(a, bigMultiplication(b, intToTab(N)));
-    PRINT(c);
+    //PRINT(c);
     N_alpha = (int) tabToInt(c);
 }
 
@@ -195,7 +195,7 @@ int main(int argc, char ** argv){
     printf("LLONG_MAX      = %+lld\n", LLONG_MAX);
     printf("ULLONG_MAX     = %llu\n\n", ULLONG_MAX);
 
-    for(N=337; N<=337; ++N){
+    for(N=2; N<=100; ++N){
         while(estCarre(N) > 0){++N;}
         Alpha.a = 1, Alpha.b = 0, Beta.a = 0, Beta.b = 1;
         N_alpha = INT_MAX;
