@@ -146,10 +146,24 @@ void calculNorme(){
     N_alpha = (int) tabToInt(c);
 }
 
+int check_beta(int m, int * val){
+	int tmp = abs(m*m -N);
+	if(tmp < *val){*val = tmp; return 1;}
+	return 0;
+}
+
 void calcule_beta(){
-    int m=1, tmp= Alpha.a + Alpha.b*m;
-    while(tmp % N_alpha != 0){++m; tmp = Alpha.a + Alpha.b*m;} 
-    Beta.a = m; Beta.b = 1;
+   int m=1, tmp= Alpha.a + Alpha.b*m, keep_going = 1, pm=0, n_beta_val = INT_MAX;
+	while(tmp % abs(N_alpha) != 0 || keep_going){
+		if(tmp % abs(N_alpha) == 0){
+			keep_going = check_beta(m, &n_beta_val);
+			if(keep_going == 1){pm = m;}
+		}
+		++m;
+		tmp = Alpha.a + Alpha.b*m;
+	}
+//    while(tmp % N_alpha != 0){++m; tmp = Alpha.a + Alpha.b*m;} 
+    Beta.a = pm; Beta.b = 1;
 }
 
 void next_alpha(){
