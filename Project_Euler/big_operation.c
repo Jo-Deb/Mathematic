@@ -11,13 +11,17 @@ void bigAffiche(char * a){
     }
 }
 
+int estNegatif(char * a){
+    int i;
+    for(i=999; (i>=0 && a[i]!='a'); i--){ if(a[i]=='-'){return 1;} }
+    return 0;
+}
+
 long long tabToInt(char *a){
     long long res = 0;
     int i;
-	for(i=0; i<=999; i++){ 
-        if(a[i]!='a' && a[i]!='-'){ res = 10*res + a[i]; }
-        if(a[i]=='-'){res = -1*a[++i];} 
-    }
+	for(i=0; i<=999; i++){ if(a[i]!='a' && a[i]!='-'){ res = 10*res + a[i]; } }
+    if(estNegatif(a)){res *= -1;}
     return res;
 }
 
@@ -93,8 +97,14 @@ char * bigMultiplication(char * a, char * b){
 
 char * rendNegatif(char * a){
     int i;
+    /*
     for(i=0; i<=999; i++){
         if(a[i+1]!='a'){ a[i]='-'; return a; }
+    }
+    */
+    for(i=999; i>0; i--){
+        if(a[i]=='-'){return a;}
+        if(a[i]=='a'){ a[i]='-'; return a; }
     }
     return a;
 }

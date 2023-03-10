@@ -6,6 +6,8 @@ extern char * intToTab(int a);
 
 extern char * copieTab(char * a);
 
+extern int estNegatif(char * a);
+
 extern char * plusGrand(char * a, char * b);
 
 extern char * bigSomme(char * a, char *b);
