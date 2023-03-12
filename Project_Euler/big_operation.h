@@ -4,6 +4,8 @@ extern long long tabToInt(char * a);
 
 extern char * intToTab(int a);
 
+extern char * longToTab(long a);
+
 extern char * copieTab(char * a);
 
 extern int estNegatif(char * a);

@@ -37,6 +37,18 @@ char * intToTab(int a){
 	return res;
 }
 
+char * longToTab(long a){
+	int i, j, d;
+   long c;
+	char * res = malloc(1001*sizeof(char));
+	// On remplit le tableau de a.
+	for(i=0; i<=999; i++){ res[i]='a';}
+	res[1000]='\0';
+	c=a; j=999;
+	while(c!=0 && j>=0){d = c%10; c = c/10; res[j]=d; j--;}	
+	return res;
+}
+
 char * copieTab(char * a){
     int i;
     char * res = malloc(1001*sizeof(char));
