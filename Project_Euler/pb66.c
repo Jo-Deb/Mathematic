@@ -9,12 +9,12 @@
 #define PRINT(pt) bigAffiche(pt); printf("\n");
 ULI CARRE[200000]; 
 //int PREMIER[50000];
-int PREMIER[100000], N_alpha, N;
-LI  IDX_SQR = 0;
+int PREMIER[100000], N;
+LI  IDX_SQR = 0, N_alpha;
 
 struct nombre_algebrique{
-    int a;
-    int b;
+    long a;
+    long b;
 } typedef nbr_alg;
 
 nbr_alg Alpha, Beta;
@@ -142,10 +142,10 @@ int nearestSqurare(){
 }
 
 void calculNorme(){
-    char * a = power(intToTab(Alpha.a), 2), * b = power(intToTab(Alpha.b), 2);
+    char * a = power(longToTab(Alpha.a), 2), * b = power(longToTab(Alpha.b), 2);
     char * c = bigSoustraction(a, bigMultiplication(b, intToTab(N)));
-    //PRINT(c);
-    N_alpha = (int) tabToInt(c);
+    PRINT(c);
+    N_alpha = (long) tabToInt(c);
 }
 
 int check_beta(int m, int * val){
@@ -155,14 +155,22 @@ int check_beta(int m, int * val){
 }
 
 void calcule_beta(){
-   int m=1, tmp= Alpha.a + Alpha.b*m, keep_going = 1, pm=0, n_beta_val = INT_MAX;
-	while(tmp % abs(N_alpha) != 0 || keep_going){
-		if(tmp % abs(N_alpha) == 0){
+   int m=1, keep_going = 1, pm=0, n_beta_val = INT_MAX;
+   long long tmp = tabToInt( 
+                        bigSomme(intToTab(Alpha.a), 
+                            bigMultiplication(intToTab(Alpha.b), intToTab(m)) 
+                        ) 
+                    );  
+	while(tmp % labs(N_alpha) != 0 || keep_going){
+		if(tmp % labs(N_alpha) == 0){
 			keep_going = check_beta(m, &n_beta_val);
 			if(keep_going == 1){pm = m;}
 		}
 		++m;
-		tmp = Alpha.a + Alpha.b*m;
+      tmp = tabToInt(   bigSomme(intToTab(Alpha.a), 
+                            bigMultiplication(intToTab(Alpha.b), intToTab(m)) 
+                        ) 
+                    ); 
 	}
 //    while(tmp % N_alpha != 0){++m; tmp = Alpha.a + Alpha.b*m;} 
     Beta.a = pm; Beta.b = 1;
@@ -173,11 +181,15 @@ void next_alpha(){
         Alpha.b = 1; Alpha.a = nearestSqurare() + 1; 
         calculNorme(); return; 
     }
-    calculNorme();
     calcule_beta();
-    int tmaa = Alpha.a, tmab = Alpha.b, tmba = Beta.a;
-    Alpha.a = (tmaa*tmba + tmab*N) / abs(N_alpha);
-    Alpha.b = (tmaa + tmab*tmba) / abs(N_alpha);
+    long tmaa = Alpha.a, tmab = Alpha.b, tmba = Beta.a;
+    long num = (long)(tabToInt(bigSomme(bigMultiplication(intToTab(tmaa), intToTab(tmba)), 
+                                bigMultiplication(intToTab(tmab), intToTab(N)))));
+    Alpha.a = num / labs(N_alpha);
+    num = (long)(tabToInt(bigSomme(intToTab(tmaa), 
+                                bigMultiplication(intToTab(tmab), intToTab(tmba)))));
+    Alpha.b = num / labs(N_alpha);
+    calculNorme();
 }
 
 int main(int argc, char ** argv){
@@ -195,14 +207,14 @@ int main(int argc, char ** argv){
     printf("LLONG_MAX      = %+lld\n", LLONG_MAX);
     printf("ULLONG_MAX     = %llu\n\n", ULLONG_MAX);
 
-    for(N=2; N<=100; ++N){
+    for(N=2; N<=500; ++N){
         while(estCarre(N) > 0){++N;}
         Alpha.a = 1, Alpha.b = 0, Beta.a = 0, Beta.b = 1;
-        N_alpha = INT_MAX;
+        N_alpha = LONG_MAX;
         printf("___________________calcul des suites pour N = %d____________________\n", N);
-        while(abs(N_alpha) > 4 || abs(N_alpha) == 3){
+        while(labs(N_alpha) > 4 || labs(N_alpha) == 3){
             next_alpha();
-            printf("Apha = %d + %d x sqrt(%d), Beta = %d + sqrt(%d) et N_alpha = %d\n", 
+            printf("Apha = %ld + %ld x sqrt(%d), Beta = %ld + sqrt(%d) et N_alpha = %ld\n", 
                     Alpha.a, Alpha.b, N, Beta.a, N, N_alpha);
         }
     }
