@@ -12,7 +12,7 @@ int main(){
                 m = n; n = r;
                 ++cpt;
             }
-            if(pgcd > 5 && cpt > 5 && pgcd != j){printf("pgcd(%d, %d) = %d en %d tours\n", i, j, pgcd, cpt);}
+            if(pgcd == 1 && cpt > 5 && pgcd != j){printf("pgcd(%d, %d) = %d en %d tours\n", i, j, pgcd, cpt);}
         }
     }
     return 0;
