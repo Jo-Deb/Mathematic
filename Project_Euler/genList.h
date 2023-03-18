@@ -24,11 +24,8 @@ extern glist * g_ajoutTete(glist * l, void * data, list * inner_list);
 
 extern glist * g_intAjoutTete(glist * l, int data, list * inner_list);
 
-//extern void g_purgeData(void * data);
+extern void g_purgeData(void * data);
 
 extern glist * g_supprimElt(glist * l, void * data);
 
 extern void g_freeList(glist * l);
-
-extern void g_afficheList(glist * l, void (* pt_show)(void *));
-

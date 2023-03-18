@@ -38,7 +38,7 @@ glist * g_intAjoutTete(glist * l, int data, list * inner_list){
     return head;
 }  
 
-/*
+
 //On suppose que les listes n'ont pas de doublons
 //Le 1er élément trouvé sera le seul supprimé
 glist * g_supprimElt(glist * l, void * data){
@@ -66,13 +66,13 @@ glist * g_supprimElt(glist * l, void * data){
 	}
 	return tmp;
 }
-*/
-/*
+
+
 void g_freeList(glist * l){
 	glist * tmp = l;
 	while(tmp!=NULL){tmp = g_supprimElt(tmp, tmp->elt);}
 }
-*/
+
 void g_afficheList(glist * l, void (* pt_show)(void *)){
     if(l==NULL){printf("La liste en argument est nulle\n"); return;}
     glist * tmp = l;
