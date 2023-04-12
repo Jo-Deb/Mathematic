@@ -24,10 +24,23 @@ int * solution(int * t1, int * t2){
    return res;
 }
 
+glist * treatList(glist *l){
+	glist * res = NULL, * tmp = l, *l2=NULL;
+	int * t1=NULL, * t2=NULL; 
+	while(tmp != NULL){
+		t1 = (int*) tmp->elt;
+		l2 = tmp->next;
+		while(l2 != NULL){
+			t2 = (int*) l2->elt;
+			res = g_ajoutTete(res, solution(t1, t2), NULL);
+		}
+	}
+	return res;
+}
+
 int main(){
 	int i, j, pen;
-   glist * l1, * l2, * l3, * l4, * l5;
-   l1 = l2 = l3 = l4 = l5 = NULL;
+   glist * l1=NULL, * l2=NULL, * l3=NULL, * l4=NULL, * l5=NULL;
 	double root, decimal, interval, tmp, i1=1.0/5.0, i2=2.0/5.0, i3=3.0/5.0, i4=4.0/5.0; //[0, i1[, [i1, i2[ ; [i2, i3[ ; [i3; i4[ ; [i4, 1[ 
 
 	for(i = 2; i < 100; ++i){
@@ -62,6 +75,18 @@ int main(){
              l5 = g_ajoutTete(l5, (void *)tab, NULL);
          }	
 		}
+		printf("liste des couples pour l'intervalle i1: \n");
+		g_afficheList(treatList(l1), show_couple);
+		printf("liste des couples pour l'intervalle i2: \n");
+		g_afficheList(treatList(l2), show_couple);
+		printf("liste des couples pour l'intervalle i3: \n");
+		g_afficheList(treatList(l3), show_couple);
+		printf("liste des couples pour l'intervalle i4: \n");
+		g_afficheList(treatList(l4), show_couple);
+		printf("liste des couples pour l'intervalle i5: \n");
+		g_afficheList(treatList(l5), show_couple);
 		printf("#######################################################################################################\n");
+		g_freeList(l1); g_freeList(l2); g_freeList(l3); g_freeList(l4); g_freeList(l5);
+		l1 = l2 = l3 = l4 = l5 = NULL;	
 	}
 }
