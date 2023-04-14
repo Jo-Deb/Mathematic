@@ -15,7 +15,7 @@ int estCarre(int d){
 
 void show_couple(void * tab){ 
     int * tmp = (int *) tab;
-    printf("x=%d, y=%d et d=%d - ", tmp[0], tmp[1], tmp[2]);
+    printf("x=%d, y=%d et d=%d et N=%d", tmp[0], tmp[1], tmp[2], abs(tmp[0]*tmp[0] - (tmp[2]*tmp[1]*tmp[1])));
 }
 
 int * solution(int * t1, int * t2){
@@ -25,17 +25,19 @@ int * solution(int * t1, int * t2){
 }
 
 glist * treatList(glist *l){
-	glist * res = NULL, * tmp = l, *l2=NULL;
-	int * t1=NULL, * t2=NULL; 
-	while(tmp != NULL){
-		t1 = (int*) tmp->elt;
-		l2 = tmp->next;
-		while(l2 != NULL){
-			t2 = (int*) l2->elt;
-			res = g_ajoutTete(res, solution(t1, t2), NULL);
-		}
-	}
-	return res;
+    glist * res = NULL, * tmp = l, *l2=NULL;
+	 int * t1=NULL, * t2=NULL; 
+	 while(tmp){
+		  t1 = (int*) tmp->elt;
+		  l2 = tmp->next;
+		  while(l2){
+			   t2 = (int*) l2->elt;
+			   res = g_ajoutTete(res, solution(t1, t2), NULL);
+            if(l2->next == NULL){l2 = NULL;} else {l2 = l2->next;}
+		  }
+        if(tmp->elt == NULL){tmp = NULL;} else {tmp = tmp->next;}
+    }
+	 return res;
 }
 
 int main(){
@@ -75,14 +77,19 @@ int main(){
              l5 = g_ajoutTete(l5, (void *)tab, NULL);
          }	
 		}
+      printf("liste originale l1: "); g_afficheList(l1, show_couple);
 		printf("liste des couples pour l'intervalle i1: \n");
 		g_afficheList(treatList(l1), show_couple);
+      printf("liste originale l2: "); g_afficheList(l2, show_couple);
 		printf("liste des couples pour l'intervalle i2: \n");
 		g_afficheList(treatList(l2), show_couple);
+      printf("liste originale l3: "); g_afficheList(l3, show_couple);
 		printf("liste des couples pour l'intervalle i3: \n");
 		g_afficheList(treatList(l3), show_couple);
+      printf("liste originale l4: "); g_afficheList(l4, show_couple);
 		printf("liste des couples pour l'intervalle i4: \n");
 		g_afficheList(treatList(l4), show_couple);
+      printf("liste originale l5: "); g_afficheList(l5, show_couple);
 		printf("liste des couples pour l'intervalle i5: \n");
 		g_afficheList(treatList(l5), show_couple);
 		printf("#######################################################################################################\n");
