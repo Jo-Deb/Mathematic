@@ -52,7 +52,8 @@ int main(){
 		printf("Les intervalles sont : [0, %4lf[ [%4lf, %4lf[ [%4lf, %4lf[ [%4lf, %4lf[ [%4lf, %d[\n", i1, i1, i2, i2, i3, i3, i4, i4, 1);
 		for(j=1; j<=15; ++j){
 			tmp = j*root;
-         pen = (int) round(tmp);
+         //pen = (int) round(tmp);
+         pen = (int) floor(tmp);
 			decimal = modf(tmp, &interval);
          int * tab = malloc(3*sizeof(int));
          tab[0] = pen, tab[1] = j, tab[2] = i;
@@ -77,21 +78,16 @@ int main(){
              l5 = g_ajoutTete(l5, (void *)tab, NULL);
          }	
 		}
-      printf("liste originale l1: "); g_afficheList(l1, show_couple);
-		printf("liste des couples pour l'intervalle i1: \n");
-		g_afficheList(treatList(l1), show_couple);
-      printf("liste originale l2: "); g_afficheList(l2, show_couple);
-		printf("liste des couples pour l'intervalle i2: \n");
-		g_afficheList(treatList(l2), show_couple);
-      printf("liste originale l3: "); g_afficheList(l3, show_couple);
-		printf("liste des couples pour l'intervalle i3: \n");
-		g_afficheList(treatList(l3), show_couple);
-      printf("liste originale l4: "); g_afficheList(l4, show_couple);
-		printf("liste des couples pour l'intervalle i4: \n");
-		g_afficheList(treatList(l4), show_couple);
-      printf("liste originale l5: "); g_afficheList(l5, show_couple);
-		printf("liste des couples pour l'intervalle i5: \n");
-		g_afficheList(treatList(l5), show_couple);
+      printf("l1 avant: "); g_afficheList(l1, show_couple);
+		printf("l1 après: "); g_afficheList(treatList(l1), show_couple); printf("\n");
+      printf("l2 avant: "); g_afficheList(l2, show_couple);
+		printf("l2 après: "); g_afficheList(treatList(l2), show_couple); printf("\n");
+      printf("l3 avant: "); g_afficheList(l3, show_couple);
+		printf("l3 après: "); g_afficheList(treatList(l3), show_couple); printf("\n");
+      printf("l4 avant: "); g_afficheList(l4, show_couple);
+		printf("l4 après: "); g_afficheList(treatList(l4), show_couple); printf("\n");
+      printf("l5 avant: "); g_afficheList(l5, show_couple);
+		printf("l5 après: ");g_afficheList(treatList(l5), show_couple);
 		printf("#######################################################################################################\n");
 		g_freeList(l1); g_freeList(l2); g_freeList(l3); g_freeList(l4); g_freeList(l5);
 		l1 = l2 = l3 = l4 = l5 = NULL;	
