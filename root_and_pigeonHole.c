@@ -15,7 +15,7 @@ int estCarre(int d){
 
 void show_couple(void * tab){ 
     int * tmp = (int *) tab;
-    printf("x=%d, y=%d et d=%d et N=%d", tmp[0], tmp[1], tmp[2], abs(tmp[0]*tmp[0] - (tmp[2]*tmp[1]*tmp[1])));
+    printf("x=%d, y=%d, d=%d et N=%d", tmp[0], tmp[1], tmp[2], abs(tmp[0]*tmp[0] - (tmp[2]*tmp[1]*tmp[1])));
 }
 
 int * solution(int * t1, int * t2){
@@ -48,11 +48,12 @@ int main(){
 	for(i = 2; i < 100; ++i){
 		while(estCarre(i) == 0){++i;}
 		root = sqrt(i);
-		printf("############################################Racine(%d)###############################################\n", i);
+		printf("\t\t##############Racine(%d) et partie_entière(1+2*sqrt(%d)) = %d########\n", i, i, (int)floor(1+2*sqrt(i)));
 		printf("Les intervalles sont : [0, %4lf[ [%4lf, %4lf[ [%4lf, %4lf[ [%4lf, %4lf[ [%4lf, %d[\n", i1, i1, i2, i2, i3, i3, i4, i4, 1);
 		for(j=1; j<=15; ++j){
 			tmp = j*root;
-         pen = (int) round(tmp);
+         //pen = (int) round(tmp);
+         pen = (int) floor(tmp);
 			decimal = modf(tmp, &interval);
          int * tab = malloc(3*sizeof(int));
          tab[0] = pen, tab[1] = j, tab[2] = i;
