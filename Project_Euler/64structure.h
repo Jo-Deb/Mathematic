@@ -45,6 +45,11 @@ extern fractir * irraToFractir(irrationnel * a);
 extern cfrac * fractirToCfrac(fractir * a);
 extern fraction * createFraction(cfrac * num, cfrac * deno);
 extern fracB * createFracB(int num, irrationnel * deno);
+extern int norme(irrationnel *irr);
+extern int isFormedBrute(fracB * elt);
+extern fractir * formePropre(fracB * fbrut);
+extern int partieEntiere(fractir * elt);
+extern fracB * nextFb(fractir * fr);
 /*____________________________________________________________*/
 
 /*___________fonctions d'affichage des structures_____________*/
