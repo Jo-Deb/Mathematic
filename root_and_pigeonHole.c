@@ -48,7 +48,7 @@ int main(){
 	for(i = 2; i < 100; ++i){
 		while(estCarre(i) == 0){++i;}
 		root = sqrt(i);
-		printf("############################################Racine(%d)###############################################\n", i);
+		printf("########################Racine(%d)=%lf et 1 +2*sqrt(%d)=%lf#############################\n", i, sqrt(i), i, 1+2*sqrt(i));
 		printf("Les intervalles sont : [0, %4lf[ [%4lf, %4lf[ [%4lf, %4lf[ [%4lf, %4lf[ [%4lf, %d[\n", i1, i1, i2, i2, i3, i3, i4, i4, 1);
 		for(j=1; j<=15; ++j){
 			tmp = j*root;

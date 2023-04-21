@@ -75,6 +75,39 @@ fracB * createFracB(int num, irrationnel * deno){
     return res;
 }
 
+int norme(irrationnel * irr){
+	int racine = irr->racine, suppl = abs(irr->suppl);
+	return (racine - (suppl*suppl));
+}
+
+int isFormeBrute(fracB * elt){
+	int num = elt->num;
+	irrationnel * deno = elt->deno;
+	if(deno->racine != 0 && num > 0 && deno->suppl !=0){return 1;} else {return -1;}
+}
+
+fractir * formePropre(fracB * fbrut){
+	if(isFormeBrute(fbrut) < 0){printf("formePropre: l'argument en entrée n'est pas une forme brute\n"); return NULL;}
+	int Vnorme = norme(fbrut->deno), Vnum = fbrut->num;
+	if(Vnorme % Vnum > 0){printf("formePropre: l'argument %d ne divise pas %d\n", Vnum, Vnorme); return NULL;}
+	int k = Vnorme/Vnum;
+	fractir * res = createFractir(createIrrationnel(fbrut->deno->racine, -1*fbrut->deno->suppl), k);	
+	return res;
+}
+
+int partieEntiere(fractir * elt){
+	int sqrt = elt->num->racine, suppl = elt->num->suppl, ns = nearestRoot(elt->num->racine);
+	if(elt->deno == 0){printf("partieEntiere: denominateur = 0, erreur!\n"); return -1;}	 
+	int An = (ns + suppl)/elt->deno;
+	if(An == 0){printf("partieEntiere: la partie est nulle, erreur!"); return -1;}
+	elt->num->suppl = ((An * elt->deno) - elt->num->suppl) * -1;
+	return An;
+}
+
+fracB * nextFb(fractir *fr){
+	irrationnel * deno = createIrrationnel(fr->num->racine, fr->num->suppl);
+	return createFracB(fr->deno, deno);
+}
 /*___________Fonctions d'affichage______________________*/
 void afficheIrrationnel(irrationnel * a){
     if(a->racine < 0){
