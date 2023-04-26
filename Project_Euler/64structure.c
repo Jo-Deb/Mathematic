@@ -96,7 +96,7 @@ fractir * formePropre(fracB * fbrut){
 }
 
 int partieEntiere(fractir * elt){
-	int sqrt = elt->num->racine, suppl = elt->num->suppl, ns = nearestRoot(elt->num->racine);
+	int sqrt = elt->num->racine, suppl = elt->num->suppl, ns = nearestRoot(elt->num);
 	if(elt->deno == 0){printf("partieEntiere: denominateur = 0, erreur!\n"); return -1;}	 
 	int An = (ns + suppl)/elt->deno;
 	if(An == 0){printf("partieEntiere: la partie est nulle, erreur!"); return -1;}

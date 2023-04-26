@@ -10,14 +10,19 @@ int g_listLongueur(glist * l){
 }
 
 void g_ajoutFin(glist * l, void * data, list * inner_list){
-	glist * tmp = l;
-	//aller à la fin de la liste
-	while(tmp->next != NULL){tmp = tmp->next;}
-	glist * inst = malloc(sizeof(glist));
-	inst->elt = data; 
-	inst->lst = inner_list;
-	inst->next = NULL;
-	tmp->next = inst;	
+    if(l == NULL){
+        l = malloc(sizeof(glist));
+        l->elt = data; l->lst = inner_list; l->next = NULL;
+        return;
+    } 
+	 glist * tmp = l;
+	 //aller à la fin de la liste
+	 while(tmp->next != NULL){tmp = tmp->next;}
+	 glist * inst = malloc(sizeof(glist));
+	 inst->elt = data; 
+	 inst->lst = inner_list;
+	 inst->next = NULL;
+	 tmp->next = inst;	
 } 
 
 glist * g_ajoutTete(glist * l, void * data, list * inner_list){

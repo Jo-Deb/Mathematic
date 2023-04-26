@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "liste.h"
+#include "genList.h"
+#include "64structure.h"
 #include "big_operation.h"
 
 #define LI  long int
@@ -37,19 +38,19 @@ void fillPremier(){
    while(fscanf(fd, "%lu", &tmp)!=EOF && i < 100000){PREMIER[i]=tmp; ++i;}
 }
 
-liste * facteurPremier(int a){
-    liste * res = NULL;
+list * facteurPremier(int a){
+    list * res = NULL;
     int i, tmp = a;
     for(i=0; PREMIER[i] <= tmp; ++i){
-        if( tmp % PREMIER[i] == 0 ){ res = ajoutEnTete(res, PREMIER[i]); tmp = tmp/PREMIER[i];}
+        if( tmp % PREMIER[i] == 0 ){ res = ajoutFin(res, PREMIER[i]); tmp = tmp/PREMIER[i];}
     }
     return res;
 }
 
-int premierAvecFacteur(liste * l, int D){
-    liste * tmp = l;
+int premierAvecFacteur(list * l, int D){
+    list * tmp = l;
     while(tmp->l != NULL){
-        if(D%tmp->value == 0){return 1;}
+        if(D%tmp->elt == 0){return 1;}
         tmp = tmp->l;
     }
     return 0;
@@ -57,7 +58,6 @@ int premierAvecFacteur(liste * l, int D){
 
 //retourne a s'il est carré parmis les 100000 premiers carrés
 long int estCarre(long int a){
-    //printf("calcul pour %ld\n", a);
     long int prec = 0, next = 50000, old_next = 100000;
     int cpt = 0;
     while(next - prec > 1){
@@ -65,21 +65,17 @@ long int estCarre(long int a){
             old_next = next;
             next -= (next - prec)/2;
             ++cpt;
-            //printf("boucle while: prec = %ld et next = %ld, CARRE[prec] = %lu, CARRE[next] = %lu\n", prec, next, CARRE[prec], CARRE[next]);
         }
         if(CARRE[prec] < a && CARRE[next] < a){
             prec = next; next = old_next; 
             ++cpt;
-            //printf("1er if: prec = %ld et next = %ld\n", prec, next);
         }
         if(CARRE[prec] == a || CARRE[next] == a){
             if (CARRE[prec] == a){ IDX_SQR = prec; }
             if (CARRE[next] == a){ IDX_SQR = next; }
-            //printf("%d divisions\n", cpt); 
             return a; 
         }
     }
-    //printf("%d divisions\n", cpt); 
     IDX_SQR = prec;
     return 0;
 }
@@ -96,7 +92,7 @@ void facteurDeBezout(LI m, LI n, LI * res){
 }
 
 int isSolution(dio D, LI X){
-    liste * tmp = NULL; LI res[2]; //On met 3 car ce n'est pas un carré
+    list * tmp = NULL; LI res[2]; //On met 3 car ce n'est pas un carré
     res[0] = 0; res[1] = 0; 
     tmp = facteurPremier(X);
     if(premierAvecFacteur(tmp, D.valeur) > 0){return 3;} //On retourne 3 car ce n'est pas une valeur carée
@@ -105,9 +101,9 @@ int isSolution(dio D, LI X){
 }
 
 int estSolution(int D, LI X_sqr, LI nterm){
-    liste * res = facteurPremier(D);
+    list * res = facteurPremier(D);
     if(X_sqr - nterm == 1){
-        afficheListe(res);
+        afficheList(res);
         if(premierAvecFacteur(res, X_sqr)){ return 0; } // n'est pas premier
         else { return 1; }
     }
@@ -192,6 +188,65 @@ void next_alpha(){
     calculNorme();
 }
 
+int rechercheFractir(glist * l, fractir * fr){
+    glist * tmp = l;
+    while(tmp != NULL){
+        if(egaliteFractir((fractir *)tmp->elt, fr)==0){return 1;}
+        tmp = tmp->next;
+    }
+    return 0;
+}
+
+list * calculListeTerme(int d){
+    glist * lst_reste = NULL; list * res = NULL;
+    fractir * fr = createFractir(createIrrationnel(d,0), 1);
+    fracB * fb = NULL;
+    res = ajoutFin(res, partieEntiere(fr));
+    do {
+        lst_reste = g_ajoutTete(lst_reste, (void *)fr, NULL);
+        //g_ajoutFin(lst_reste, (void *)fr, NULL);
+        fb = nextFb(fr);
+        fr = formePropre(fb);
+        res = ajoutFin(res, partieEntiere(fr));
+    } while(rechercheFractir(lst_reste, fr)==0);
+    return res;
+}
+
+void testCalulListeTerme(){
+    int i; list * terme = NULL;
+    for(i = 2; i <= 20; ++i){
+        if(estCarre(i) > 0) {++i;}
+        terme = calculListeTerme(i);
+        printf("la liste des termes de %d est : ", i); afficheList(terme); printf("\n");
+        freeList(terme);
+        terme = NULL;
+    }
+}
+
+void searchSolution(list * terme, int d, long long * x){
+    list * tmp = terme; long long p_2 = 0, p_1 = 1, p0 = tmp->elt, q0=1, q_1 = 0, q_2 = 1;
+    char * X = power(intToTab(p0), 2), * Y = intToTab(1), * res = bigSoustraction(X, intToTab(d));
+    tmp = tmp->l;
+    while(labs(tabToInt(res))!=1 && tmp!= NULL){
+        free(X); free(Y);
+        X = NULL, Y = NULL;
+        p_2 = p_1; p_1 = p0; p0 = tmp->elt * p_1 + p_2;
+        q_2 = q_1; q_1 = q0; q0 = tmp->elt * q_1 + q_2;
+        X = power(intToTab(p0), 2), Y = power(intToTab(q0), 2);
+        res = bigSoustraction(X, bigMultiplication(intToTab(d), Y));
+        tmp = tmp->l;
+    }
+    if(tmp == NULL){printf("pas de solution pour %d\n", d); return;}
+    long long n = tabToInt(res);
+    if(n == -1){
+        long long tp = p0, tq = q0;
+        p0 = tp*tp + d*tq, q0 = 2*tp*tq;
+    }
+    if(*x < p0){ *x = p0;}
+    printf(" la solution pour %d est X = %lld et Y = %lld\n", d, p0, q0);
+    return;
+}
+
 int main(int argc, char ** argv){
     fillCarre();
     fillPremier();
@@ -206,8 +261,18 @@ int main(int argc, char ** argv){
     printf("LLONG_MIN      = %+lld\n", LLONG_MIN);
     printf("LLONG_MAX      = %+lld\n", LLONG_MAX);
     printf("ULLONG_MAX     = %llu\n\n", ULLONG_MAX);
-
-    for(N=2; N<=500; ++N){
+    list * res = NULL;
+    long long x = 0;
+    for(N = 2; N <= 1000; ++N){
+        while(estCarre(N) > 0){++N;}
+        printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+        res = calculListeTerme(N);
+        printf("la liste des termes pour %d est : ", N); afficheList(res); printf("\n");
+        searchSolution(res, N, &x);
+        printf("###############################################################\n");
+    }
+    printf("la valeur max de x est %lld\n", x);
+    for(N=337; N<=5; ++N){
         while(estCarre(N) > 0){++N;}
         Alpha.a = 1, Alpha.b = 0, Beta.a = 0, Beta.b = 1;
         N_alpha = LONG_MAX;
