@@ -212,6 +212,20 @@ list * calculListeTerme(int d){
     return res;
 }
 
+void calculreduites(list * termes){
+    list * tmp = termes;
+    unsigned long p0=tmp->elt, q0=1, p_1=1, p_2=0, q_1=0, q_2=1;
+    int idx = 0;
+    while(tmp->l != NULL){
+        printf("le terme %d est %lu/%lu\n", idx, p0, q0);
+        tmp = tmp->l;
+        p_2 = p_1; p_1 = p0; p0 = tmp->elt*p_1 + p_2;
+        q_2 = q_1; q_1 = q0; q0 = q_1*tmp->elt + q_2;
+        ++idx;
+    }
+    return;
+}
+
 void testCalulListeTerme(){
     int i; list * terme = NULL;
     for(i = 2; i <= 20; ++i){
@@ -267,6 +281,7 @@ int main(int argc, char ** argv){
         while(estCarre(N) > 0){++N;}
         printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
         res = calculListeTerme(N);
+        calculreduites(res);
         printf("la liste des termes pour %d est : ", N); afficheList(res); printf("\n");
         searchSolution(res, N, &x);
         printf("###############################################################\n");
