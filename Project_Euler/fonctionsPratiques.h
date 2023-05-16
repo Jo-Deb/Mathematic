@@ -57,3 +57,7 @@ extern void supprimeDoublon(int * tab, int taille, int sub);
 extern int factoriel(int n);
 
 extern int getMax(int * tab, int len);
+
+extern char * concatString(char ** tab, int tailleTab);
+
+extern char * intToString(int n);

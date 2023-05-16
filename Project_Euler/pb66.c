@@ -214,14 +214,16 @@ list * calculListeTerme(int d){
 
 void calculreduites(list * termes){
     list * tmp = termes;
-    unsigned long p0=tmp->elt, q0=1, p_1=1, p_2=0, q_1=0, q_2=1;
+    unsigned long p0, q0=1, p_1=1, p_2=0, q_1=0, q_2=1;
     int idx = 0;
-    while(tmp->l != NULL){
+    while(tmp != NULL){
+        p0 = tmp->elt*p_1 + p_2;
+        q0 = q_1*tmp->elt + q_2;
         printf("le terme %d est %lu/%lu\n", idx, p0, q0);
-        tmp = tmp->l;
-        p_2 = p_1; p_1 = p0; p0 = tmp->elt*p_1 + p_2;
-        q_2 = q_1; q_1 = q0; q0 = q_1*tmp->elt + q_2;
+        p_2 = p_1; p_1 = p0; 
+        q_2 = q_1; q_1 = q0; 
         ++idx;
+        tmp = tmp->l;
     }
     return;
 }
@@ -237,28 +239,37 @@ void testCalulListeTerme(){
     }
 }
 
-void searchSolution(list * terme, int d, long long * x){
-    list * tmp = terme; long long p_2 = 0, p_1 = 1, p0 = tmp->elt, q0=1, q_1 = 0, q_2 = 1;
-    char * X = power(intToTab(p0), 2), * Y = intToTab(1), * res = bigSoustraction(X, intToTab(d));
+char * searchSolution(list * terme, int d, char * x){
+    list * tmp = terme;
+    char * p_2 = intToTab(0), * p_1 = intToTab(1), * p0 = intToTab(tmp->elt);
+    char *q_2 = intToTab(1), *q_1 = intToTab(0), *q0 = intToTab(1); 
+    char * X = power(p0, 2), * Y = intToTab(1), * res = bigSoustraction(X, intToTab(d));
+    bigAffiche(p0); printf("/"); bigAffiche(q0); printf("\n");
     tmp = tmp->l;
     while(labs(tabToInt(res))!=1 && tmp!= NULL){
         free(X); free(Y);
         X = NULL, Y = NULL;
-        p_2 = p_1; p_1 = p0; p0 = tmp->elt * p_1 + p_2;
-        q_2 = q_1; q_1 = q0; q0 = tmp->elt * q_1 + q_2;
-        X = power(intToTab(p0), 2), Y = power(intToTab(q0), 2);
+        free(p_2); p_2 = NULL;  p_2 = copieTab(p_1); free(p_1); p_1 = NULL; p_1 = copieTab(p0); 
+        free(p0); p0 = NULL; p0 = bigAddition(bigMultiplication(intToTab(tmp->elt), p_1), p_2);
+        free(q_2); q_2 = NULL; q_2 = copieTab(q_1); free(q_1); q_1 = NULL; q_1 = copieTab(q0); 
+        free(q0); q0 = NULL; q0 = bigAddition(bigMultiplication(intToTab(tmp->elt), q_1), q_2);
+        X = power(p0, 2), Y = power(q0, 2);
         res = bigSoustraction(X, bigMultiplication(intToTab(d), Y));
+        bigAffiche(p0); printf("/"); bigAffiche(q0); printf("\n");
         tmp = tmp->l;
     }
-    if(tmp == NULL){printf("pas de solution pour %d\n", d); return;}
+    if(tmp == NULL){printf("pas de solution pour %d\n", d);}
     long long n = tabToInt(res);
+    printf("n est égale à %lld\n", n);
     if(n == -1){
-        long long tp = p0, tq = q0;
-        p0 = tp*tp + d*tq, q0 = 2*tp*tq;
+        char * tp = copieTab(p0), *tq = copieTab(q0);
+        p0 = bigAddition(power(tp,2), bigMultiplication(intToTab(d),tq));
+        q0 = bigMultiplication(intToTab(2), bigMultiplication(tp,tq));
     }
-    if(*x < p0){ *x = p0;}
-    printf(" la solution pour %d est X = %lld et Y = %lld\n", d, p0, q0);
-    return;
+    x = plusGrand(x, p0);
+    printf(" la solution pour %d est X = ", d); bigAffiche(p0); printf(" et Y = "); bigAffiche(q0);
+    printf("\n");
+    return x; 
 }
 
 int main(int argc, char ** argv){
@@ -276,17 +287,17 @@ int main(int argc, char ** argv){
     printf("LLONG_MAX      = %+lld\n", LLONG_MAX);
     printf("ULLONG_MAX     = %llu\n\n", ULLONG_MAX);
     list * res = NULL;
-    long long x = 0;
+    char * x = intToTab(0);
     for(N = 2; N <= 1000; ++N){
         while(estCarre(N) > 0){++N;}
         printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
         res = calculListeTerme(N);
         calculreduites(res);
         printf("la liste des termes pour %d est : ", N); afficheList(res); printf("\n");
-        searchSolution(res, N, &x);
+        x = searchSolution(res, N, x);
         printf("###############################################################\n");
     }
-    printf("la valeur max de x est %lld\n", x);
+    printf("la valeur max de x est "); bigAffiche(x); printf("\n");
     for(N=337; N<=5; ++N){
         while(estCarre(N) > 0){++N;}
         Alpha.a = 1, Alpha.b = 0, Beta.a = 0, Beta.b = 1;

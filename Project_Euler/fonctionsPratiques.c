@@ -163,7 +163,6 @@ unsigned long int l_tabToInt(int * tab, int taille){
 	return res;
 }
 
-
 /*Il s'agit d'un tri croissant */
 void triTab(int * tab, int taille){
 	int i, j, tmp;
@@ -314,4 +313,28 @@ int getMax(int * tab, int len){
     int i, max=tab[0];
     for(i=0; i<len; i++){if(tab[i]>max){max=tab[i];}}
     return max;
+}
+
+char * concatString(char ** tab, int tailleTab){
+    int i, lres = 0, j, k=0;
+    //calcul de la longueur de la chaine finale.
+    for(i = 0; i < tailleTab; i++){
+        j = 0;
+        while(tab[i][j] != '\0'){++lres; ++j;}
+    }
+    char * res = malloc((lres+1)*sizeof(char));
+    res[lres]='\0';
+    for(i = 0; i < tailleTab; i++){
+        j = 0;
+        while(tab[i][j] != '\0'){res[k]=tab[i][j]; ++j; ++k;}
+    } 
+    return res;
+}
+
+char * intToString(int n){
+    int t = calculTailleEntier(n), tmp = n, k = 1;
+    char * res = malloc(sizeof(char)*(t+1));
+    res[t] = '\0';
+    while(tmp > 0){ res[t-k]=(tmp%10)+48; tmp = tmp/10; ++k; } 
+    return res;
 }

@@ -4,9 +4,9 @@
 #define PRINT(pt) bigAffiche(pt); printf("\n");
 
 void bigAffiche(char * a){
-	int i;
+	int i, somme = 0;
 	for(i=0; i<=999; i++){ 
-        if(a[i]!='a' && a[i]!='-'){printf("%d", a[i]); }
+        if(a[i]!='a' && a[i]!='-' && (somme += a[i])>0){printf("%d", a[i]); }
         if(a[i]=='-'){printf("%c", a[i]);} 
     }
 }
@@ -81,6 +81,20 @@ char * bigSomme(char * a, char * b){
 		--i;
 	}	
 	return b;	
+}
+
+char * bigAddition(char * a, char * b){
+	int i=999, ret=0, val;
+	char * res = malloc(1001*sizeof(char)); res[1000]='\0';
+	for(i=0; i<=999; i++){res[i]='a';}
+	while((ret > 0 || a[i]!='a' || b[i]!='a') && i>=0){
+		if(a[i]!='a'&& b[i]!='a'){val = a[i]+b[i]+ret; ret = val/10; res[i]= val%10;}
+		if(a[i]=='a'&& b[i]!='a'){val = b[i]+ret; ret = val/10; res[i]= val%10;}
+		if(a[i]!='a'&& b[i]=='a'){val = a[i]+ret; ret = val/10; res[i]= val%10;}
+		if(a[i]=='a'&& b[i]=='a' && ret>0){val = ret; ret = val/10; res[i]= val%10;}
+		--i;
+	}	
+	return res;	
 }
 
 char * bigMultiplication(char * a, char * b){

@@ -14,6 +14,8 @@ extern char * plusGrand(char * a, char * b);
 
 extern char * bigSomme(char * a, char *b);
 
+extern char * bigAddition(char * a, char *b);
+
 extern char * bigMultiplication(char * a, char *b);
 
 extern int sommePositifChriffe(char * a);

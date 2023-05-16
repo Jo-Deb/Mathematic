@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <math.h>
 
 #define MAX 200000
 long int CARRE[MAX];
@@ -22,13 +23,10 @@ int main() {
     int i, j;
     fillCarre();
     faireLesSommes();
-    for(i=0; i < (MAX-1); ++i){
-        for(j=0; j<=i && j < (MAX-2); ++j){
-            if(S2[i]==S3[j]){
-                printf("carre[%i]+carre[%i]=%li=carre[%i]+carre[%i]+carre[%i]=%li\n", (i+1), (i+2), S2[i],
-                        (j+1), (j+2), (j+3), S3[j]);
-            }
-        }
+    for(i = 1; i <= 10; ++i){
+        j = exp2(i);
+        printf(" 1/%d = %lf\n", j, 1.0/j);
     }
+    printf("\n");
     return 0;
 }
