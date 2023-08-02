@@ -1,3 +1,10 @@
+#include <stdio.h>
+
+typedef struct number{
+    char * ipar;
+    char * mpar;
+} number;
+
 extern void bigAffiche(char * a); 
 
 extern long long tabToInt(char * a); 
@@ -55,3 +62,5 @@ extern char * reste(char * a, char * b);
 extern int determinePuissance(char * nbr, char * tmp);
 
 extern int tailleChaine(char * a);
+
+extern int how_many_dec(double r);

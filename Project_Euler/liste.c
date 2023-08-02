@@ -164,7 +164,7 @@ liste * remplace(liste * l, int t, int r){
 	return l;	
 }
 
-liste * supprimeDoublon(liste * l){
+liste * ListeSupprimeDoublon(liste * l){
 	liste * pcr1 = l; liste * pcr2;
 	while(pcr1 != NULL){
 		if(EstPresent(pcr1->l, pcr1->value) == 0){
