@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include "genList.h"
 #include "fonctionsPratiques.h"
+#include "liste.h"
+
+void ** MyLists = NULL;
+liste * smallToBig = NULL;
 
 glist * combinaison(int valNode, int somme){
     if(valNode <= 0 || valNode > 10){ printf("Mauvais argument pour la valeur du noeud : %d\n", valNode); return NULL; }
@@ -9,6 +13,7 @@ glist * combinaison(int valNode, int somme){
     
     int e, i, j; glist * res = NULL;
     for(i = 1; i <= 10; ++i){
+        if(valNode == i){++i;}
         if(valNode + i > somme){ return res; }
         e = i;
         for(j = 1; j <= 10; ++j){
@@ -47,13 +52,15 @@ void showElt(void * pt){ printf(" %s ", (char*)pt); }
 
 int main(){
     int i, j;
+    MyLists = malloc(10*sizeof(void *));
     for(i = 13; i < 27; ++i){
         printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
         printf("Éléments de combinaison pour la somme %d\n", i);
-        for(j = 1; j <= 10; ++j){
+        for(j = 1; j <= 10; ++j){ MyLists[j-1] =(void *) combinaison(j, i); }
+
             printf("Les combinaisons possibles pour %d contenant %d : ", i, j);
             //afficheListe(combinaison(j, i));
-            g_afficheList(combinaison(j, i), showElt);
+            g_afficheList((glist *)MyLists[j-1], showElt);
             printf("\n");
         } 
         printf("=======================================================================================\n");

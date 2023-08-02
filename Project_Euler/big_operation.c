@@ -353,22 +353,29 @@ int sommePositifChriffe(char * a){
     }
     return res;
 }
-/*
-int main(){
-	int j;
-	char * pt, * max;
-    for(j=-100; j<=100; ++j){printf("%lli\n", tabToInt(intToTab(j)));}
 
-	for(j=12; j<=1000; j++){ 
-		pt = intToTab(j);
-        max = plusGrandeValeur(pt);
-        if(egalite(pt, max)==1){printf("pas de permutation pour %d\n",j);}
-        while(egalite(pt, max)==0){
-            permuteValeurSuperieur(pt, max);
-            printf("après permutation sur %d : ", j); PRINT(pt)
-        }
-	}
+/*Cette fonction est correcte jusqu'à 4 chiffres après la virgule*/
+int how_many_dec(double r){
+    int res = 0;
+    int e = (int) r;
+    printf("la valeur en entrée est %lf\n", r);
+    do {
+        r -= e;
+        r *= 10; ++res; e = (int)r;
+    }while(r -e > 0.00000000001);
+    return res;
+}
+
+
+int main(int argc, char ** argv){
+   double input = 0;
+   if(argc == 2){
+        if(sscanf(argv[1], "%lf", &input) != EOF){
+            printf("la valeur d'entrée est %20.10lf\n", input);
+        }else {printf("Mauvais argument donné en entrée\n"); return 1;}
+   }
+    printf("l'entrée %20.10lf contient %d décimales\n", 19.123456789, how_many_dec(19.123456789));
 	return 0;
 }
-*/
+
 
