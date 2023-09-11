@@ -124,25 +124,15 @@ void computeLog10(char * X){
     printf("log10(arg_log) = %lf\n", y);
 }
 
-int main(int argc, char ** argv) {
-    double val;
-    if(argc == 2){
-        if(sscanf(argv[1], "%lf", &val) != EOF){}
-    } else { printf("Mauvais argument, échec\n"); return 1; }
-    //Algo de l'exo 25 
-    int k = 1, dimene = 0, num = 1, deno = 1; 
-    char * X = approximationBinaire(val), * Z = decalage(X, 1),* tmp = NULL, tab[255]; 
+double calculLog10(char * X){
+    int k = 1, num = 1, dimene = 0, deno = 1;
+    char * Z = decalage(X, 1), * tmp = NULL, tab[255]={0x0};
     double apv = approximateValue(X), y = 0.0, arg_log = 1.0;
-    tab[254] = '\0';
-    printf("valeur d'entrée : %lf\n", val);
-    printf("valeur approchée de val : %lf\n", apv);
-    printf("représentation binaire de apv : %s\n", X);
-    while(equal1(X) != 1){
+    tab[254]='\0';
+    while(equal1(X)!=1){
         do{
             tmp = soustractionBinaire(X, Z);
-            if(tmp[0] == '0'){
-                Z = decalage(Z, 1); k++;
-            }
+            if(tmp[0] == '0'){Z = decalage(Z, 1); ++k;}
         }while(tmp[0] == '0');
         X = soustractionBinaire(X, Z); Z = decalage(X, k);
         y += log10(pow(2, k)/(pow(2,k) - 1)); arg_log *=(pow(2, k)/(pow(2,k) - 1));
@@ -150,21 +140,67 @@ int main(int argc, char ** argv) {
         if(dimene == 0){dimene = sprintf(tab+dimene, "(%d/%d)", num, deno); } 
         else {dimene = sprintf(tab+dimene, "*(%d/%d)", num, deno);}
     }
-    printf("valeur approchée de apv : %s\n", tab);
-    printf("valeur approchée de apv : %lf\n", arg_log);
-    printf("erreur entre val et apv : %lf\n", val - apv);
-    printf("erreur entre val et arg_log = %lf\n", val - arg_log);
-    printf("1/2^%d = %lf\n", MANTISSE_SIZE, 1.0/pow(2, MANTISSE_SIZE));
-    printf("erreur entre arg_log et apv : %lf\n", apv - arg_log);
+    printf("valeur approchée après transformation binaire de l'entrée : %lf\n", apv);
+    printf("valeur pour laquelle le logarithme sera calculé: %lf\n", arg_log);
     printf("log10(arg_log) = %lf\n", y);
-    printf("log10(%lf)=%lf\n", val, log10(val));
-    printf("log10(%lf) - log10(%lf) = %lf\n", val, arg_log, log10(val) - y); 
-    printf("l'écart en binaire %lf est %s\n", log10(val) - y, approximationBinaire(log10(val)-y));
-    printf("%lf/%lf = %lf\n", val, arg_log, val/arg_log);
-    printf("=================================================================\n");
-    char * A = approximationBinaire(val);
-    computeLog10(A);
-//    printf("log10(%lf) = %lf et on calcule log10(%lf) = %lf et la différence des 2 est %lf\n"\
-            , val, log10(val), apv, y, fabs(log10(val) - y ));
+    return y;
 }
 
+char * representationTouteValeur(double val){
+    int i_val = (int) floor(val), i;
+    double d_part = val - i_val;
+    char * tab = malloc(42 * sizeof(char));
+    tab[41] = '\0';    
+    for(i=0; i<=40; ++i){ tab[i]='0';}
+    tab[20] = '.';
+    //Transformation de la partie entière en binaire
+    int mutukwedi = 1; i = 0;
+    while(i_val > 0){
+        while(i_val > mutukwedi) {mutukwedi = mutukwedi << 1; ++i;}
+        if(i_val == mutukwedi) {tab[19-i] = '1'; i_val-= mutukwedi;} 
+        else{ mutukwedi = mutukwedi >> 1; --i; i_val -= mutukwedi; tab[19-i] = '1';}
+        i = 0; mutukwedi = 1;
+    }
+    //Transformation de la partie décimale en binaire;
+    double powerOfTwo = 0.0; i = 1;
+    while(i <= 20){
+        powerOfTwo = 1.0/pow(2, i);
+        if(powerOfTwo <= d_part){ tab[20+i]='1'; d_part -= powerOfTwo;}
+        ++i;
+    }
+   return tab;
+}
+
+double mutukwediBase10(char * input){
+    int i;
+    double res = 0.0;
+    for(i = 0; i <= 40; i++){
+        if(i < 20 && input[i]=='1'){res = res + pow(2, 19-i);}
+        if(i > 20 && input[i]=='1'){res = res + 1.0/pow(2,i-20);}
+    }
+    return res;
+}
+
+void decaler(char * input, int decal){
+    int i;
+    for(i = 40 - decal; i >= 0; i--){
+        if(i == 20){}
+        else{
+            if(i < 20 && i + decal >= 20){ input[i+decal+1] = input[i]; }
+            else{ input[i+decal] = input[i]; }
+        }
+    }
+}
+
+int main(int argc, char ** argv){
+    double val_input = 0.0;
+    if(argc == 2){
+        if(sscanf(argv[1], "%lf", &val_input) != EOF){}
+        else {printf("Mauvais argument, donner un nombre en entrée \n"); return 1;}
+    }
+    char * tmp = representationTouteValeur(val_input);
+    printf("la valeur en entrée s'écrit en base binaire : %s\n", tmp);
+    printf("la valeur binaire, traduit en base 10, donne : %lf\n", mutukwediBase10(tmp) );
+    decaler(tmp, 2);
+    printf("Une division par 4 soit un décalage vers la droite donne : %s et la valeur est %lf\n", tmp, mutukwediBase10(tmp) );
+}
