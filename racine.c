@@ -36,7 +36,7 @@ int main(int argc, char ** argv){
         digit = nextDigit(res, val_input, power, dd+1);
         ++dd;
         res += digit;
-    } while(res < val_input && dd < 9);
-    printf("la valeur approchée de la racine 1/%d ème de %.15f est %.15f\n", power, val_input, res);
+    } while(res < val_input && dd < 15);
+    printf("la valeur approchée de la racine 1/%d ème de %20.15f est %20.15f\n", power, val_input, res);
     return 0;
 }
