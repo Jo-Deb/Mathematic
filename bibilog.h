@@ -10,3 +10,6 @@ extern char * soustractionBinaire(char * sup, char * inf);
 extern int equal1(char * tab);
 extern void computeLog10(char * X);
 extern double calculLog10(char * X);
+extern char * representationTouteValeur(double val);
+extern double mutukwediBase10(char * input);
+extern void decaler(char *, int);
