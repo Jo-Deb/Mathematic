@@ -8,7 +8,7 @@
 long int CARRE[MAX];
 long int S2[MAX-1];
 long int S3[MAX-2];
-int MANTISSE_SIZE = 15;
+int MANTISSE_SIZE = 20;
 
 void fillCarre(){
     int i;
@@ -140,9 +140,9 @@ double calculLog10(char * X){
         if(dimene == 0){dimene = sprintf(tab+dimene, "(%d/%d)", num, deno); } 
         else {dimene = sprintf(tab+dimene, "*(%d/%d)", num, deno);}
     }
-    printf("valeur approchée après transformation binaire de l'entrée : %lf\n", apv);
-    printf("valeur pour laquelle le logarithme sera calculé: %lf\n", arg_log);
-    printf("log10(arg_log) = %lf\n", y);
+//    printf("valeur approchée après transformation binaire de l'entrée : %lf\n", apv);
+//    printf("valeur pour laquelle le logarithme sera calculé: %lf\n", arg_log);
+//    printf("log10(arg_log) = %lf\n", y);
     return y;
 }
 
@@ -192,6 +192,7 @@ void decaler(char * input, int decal){
     }
 }
 
+/*
 int main(int argc, char ** argv){
     double val_input = 0.0;
     if(argc == 2){
@@ -204,3 +205,5 @@ int main(int argc, char ** argv){
     decaler(tmp, 2);
     printf("Une division par 4 soit un décalage vers la droite donne : %s et la valeur est %lf\n", tmp, mutukwediBase10(tmp) );
 }
+
+*/
