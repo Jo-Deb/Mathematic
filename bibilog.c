@@ -193,6 +193,18 @@ void decaler(char * input, int decal){
 }
 
 /*
+int main(){
+	double val = 1.0;
+	char * tmp; int k = 1;
+	while(k <= 10){
+		val = 1.0 + (1/pow(2, k));
+		printf("Log(1 + 1/2^%d) = %lf\n", k, log10(val));
+		++k;
+	}
+	return 0;
+}
+
+
 int main(int argc, char ** argv){
     double val_input = 0.0;
     if(argc == 2){

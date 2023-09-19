@@ -31,7 +31,38 @@ double powerBetween0and1(double base, double exp){
 	  return borne_inf;
 }
 
+//b = 10
+double b_ToPower_x(double x){
+	double epsilon = 0.00001, X = 1 - epsilon - x, Y = 10.0, tmp = 0, vtmp = 0;
+	int k = 1; char * binaryValue = NULL;
+	
+	while(X != 0 || k == 19){
+		tmp = pow(2, k)/(pow(2, k) - 1);
+		while(X < (vtmp = calculLog10(approximationBinaire(tmp))) ){++k;}
+		X -= vtmp;
+		binaryValue = representationTouteValeur(Y);
+		decaler(binaryValue, k);
+		Y -= mutukwediBase10(binaryValue);
+		printf("X = %lf, Y = %lf, et k = %d\n", X, Y, k);
+	} 
+	return Y;
+}
 
+int main(int argc, char ** argv){
+	double base, exp;
+	if(argc == 3){
+		if(sscanf(argv[1], "%lf", &base) != EOF && sscanf(argv[2], "%lf", &exp) != EOF ) {}
+		else { printf("Mauvais argument, il faut donner une base et un exposant < 1d\n"); }
+	}
+	if(exp >= 1.0){ printf("l'exposant doit être inférieure à 1; arrêt du programme\n"); return 0; }
+
+	printf("%lf à la puissance %lf est égale à : %lf et en approximation on trouvre %lf\n",\
+			base, exp, pow(base, exp), b_ToPower_x(exp) );
+	
+	return 0;
+}
+
+/*
 int main(int argc, char ** argv){
 	double base, exp;
 	if(argc == 3){
@@ -45,3 +76,4 @@ int main(int argc, char ** argv){
 	
 	return 0;
 }
+*/
