@@ -33,31 +33,42 @@ double powerBetween0and1(double base, double exp){
 
 //b = 10
 double b_ToPower_x(double x){
-	double epsilon = 0.00001, X = 1 - epsilon - x, Y = 10.0, tmp = 0, vtmp = 0;
-	int k = 1; char * binaryValue = NULL;
-	
-	while(X != 0 || k == 19){
-		tmp = pow(2, k)/(pow(2, k) - 1);
-		while(X < (vtmp = calculLog10(approximationBinaire(tmp))) ){++k;}
-		X -= vtmp;
-		binaryValue = representationTouteValeur(Y);
-		decaler(binaryValue, k);
-		Y -= mutukwediBase10(binaryValue);
-		printf("X = %lf, Y = %lf, et k = %d\n", X, Y, k);
-	} 
+	 double epsilon = 0.00001, Y = 10.0, tmp = 0;
+	 double X = 1 - epsilon - x; 
+    int k = 1; char * binaryValue = NULL;
+    printf("X commence à %lf\n", X);	
+	 while(X != 0 && k < 19){
+        printf("____________________________________________________________________________\n");
+		  tmp = log10(pow(2, k)/(pow(2, k) - 1));
+		  while(X < tmp){
+            ++k;
+		      tmp = log10(pow(2, k)/(pow(2, k) - 1));
+        }
+        printf("X = %lf et tmp = %lf\n", X, tmp);
+        X -= tmp;
+        printf("Après soustraction X = %lf\n", X);
+	     binaryValue = representationTouteValeur(Y);
+        printf("binaryValue avant décalage : %s\n", binaryValue);
+	     decaler(binaryValue, k);
+        printf("Avant soustraction de Y - binaryValue, Y = %lf et binaryValue=%s\n", Y, binaryValue);
+	     Y -= mutukwediBase10(binaryValue);
+	     printf("X = %lf, Y = %lf, et k = %d\n", X, Y, k);
+        printf("On montre aussi l'effet constant %lf/10^%lf = %lf\n", Y, X, Y/pow(10, X));
+        printf("============================================================================\n");
+	 } 
 	return Y;
 }
 
 int main(int argc, char ** argv){
-	double base, exp;
-	if(argc == 3){
-		if(sscanf(argv[1], "%lf", &base) != EOF && sscanf(argv[2], "%lf", &exp) != EOF ) {}
-		else { printf("Mauvais argument, il faut donner une base et un exposant < 1d\n"); }
+	double exp;
+	if(argc == 2){
+		if(sscanf(argv[1], "%lf", &exp) != EOF ) {}
+		else { printf("Mauvais argument, il faut donner un exposant < 1d\n"); }
 	}
 	if(exp >= 1.0){ printf("l'exposant doit être inférieure à 1; arrêt du programme\n"); return 0; }
 
-	printf("%lf à la puissance %lf est égale à : %lf et en approximation on trouvre %lf\n",\
-			base, exp, pow(base, exp), b_ToPower_x(exp) );
+	printf("10 à la puissance %lf est égale à : %lf et en approximation on trouvre %lf\n",\
+			exp, pow(10, exp), b_ToPower_x(exp) );
 	
 	return 0;
 }

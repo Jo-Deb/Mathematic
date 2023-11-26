@@ -186,8 +186,8 @@ void decaler(char * input, int decal){
     for(i = 40 - decal; i >= 0; i--){
         if(i == 20){}
         else{
-            if(i < 20 && i + decal >= 20){ input[i+decal+1] = input[i]; }
-            else{ input[i+decal] = input[i]; }
+            if(i < 20 && i + decal >= 20){ input[i+decal+1] = input[i]; input[i] = '0'; }
+            else{ input[i+decal] = input[i]; input[i] = '0';}
         }
     }
 }
