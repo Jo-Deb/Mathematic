@@ -92,11 +92,31 @@ int check(void ** tab){
     return 0;
 }
 
+/*Casser en une branche de sommets, représenter par un entier à 3 nombres, en une 
+ * liste d'entiers qui nous permet d'identifier chaque sommet*/
+int * decompose_node(int branch){
+    int * res = malloc(3*sizeof(int)), i, tmp = branch;
+    for(i=2; i>=0; --i){
+        if(tmp%10 != 0){res[i]=tmp%10; tmp /= 10;}
+        else { res[i]=tmp%100; tmp /=100;}
+    }
+    return res;
+}
+
+void affiche_decomposition(int tab[]){
+    int i;
+    for(i=0; i<3; ++i) {printf("%d ", tab[i]);}
+    printf("\n");
+}
+
 /*Affiche le tableau des différentes combinaison*/
 void afficheTab(void ** tab){
     int i;
+    liste * tmp = NULL;
     for(i=0; i < NumberOfNodes; ++i){
         if(tab[i] != NULL){printf("case %d: ", i);afficheListe(tab[i]);printf("\n");}
+       tmp = tab[i];
+       while(tmp != NULL){affiche_decomposition(decompose_node(tmp->value)); tmp = tmp->l;}
     }
 }
 
@@ -179,24 +199,6 @@ glist * combinaison(int valNode, int somme){
 }
 
 void showElt(void * pt){ printf(" %s ", (char*)pt); }
-
-/*
- * A chaque ajout d'un élément on revérifie toutes les conditions, si les conditions sont
- * valides on continue, sinon on arrête et on passe à l'élément suivant
- * FAIRE UNE FONCTION QUI CALCULE LA LISTE DES NOEUDS EXTERNES ET INTERNES ET QUI ENVOIE NULL 
- * QUAND UNE CONDITION N'EST PAS RESPECTÉE.
- * On prend une somme N de nos branches, puis en partant de 10, on prend un élément contenant
- * 10 et dont la somme est égale à N, on prend un élément contenant 9 et dont la somme est 
- * égale à N et on vérifie les conditions qui sont : 
- * 1 - chaque nombre doit avoir au moins une itération et au plus 2
- *    + les nombres avec 1 itération sont les noeuds externes
- *    + les nombres avec 2 itérations sont les noeuds internes dessinant la figure centrale, 
- *      dans notre cas un pentagone
- *
- * 2 - un noeud interne est relié à un noeud externe et un noeud interne, aucune autre 
- *     combinaison n'est valable
- * 3 - Il y a 10 noeuds, on doit donc avoir 5 noeuds externes et 5 noeuds internes à la fin
- * 4 - réécriture des combinaisons*/
 
 
 int main(int argc, char ** argv){
