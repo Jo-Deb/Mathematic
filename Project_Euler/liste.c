@@ -325,3 +325,23 @@ liste * trieSousListe(liste * l, int start){
 	}
 	return l;
 }
+
+/*ajoute la liste lb à la suite de la liste la*/
+liste * concateneListe(liste * la, liste * lb){
+    liste * tmp = lb;
+
+    while(tmp != NULL){ 
+        la = ajoutEnQueue(la, tmp->value); 
+        tmp = tmp->l;
+    }
+    return la;
+}
+
+void freeListe(liste * la){
+    liste * suiv = la, * current = NULL;
+    while(suiv != NULL){
+        current = suiv;
+        suiv = suiv->l;
+        free(current);
+    }
+}

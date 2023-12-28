@@ -66,3 +66,7 @@ extern int precedent(liste * l, int elt);
 extern int suivant(liste * l, int elt);
 
 extern liste * trieSousListe(liste * l, int start);
+
+extern liste * concateneListe(liste * la, liste * lb);
+
+extern void freeListe(liste * la);

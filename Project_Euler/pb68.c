@@ -7,6 +7,8 @@
 void ** MyLists = NULL;
 liste * smallToBig = NULL;
 int NumberOfNodes;
+void ** ListeAnalyse = NULL;
+int * context;
 
 /*On cherche tous les triplets a,b,c tel que a+b+c = sommeVal
  * avec a = max
@@ -103,10 +105,91 @@ int * decompose_node(int branch){
     return res;
 }
 
+/*Recherche node_to_search dans le tableau et retourne
+ * la liste des éléments qui lui sont liés à node_to_search*/
+liste * analyse(int node_to_search, int tab[]){
+    liste * res = NULL;
+    if(tab[0] == node_to_search){res = ajoutEnQueue(res, tab[1]);}
+    if(tab[1] == node_to_search){
+        res = ajoutEnQueue(res, tab[0]); 
+        res = ajoutEnQueue(res, tab[2]);
+    }
+    if(tab[2] == node_to_search){res = ajoutEnQueue(res, tab[1]);}
+    return res;
+}
+
+/*calcul le nombre de noeud distints dans une liste solution*/
+int nbrDistinctNodes(liste *ls){
+    liste * tmp = ls, * lt = NULL;
+    int res = 0, i, * tab = NULL;
+    while(tmp != NULL){
+        tab = decompose_node(tmp->value);
+        for(i = 0; i<3; ++i){ if(EstPresent(lt, tab[i])){lt = ajoutEnTete(lt, tab[i]);} }
+        free(tab);
+        tmp = tmp->l;
+    }
+    res = taille(lt);
+    freeListe(lt);
+    return res;
+}
+
+/*Identifie si dans une liste solution il y a un noeud saturé*/
+int saturationNoeud(){
+    int i;
+    for(i=0; i < NumberOfNodes; ++i){
+        if(taille(ListeAnalyse[i]) > 3){printf("saturationNoeud: noeud %d saturé\n", i+1); return i+1;}
+    }
+    return 0;
+}
+
+/*Pour une liste solution proposée, retourne un tableau ListeAnalyse
+ * la fonction suppose que la liste ls est non nulle*/
+void construireListeAnalyse(liste * ls){
+    int tl = taille(ls), * tab = NULL, i;
+    liste * tmp = ls;
+    ListeAnalyse = malloc(NumberOfNodes * sizeof(void *));
+    while(tmp != NULL){
+        tab = decompose_node(tmp->value);
+        for(i=0; i < 3; ++i){ ListeAnalyse[tab[i] - 1] = analyse(tab[i], tab); }
+        tmp = tmp->l;
+        free(tab); 
+        tab = NULL;
+    }
+}
+
+/*Une fonction pour identifier les noeuds externes. 
+ * Attention: il faut identifier les noeuds externes quand
+ * on a une liste solution à 5 branches*/
+liste * noeudsExternes(){
+    int i, len = 0;
+    liste * res = NULL;
+    for(i = 0; i < NumberOfNodes; ++i){
+        if((len=taille(ListeAnalyse[i])) == 1) { res = ajoutEnTete(res, i+1); }
+    }
+    return res;
+}
+
 void affiche_decomposition(int tab[]){
     int i;
     for(i=0; i<3; ++i) {printf("%d ", tab[i]);}
     printf("\n");
+}
+
+int saturationExterne(){
+    liste * externNode = noeudsExternes();
+    liste * tmp = NULL;
+    int i, cpt = 0;
+
+    for(i=0; i < NumberOfNodes; ++i){
+        tmp = externNode;
+        cpt = 0;
+        while(tmp != NULL){
+           if(getPosition(ListeAnalyse[i], tmp->value) > 0){++cpt;}
+           tmp = tmp->l;
+        }
+        if(cpt > 1){printf("saturation en noeud externe du sommet ‰d\n", i+1); return i+1;}
+    }
+    return 0;
 }
 
 /*Affiche le tableau des différentes combinaison*/
@@ -176,30 +259,30 @@ void generateAllValue(void ** tab){
     afficheTab(tab);
 }
 
-glist * combinaison(int valNode, int somme){
-    if(valNode <= 0 || valNode > 10){ printf("Mauvais argument pour la valeur du noeud : %d\n", valNode); return NULL; }
-    if(somme >= 27 ){ printf("Mauvais argument pour la somme : %d\n", somme); return NULL; }
-    
-    int e, i, j; glist * res = NULL;
-    for(i = 1; i <= 10; ++i){
-        if(valNode == i){++i;}
-        if(valNode + i > somme){ return res; }
-        e = i;
-        for(j = 1; j <= 10; ++j){
-            if(j == e){++j;}
-            if(valNode + e + j > somme){break;}
-            if(valNode + e + j == somme){ 
-                char ** tab = malloc(sizeof(char *) * 3);
-                tab[0] = intToString(valNode), tab[1] = intToString(e), tab[2] = intToString(j);
-                res = g_ajoutTete(res, (void *)concatString(tab, 3), NULL);
-            }
-        }
-    }
-    return res;
-}
-
 void showElt(void * pt){ printf(" %s ", (char*)pt); }
 
+/*Récupère prop, qu'on considère comme une liste d'une solution
+ * potentielle. La fonction va parser toutes les branches de la 
+ * liste et remplir ListeAnalyse pour indiquer les noeuds
+ * reliés au noeud représenté par l'indice du tableau + 1
+ * ListeAnalyse est un tableau à 2 dimensions, on suppose qu'il a
+ * une taille de 10 pointeur*/
+void parseListe(liste * prop){
+    liste * tmp = prop;
+    int i;
+    if(ListeAnalyse != NULL){
+        for(i=0; i < NumberOfNodes; ++i){free(ListeAnalyse[i]);}
+        ListeAnalyse = NULL;
+    }
+    ListeAnalyse = malloc(NumberOfNodes*sizeof(void *));
+    for(i=0; i < NumberOfNodes; ++i){
+        tmp = prop;
+        while(tmp != NULL){
+            ListeAnalyse[i] = concateneListe(ListeAnalyse[i], analyse(i+1, decompose_node(tmp->value)) );
+            tmp = tmp->l;
+        }
+    }
+}
 
 int main(int argc, char ** argv){
     /*________________________________________vérification des entrées___________________________________*/
