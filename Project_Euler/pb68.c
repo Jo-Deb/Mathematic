@@ -8,7 +8,7 @@ void ** MyLists = NULL;
 liste * smallToBig = NULL;
 int NumberOfNodes;
 void ** ListeAnalyse = NULL;
-int * context;
+int * context = NULL;
 
 /*On cherche tous les triplets a,b,c tel que a+b+c = sommeVal
  * avec a = max
@@ -126,6 +126,7 @@ int nbrDistinctNodes(liste *ls){
         tab = decompose_node(tmp->value);
         for(i = 0; i<3; ++i){ if(EstPresent(lt, tab[i])){lt = ajoutEnTete(lt, tab[i]);} }
         free(tab);
+        tab = NULL;
         tmp = tmp->l;
     }
     res = taille(lt);
@@ -142,12 +143,23 @@ int saturationNoeud(){
     return 0;
 }
 
+/*Fonction de libération d'espace du pointeur void ** ListeAnalyse*/
+void freeListeAnalyse(){
+    if(ListeAnalyse == NULL){return;}
+    int i;
+    for(i=NumberOfNodes; i>0; --i){ free(ListeAnalyse[i]); ListeAnalyse[i] = NULL; }
+    free(ListeAnalyse);
+    ListeAnalyse = NULL;
+}
+
 /*Pour une liste solution proposée, retourne un tableau ListeAnalyse
  * la fonction suppose que la liste ls est non nulle*/
 void construireListeAnalyse(liste * ls){
-    int tl = taille(ls), * tab = NULL, i;
+    int * tab = NULL, i;
     liste * tmp = ls;
+    freeListeAnalyse();
     ListeAnalyse = malloc(NumberOfNodes * sizeof(void *));
+    for(i=0; i < NumberOfNodes; ++i){ListeAnalyse[i] = NULL;}
     while(tmp != NULL){
         tab = decompose_node(tmp->value);
         for(i=0; i < 3; ++i){ ListeAnalyse[tab[i] - 1] = analyse(tab[i], tab); }
@@ -175,6 +187,7 @@ void affiche_decomposition(int tab[]){
     printf("\n");
 }
 
+/*Regarde si un noeud est relié à plusieurs noeuds externes*/
 int saturationExterne(){
     liste * externNode = noeudsExternes();
     liste * tmp = NULL;
@@ -187,9 +200,27 @@ int saturationExterne(){
            if(getPosition(ListeAnalyse[i], tmp->value) > 0){++cpt;}
            tmp = tmp->l;
         }
-        if(cpt > 1){printf("saturation en noeud externe du sommet ‰d\n", i+1); return i+1;}
+        if(cpt > 1){printf("saturation en noeud externe du sommet %d\n", (i+1)); return (i+1);}
     }
     return 0;
+}
+
+/*retourne -1 si val_noeud n'est pas un noeud externe*/
+int estNoeudExterne(int val_noeud, liste * externeNoeud){return getPosition(externeNoeud, val_noeud);}
+
+/*Identifier si un noeud est non-externe et lié à au moins
+ * un noeud externe. Valeur de retour -1 alors val_node est un noeud externe
+ * retourne une valeur entre 0 et 3 pour indiquer le nombre de noeud externe en lien*/
+int testLienExterne(int val_node, liste * externNode){
+    int res = 0;
+    liste * tmp = NULL;
+    if(estNoeudExterne(val_node, externNode) !=-1){ return -1; }
+    tmp = ListeAnalyse[val_node-1];//la liste des sommets en lien direct avec val_node 
+    while(tmp != NULL){
+        if(estNoeudExterne(tmp->value, externNode) >= 1){++res;}
+        tmp = tmp->l;
+    }
+    return res;
 }
 
 /*Affiche le tableau des différentes combinaison*/
@@ -199,7 +230,7 @@ void afficheTab(void ** tab){
     for(i=0; i < NumberOfNodes; ++i){
         if(tab[i] != NULL){printf("case %d: ", i);afficheListe(tab[i]);printf("\n");}
        tmp = tab[i];
-       while(tmp != NULL){affiche_decomposition(decompose_node(tmp->value)); tmp = tmp->l;}
+       //while(tmp != NULL){affiche_decomposition(decompose_node(tmp->value)); tmp = tmp->l;}
     }
 }
 
@@ -266,7 +297,7 @@ void showElt(void * pt){ printf(" %s ", (char*)pt); }
  * liste et remplir ListeAnalyse pour indiquer les noeuds
  * reliés au noeud représenté par l'indice du tableau + 1
  * ListeAnalyse est un tableau à 2 dimensions, on suppose qu'il a
- * une taille de 10 pointeur*/
+ * une taille de 10 NumberOfNodes*/
 void parseListe(liste * prop){
     liste * tmp = prop;
     int i;
@@ -284,6 +315,81 @@ void parseListe(liste * prop){
     }
 }
 
+/*Cette fonction incrémente la recherche en mettant
+ * à jour les indices dans le pointeur contexte. La valeur agrandir
+ * permet de savoir s'il faut ajouter un nouvel élément ou changer
+ * l'élément dernièrement inséré*/
+void incrementRecherche(void ** tab, int agrandir){
+    int i = NumberOfNodes, idx = NumberOfNodes, fini = 0;
+    /*initialisation du contexte dans le cas d'un nouveau tableau*/
+    if(context == NULL){
+        context = malloc(NumberOfNodes * sizeof(int));
+        for(i=NumberOfNodes-1; i>=0; --i){context[i] = 0;}
+        i = NumberOfNodes - 1;
+        while(tab[i] == NULL){--i;}
+        if(taille(tab[i]) > 0){context[i] = 1; return;}
+        if(tab[i] != NULL && taille(tab[i]) == 0){
+            printf("tab[%d] est non nulle alors que la liste sur laquelle il pointe contient 0 élément\n", i); 
+        }
+        return;
+    } 
+    while(fini == 0){
+        //On boucle pour avoir l'indice le plus petit
+        for(i = NumberOfNodes-1; i>=0; --i){ if(context[i]!=0){idx = i;} }
+        if(agrandir){
+            if(idx == 0){
+                printf("incrementRecherche: On est au bout du tableau context.\
+                Merci de regarder la situation avec précision\n");
+                return;
+            }
+            i = idx - 1;
+            while(tab[i] == NULL){--i;}
+            context[i] = 1; fini = 1;
+        }
+        else{
+            if(context[idx] == taille(tab[idx])){context[idx] = 0;}
+            else {context[idx] += 1; fini = 1;}
+        }
+    }
+}
+
+/*Cette fonction permet de vérifier si toutes les 
+ * solutions ont été indexées dans le contexte*/
+int checkContext(void ** tab){
+    int i;
+    for(i=0; i < NumberOfNodes; ++i){
+        if(context[i] == 0 && tab[i] != NULL){return 1;}
+        if(context[i] != 0 && taille(tab[i]) != context[i]){return 1;}
+    }
+    return 0;
+}
+
+/*Génère toutes les solutions potentielles du problème*/
+glist * gatherPotentialSolution(void ** tab){
+    int i, idx;
+    glist * solTab = NULL;
+    liste * res = NULL;
+    if(context == NULL){incrementRecherche(tab, 1);}
+    while(checkContext(tab)){
+        while(taille(res) < 5){
+            freeListeAnalyse();
+            //On construit une liste à partir des index inscrits dans le contexte
+            for(i = 0; i < NumberOfNodes; ++i){ if((idx = context[i])!=0){res = ajoutEnQueue(res, getValue(tab[i], idx));} }
+            construireListeAnalyse(res);
+            if(saturationNoeud() == 0){ incrementRecherche(tab, 1); } 
+            else {
+                supprimeListe(res); 
+                res = NULL;
+                incrementRecherche(tab, 0);
+            }
+        }
+        printf("gatherPotentialSolution: la liste suivante est ajouté à solTab : "); afficheListe(res);
+        solTab = g_ajoutTete(solTab, res, NULL);
+        res = NULL;
+    }
+    return solTab;
+}
+
 int main(int argc, char ** argv){
     /*________________________________________vérification des entrées___________________________________*/
     int i, j, res;
@@ -297,6 +403,7 @@ int main(int argc, char ** argv){
     else {printf("Mauvais nombre d'argument\nUsage : ./myExe 6 ou ./myExe 10\n"); return 1;}
     /*________________________________________Début de la solution_______________________________________*/
     void ** tab = malloc(NumberOfNodes * sizeof(void *));
+    for(i=0; i < NumberOfNodes; ++i){tab[i] = NULL;}
     int max = NumberOfNodes + (NumberOfNodes -1) + (NumberOfNodes - 2); /*somme des 3 noeuds les plus grands; sans solution pour le problème 68*/
     int min = NumberOfNodes + 2 + 1; /*la plus petite somme de branche que l'on puisse faire avec le sommet le grand*/
     for(i = min; i < max; ++i){
@@ -309,6 +416,9 @@ int main(int argc, char ** argv){
         if((res = check(tab)) == 0){
             printf("voici la liste des valeurs pour %d:\n", i);
             generateAllValue(tab);
+            printf("ci-dessous le tableau complet pour la valeur %d\n", i);
+            afficheTab(tab);
+            gatherPotentialSolution(tab);
         }
         else{printf("la valeur %i n'a pas de solution avec le noeud %d\n", i, res);}
     }

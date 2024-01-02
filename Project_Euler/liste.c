@@ -67,9 +67,15 @@ void afficheListe(liste * l){
 }
 
 int taille(liste * l){
-	int cpt = 0; liste * tmp = l;
-	while(tmp != NULL){++cpt; tmp = tmp->l;}
-	return cpt;
+    if(l == NULL){return 0;}
+	 int cpt = 0; liste * tmp = l;
+	 while(tmp != NULL){
+        ++cpt; 
+        afficheListe(l);
+        printf("taille: tmp adress is %p and the next is %p\n", tmp, tmp->l);
+        tmp = tmp->l;
+    }
+	 return cpt;
 }
 
 liste * ajoutEnQueue(liste * l, int elt){
