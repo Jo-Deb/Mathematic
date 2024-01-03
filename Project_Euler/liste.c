@@ -71,8 +71,6 @@ int taille(liste * l){
 	 int cpt = 0; liste * tmp = l;
 	 while(tmp != NULL){
         ++cpt; 
-        afficheListe(l);
-        printf("taille: tmp adress is %p and the next is %p\n", tmp, tmp->l);
         tmp = tmp->l;
     }
 	 return cpt;

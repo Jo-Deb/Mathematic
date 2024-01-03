@@ -13,7 +13,7 @@ int * context = NULL;
 /*On cherche tous les triplets a,b,c tel que a+b+c = sommeVal
  * avec a = max
  */
-liste * trouveCombinaison(int sommeVal, int max){
+liste * old_trouveCombinaison(int sommeVal, int max){
     int i, j, k, a = max, b, c;
     liste * res = NULL;
     if(a > sommeVal){return NULL;}
@@ -27,6 +27,21 @@ liste * trouveCombinaison(int sommeVal, int max){
                else{ if(a+b+c < sommeVal){break;} }
            }
        }
+    }
+    return res;
+}
+
+liste * trouveCombinaison(int sommeVal, int min){
+    int i, j, a = min;
+    liste * res = NULL;
+    for(i = min+1; i < NumberOfNodes; ++i){
+        if(a+i >= sommeVal){return res;}
+        else{
+            for(j=i+1; j<=NumberOfNodes; ++j){
+                if(a+i+j == sommeVal){ res = ajoutEnTete(res, a*100+i*10+j); }
+                else{ if(a+i+j > sommeVal) {break;} }
+            }
+        }
     }
     return res;
 }
@@ -76,9 +91,9 @@ int check(void ** tab){
     int i/*boucle sur les noeuds*/, j/*boucle sur le tableau*/, flag = 1/*identifie la présence d'un noeud*/;
     liste * tmp = NULL;
     for(i=1; i <= NumberOfNodes && flag == 1; ++i){
-        for(j = 0; j<NumberOfNodes; ++j){
+        for(j = 0; j<NumberOfNodes/2; ++j){
             tmp = tab[j];
-            while(tmp == NULL && j < NumberOfNodes){++j; tmp = tab[j];}
+            while(tmp == NULL && j < NumberOfNodes/2){++j; tmp = tab[j];}
             while(tmp != NULL){
                 flag = test_sous_chaine(intToString(i), intToString(tmp->value));
                 if(flag == 1){break;}
@@ -282,7 +297,7 @@ void generateAllValue(void ** tab){
     printf("Voici le tableau de valeurs de noeud avant le calcul de tous les arrangements:\n");
     afficheTab(tab);
     int i;
-    for(i = 0; i < NumberOfNodes; ++i){
+    for(i = 0; i < NumberOfNodes/2; ++i){
         if (tab[i] != NULL ) { tab[i] = AllArrangement(tab[i]);}
     }
     printf("________________________________________________________________\n\
@@ -323,10 +338,10 @@ void incrementRecherche(void ** tab, int agrandir){
     int i = NumberOfNodes, idx = NumberOfNodes, fini = 0;
     /*initialisation du contexte dans le cas d'un nouveau tableau*/
     if(context == NULL){
-        context = malloc(NumberOfNodes * sizeof(int));
-        for(i=NumberOfNodes-1; i>=0; --i){context[i] = 0;}
-        i = NumberOfNodes - 1;
-        while(tab[i] == NULL){--i;}
+        context = malloc((NumberOfNodes/2) * sizeof(int));
+        for(i=0; i<NumberOfNodes/2; ++i){context[i] = 0;}
+        i = 0;
+        while(tab[i] == NULL){++i;}
         if(taille(tab[i]) > 0){context[i] = 1; return;}
         if(tab[i] != NULL && taille(tab[i]) == 0){
             printf("tab[%d] est non nulle alors que la liste sur laquelle il pointe contient 0 élément\n", i); 
@@ -335,15 +350,15 @@ void incrementRecherche(void ** tab, int agrandir){
     } 
     while(fini == 0){
         //On boucle pour avoir l'indice le plus petit
-        for(i = NumberOfNodes-1; i>=0; --i){ if(context[i]!=0){idx = i;} }
+        for(i = 0; i<NumberOfNodes/2; ++i){ if(context[i]!=0){idx = i;} }
         if(agrandir){
-            if(idx == 0){
+            if(idx == (NumberOfNodes/2 - 1)){
                 printf("incrementRecherche: On est au bout du tableau context.\
                 Merci de regarder la situation avec précision\n");
                 return;
             }
-            i = idx - 1;
-            while(tab[i] == NULL){--i;}
+            i = idx+1;
+            while(i<NumberOfNodes/2 && tab[i] == NULL){--i;}
             context[i] = 1; fini = 1;
         }
         else{
@@ -371,7 +386,7 @@ glist * gatherPotentialSolution(void ** tab){
     liste * res = NULL;
     if(context == NULL){incrementRecherche(tab, 1);}
     while(checkContext(tab)){
-        while(taille(res) < 5){
+        while(taille(res) < NumberOfNodes/2){
             freeListeAnalyse();
             //On construit une liste à partir des index inscrits dans le contexte
             for(i = 0; i < NumberOfNodes; ++i){ if((idx = context[i])!=0){res = ajoutEnQueue(res, getValue(tab[i], idx));} }
@@ -383,9 +398,10 @@ glist * gatherPotentialSolution(void ** tab){
                 incrementRecherche(tab, 0);
             }
         }
-        printf("gatherPotentialSolution: la liste suivante est ajouté à solTab : "); afficheListe(res);
+        printf("gatherPotentialSolution: la liste suivante est ajouté à solTab : "); afficheListe(res); printf("\n");
         solTab = g_ajoutTete(solTab, res, NULL);
         res = NULL;
+        incrementRecherche(tab, 0);
     }
     return solTab;
 }
@@ -402,22 +418,23 @@ int main(int argc, char ** argv){
     }
     else {printf("Mauvais nombre d'argument\nUsage : ./myExe 6 ou ./myExe 10\n"); return 1;}
     /*________________________________________Début de la solution_______________________________________*/
-    void ** tab = malloc(NumberOfNodes * sizeof(void *));
-    for(i=0; i < NumberOfNodes; ++i){tab[i] = NULL;}
-    int max = NumberOfNodes + (NumberOfNodes -1) + (NumberOfNodes - 2); /*somme des 3 noeuds les plus grands; sans solution pour le problème 68*/
+    void ** tab = malloc(NumberOfNodes/2 * sizeof(void *));
+    for(i=0; i < NumberOfNodes/2; ++i){tab[i] = NULL;}
+    int max = NumberOfNodes + (NumberOfNodes -1) + (NumberOfNodes - 2); 
+    /*somme des 3 noeuds les plus grands; sans solution pour le problème 68*/
     int min = NumberOfNodes + 2 + 1; /*la plus petite somme de branche que l'on puisse faire avec le sommet le grand*/
     for(i = min; i < max; ++i){
-        for(j = NumberOfNodes; j > 0; --j){
-            ret = trouveCombinaison(i, j);
-            tab[j-1] = (void*) ret;
+        for(j = 0; j < NumberOfNodes/2; ++j){
+            ret = trouveCombinaison(i, j+1);
+            tab[j] = (void*) ret;
             if(ret == NULL){ printf("on ne peut pas former une branche de somme %d avec %d comme valeur max\n", i, j); }
             else {printf("avec %d en partant de %d on obtient : ", i, j);afficheListe(ret); printf("\n");}
         }
         if((res = check(tab)) == 0){
             printf("voici la liste des valeurs pour %d:\n", i);
             generateAllValue(tab);
-            printf("ci-dessous le tableau complet pour la valeur %d\n", i);
-            afficheTab(tab);
+            //printf("ci-dessous le tableau complet pour la valeur %d\n", i);
+            //afficheTab(tab);
             gatherPotentialSolution(tab);
         }
         else{printf("la valeur %i n'a pas de solution avec le noeud %d\n", i, res);}
