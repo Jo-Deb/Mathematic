@@ -91,3 +91,15 @@ void g_afficheList(glist * l, void (* pt_show)(void *)){
     printf("\n");
 }
 
+void * g_getList(glist * l, int numList){
+    if(numList <= 0) {printf("g_getList: numList doit être supérieur à 0. Sortie en échec\n"); return NULL;}
+    if(l == NULL){ printf("g_getList: la liste en argument est nulle. Sortie en échec\n"); return NULL;}
+    glist * tmp = l; int pcr = 1;
+    while(tmp != NULL){
+        if(pcr == numList){return tmp->elt;}
+        tmp = tmp->next;
+        ++pcr;
+    }
+    return NULL;
+}
+

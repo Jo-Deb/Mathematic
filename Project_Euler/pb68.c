@@ -4,33 +4,16 @@
 #include "fonctionsPratiques.h"
 #include "liste.h"
 
-void ** MyLists = NULL;
-liste * smallToBig = NULL;
 int NumberOfNodes;
+int * brancheTable = NULL;
+int tailleCombi = 0;
+int brnchTbl_length = 0;
 void ** ListeAnalyse = NULL;
-int * context = NULL;
+glist * context = NULL;
 
 /*On cherche tous les triplets a,b,c tel que a+b+c = sommeVal
- * avec a = max
+ * avec a = min 
  */
-liste * old_trouveCombinaison(int sommeVal, int max){
-    int i, j, k, a = max, b, c;
-    liste * res = NULL;
-    if(a > sommeVal){return NULL;}
-    for(i = max - 1; i > 0; --i){
-       b = i;
-       if(a + b >= sommeVal){}
-       else {
-           for(j = i-1; j > 0; --j){
-               c = j;
-               if(a+b+c == sommeVal){ res = ajoutEnTete(res, a*100+b*10+c); }
-               else{ if(a+b+c < sommeVal){break;} }
-           }
-       }
-    }
-    return res;
-}
-
 liste * trouveCombinaison(int sommeVal, int min){
     int i, j, a = min;
     liste * res = NULL;
@@ -42,16 +25,6 @@ liste * trouveCombinaison(int sommeVal, int min){
                 else{ if(a+i+j > sommeVal) {break;} }
             }
         }
-    }
-    return res;
-}
-
-/*conserver toutes les combinaisons pour une valeur*/
-void ** tableauDesCombinaisons(int sommeVal, int nodeNumber){
-    void ** res = malloc(nodeNumber*sizeof(void *));
-    int i;
-    for(i = nodeNumber - 1; i>=0; --i){
-        res[i] = (void*)trouveCombinaison(sommeVal, i+1);
     }
     return res;
 }
@@ -81,26 +54,21 @@ int test_sous_chaine(char * sc, char * st){
     return flag;
 }
 
-/*Vérifier que chaque noeud (nombre) est exprimé au moins une fois 
- * dans l'ensemble du tableau de combinaison. La fonction retourne
- * une valeur supérieure à 0 correspondant au noeud qui n'est pas 
- * représenté dans le tableau; si tous les noeuds sont présents 
- * dans le tableau elle retourne 0.
+/*Vérifier que chaque noeud (nombre) est exprimé au moins une fois. 
+ * La fonction retourne une valeur supérieure à 0 correspondant 
+ * au noeud qui n'est pas représenté dans le tableau; 
+ * si tous les noeuds sont présents dans le tableau elle retourne 0.
  */
-int check(void ** tab){
-    int i/*boucle sur les noeuds*/, j/*boucle sur le tableau*/, flag = 1/*identifie la présence d'un noeud*/;
+int check(liste * l){
+    int i/*boucle sur les noeuds*/, flag = 1/*identifie la présence d'un noeud*/;
     liste * tmp = NULL;
     for(i=1; i <= NumberOfNodes && flag == 1; ++i){
-        for(j = 0; j<NumberOfNodes/2; ++j){
-            tmp = tab[j];
-            while(tmp == NULL && j < NumberOfNodes/2){++j; tmp = tab[j];}
+            tmp = l;
             while(tmp != NULL){
                 flag = test_sous_chaine(intToString(i), intToString(tmp->value));
                 if(flag == 1){break;}
                 tmp = tmp->l;
            }
-            if(flag == 1){break;}
-        }
     }
     /*Après la 1ère itération, la boucle incrémente d'abord le i 
      * avant de tester la condition de passage, raison pour laquelle on
@@ -238,17 +206,6 @@ int testLienExterne(int val_node, liste * externNode){
     return res;
 }
 
-/*Affiche le tableau des différentes combinaison*/
-void afficheTab(void ** tab){
-    int i;
-    liste * tmp = NULL;
-    for(i=0; i < NumberOfNodes; ++i){
-        if(tab[i] != NULL){printf("case %d: ", i);afficheListe(tab[i]);printf("\n");}
-       tmp = tab[i];
-       //while(tmp != NULL){affiche_decomposition(decompose_node(tmp->value)); tmp = tmp->l;}
-    }
-}
-
 int power(int base, int exposant){
     int i, res = base;
     for(i = 1; i < exposant; ++i){res *= res;}
@@ -262,47 +219,48 @@ int concateneEntier(int a1, int a2, int a3){
 /*prend une liste d'entier et renvoie la liste contenant 
  * tous les arrangements de toutes les valeurs de la liste
  * d'entrée*/
-liste * AllArrangement(liste * tmp){
-    liste * res = NULL, * pcrs = tmp;
-    int vtmp = 0, a, b, c;
+liste * AllArrangement(int val){
+    liste * res = NULL;
+    int vtmp = val, a, b, c;
     char * stmp = NULL;
-    while(pcrs != NULL){
-        a = b = c = 0;
-        vtmp = pcrs->value;
-        stmp = intToString(vtmp);
-        while(stmp[0]!='\0'){
-            if(a == 0 && stmp[0] == '1' && stmp[1]=='0'){ a = 10; stmp += 2; }
-            else{ a = stmp[0] - 48; /*conversion de valeur ascii à entière*/ ++stmp;}
-            if(b == 0 && stmp[0] == '1' && stmp[1]=='0'){ b = 10; stmp += 2; }
-            else{ b = stmp[0] - 48; /*conversion de valeur ascii à entière*/ ++stmp;}
-            if(c == 0 && stmp[0] == '1' && stmp[1]=='0'){ c = 10; stmp += 2; }
-            else{ c = stmp[0] - 48; /*conversion de valeur ascii à entière*/ ++stmp;}
-            if(stmp[0]!='\0'){ printf("les valeurs a=%d, b=%d, c=%d sont attribuées mais le reste de stmp = %s\n",a,b,c,stmp);}
-        }
-        /*On doit ajouter les combinaisons abc, acb, bac, bca, cab, cba à la liste résultante*/
-        res = ajoutEnTete(res, concateneEntier(a, b, c));
-        res = ajoutEnTete(res, concateneEntier(a, c, b));
-        res = ajoutEnTete(res, concateneEntier(b, a, c));
-        res = ajoutEnTete(res, concateneEntier(b, c, a));
-        res = ajoutEnTete(res, concateneEntier(c, a, b));
-        res = ajoutEnTete(res, concateneEntier(c, b, a));
-        pcrs = pcrs->l;
+    a = b = c = 0;
+    stmp = intToString(vtmp);
+    while(stmp[0]!='\0'){
+        if(a == 0 && stmp[0] == '1' && stmp[1]=='0'){ a = 10; stmp += 2; }
+        else{ a = stmp[0] - 48; /*conversion de valeur ascii à entière*/ ++stmp;}
+        if(b == 0 && stmp[0] == '1' && stmp[1]=='0'){ b = 10; stmp += 2; }
+        else{ b = stmp[0] - 48; /*conversion de valeur ascii à entière*/ ++stmp;}
+        if(c == 0 && stmp[0] == '1' && stmp[1]=='0'){ c = 10; stmp += 2; }
+        else{ c = stmp[0] - 48; /*conversion de valeur ascii à entière*/ ++stmp;}
+        if(stmp[0]!='\0'){ printf("les valeurs a=%d, b=%d, c=%d sont attribuées mais le reste de stmp = %s\n",a,b,c,stmp);}
     }
+        /*On doit ajouter les combinaisons abc, acb, bac, bca, cab, cba à la liste résultante*/
+    res = ajoutEnTete(res, concateneEntier(a, b, c));
+    res = ajoutEnTete(res, concateneEntier(a, c, b));
+    res = ajoutEnTete(res, concateneEntier(b, a, c));
+    res = ajoutEnTete(res, concateneEntier(b, c, a));
+    res = ajoutEnTete(res, concateneEntier(c, a, b));
+    res = ajoutEnTete(res, concateneEntier(c, b, a));
     return res;
 }
 
+void afficheListe68(void * l){ afficheListe((liste *) l); }
+
 /*Just iterate over the function AllArrangement
  * to generate all possible value for nodes*/
-void generateAllValue(void ** tab){
-    printf("Voici le tableau de valeurs de noeud avant le calcul de tous les arrangements:\n");
-    afficheTab(tab);
-    int i;
-    for(i = 0; i < NumberOfNodes/2; ++i){
-        if (tab[i] != NULL ) { tab[i] = AllArrangement(tab[i]);}
+glist * generateAllValue(liste * l){
+    printf("Voici la liste de valeurs de noeud avant le calcul de tous les arrangements:\n");
+    afficheListe(l);
+    glist * res = NULL;
+    liste * tmp = l;
+    while(tmp != NULL){
+        g_ajoutFin(res, AllArrangement(tmp->value), NULL);
+        tmp = tmp->l;
     }
     printf("________________________________________________________________\n\
             Voici le tableau de valeurs des noeuds après le calcul des arrangements:\n");
-    afficheTab(tab);
+    g_afficheList(res, afficheListe68);
+    return res;
 }
 
 void showElt(void * pt){ printf(" %s ", (char*)pt); }
@@ -330,40 +288,54 @@ void parseListe(liste * prop){
     }
 }
 
+/*Calcule la prochaine combinaison en fonction des arguments*/
+liste * nextCombinaison(int * debut, int * tCmb, int * idxLst){
+    int i, tmp[*tCmb];
+    liste * res = NULL;
+    for(i=0; i<(*tCmb); ++i){tmp[i] = 0;}
+    if(*idxLst == (brnchTbl_length-1)){*debut += 1; *idxLst = *debut + (*tCmb - 1);}
+    else { *idxLst += 1; }
+    for(i=*debut; i<(*tCmb)-1; ++i){ res = ajoutEnQueue(res, tmp[i-(*debut)]); }
+    res = ajoutEnQueue(res, brancheTable[*idxLst]);
+    return res;
+}
+
 /*Cette fonction incrémente la recherche en mettant
  * à jour les indices dans le pointeur contexte. La valeur agrandir
  * permet de savoir s'il faut ajouter un nouvel élément ou changer
  * l'élément dernièrement inséré*/
-void incrementRecherche(void ** tab, int agrandir){
-    int i = NumberOfNodes, idx = NumberOfNodes, fini = 0;
+void incrementRecherche(glist * possibleBranche, int agrandir){
+    int numList, idx = NumberOfNodes, fini = 0;
+    liste * res = NULL;
     /*initialisation du contexte dans le cas d'un nouveau tableau*/
     if(context == NULL){
-        context = malloc((NumberOfNodes/2) * sizeof(int));
-        for(i=0; i<NumberOfNodes/2; ++i){context[i] = 0;}
-        i = 0;
-        while(tab[i] == NULL){++i;}
-        if(taille(tab[i]) > 0){context[i] = 1; return;}
-        if(tab[i] != NULL && taille(tab[i]) == 0){
-            printf("tab[%d] est non nulle alors que la liste sur laquelle il pointe contient 0 élément\n", i); 
-        }
+        res = ajoutEnTete(ajoutEnTete(NULL, 1), 1);//1er élément du context
+        context = g_ajoutTete(context, res, NULL);
+        res = ajoutEnTete(ajoutEnTete(NULL, 1), 1);//2eme élément du context
+        g_ajoutFin(context, res, NULL);
         return;
-    } 
+    }
     while(fini == 0){
-        //On boucle pour avoir l'indice le plus petit
-        for(i = 0; i<NumberOfNodes/2; ++i){ if(context[i]!=0){idx = i;} }
         if(agrandir){
-            if(idx == (NumberOfNodes/2 - 1)){
-                printf("incrementRecherche: On est au bout du tableau context.\
-                Merci de regarder la situation avec précision\n");
+            int tailleContext = g_listLongueur(context);
+            if(tailleContext == NumberOfNodes/2){
+                printf("incrementRecherche: Agrandir est une erreur, il y a déjà %d branches indiquées dans le contexte\n",\
+                        NumberOfNodes/2);
                 return;
             }
-            i = idx+1;
-            while(i<NumberOfNodes/2 && tab[i] == NULL){--i;}
-            context[i] = 1; fini = 1;
+            res = ajoutEnTete(ajoutEnTete(NULL, 1), 1);//2eme élément du context
+            g_ajoutFin(context, res, NULL);
+            fini = 1;
         }
         else{
-            if(context[idx] == taille(tab[idx])){context[idx] = 0;}
-            else {context[idx] += 1; fini = 1;}
+            //On récupère les informations du dernier élément ajouté dans le contexte
+            res = g_getList(context, g_listLongueur(context));
+            numList = res->value; idx = res->l->value;
+            //tester pour savoir si on a pris le dernier élément de la colonne
+            if(idx == taille((liste *) g_getList(possibleBranche, numList))){
+                if(numList == g_listLongueur(possibleBranche)){context = g_supprimElt(context, res);}
+            }
+            else{ res->l->value = ++idx; fini = 1;}
         }
     }
 }
@@ -380,7 +352,7 @@ int checkContext(void ** tab){
 }
 
 /*Génère toutes les solutions potentielles du problème*/
-glist * gatherPotentialSolution(void ** tab){
+glist * gatherPotentialSolution(glist * possibleBranche){
     int i, idx;
     glist * solTab = NULL;
     liste * res = NULL;
@@ -409,7 +381,7 @@ glist * gatherPotentialSolution(void ** tab){
 int main(int argc, char ** argv){
     /*________________________________________vérification des entrées___________________________________*/
     int i, j, res;
-    liste * ret;
+    liste * ret = NULL, * tmp = NULL;
     if(argc == 2){
         if(sscanf(argv[1], "%d", &NumberOfNodes) != EOF){} 
         else{printf("Mauvais argument %s\nEchec du traitement\n", argv[1]); 
@@ -418,33 +390,27 @@ int main(int argc, char ** argv){
     }
     else {printf("Mauvais nombre d'argument\nUsage : ./myExe 6 ou ./myExe 10\n"); return 1;}
     /*________________________________________Début de la solution_______________________________________*/
-    void ** tab = malloc(NumberOfNodes/2 * sizeof(void *));
-    for(i=0; i < NumberOfNodes/2; ++i){tab[i] = NULL;}
     int max = NumberOfNodes + (NumberOfNodes -1) + (NumberOfNodes - 2); 
     /*somme des 3 noeuds les plus grands; sans solution pour le problème 68*/
     int min = NumberOfNodes + 2 + 1; /*la plus petite somme de branche que l'on puisse faire avec le sommet le grand*/
     for(i = min; i < max; ++i){
         for(j = 0; j < NumberOfNodes/2; ++j){
-            ret = trouveCombinaison(i, j+1);
-            tab[j] = (void*) ret;
-            if(ret == NULL){ printf("on ne peut pas former une branche de somme %d avec %d comme valeur max\n", i, j); }
-            else {printf("avec %d en partant de %d on obtient : ", i, j);afficheListe(ret); printf("\n");}
+            tmp = trouveCombinaison(i, j+1);
+            if(tmp == NULL){ printf("on ne peut pas former une branche de somme %d avec %d comme valeur max\n", i, j); }
+            else {
+                printf("avec %d en partant de %d on obtient : ", i, j);
+                afficheListe(tmp); printf("\n");
+                ret = concateneListe(ret, tmp);
+            }
         }
-        if((res = check(tab)) == 0){
+        if((res = check(ret)) == 0){
             printf("voici la liste des valeurs pour %d:\n", i);
-            generateAllValue(tab);
+            generateAllValue(ret);
             //printf("ci-dessous le tableau complet pour la valeur %d\n", i);
             //afficheTab(tab);
             gatherPotentialSolution(tab);
         }
         else{printf("la valeur %i n'a pas de solution avec le noeud %d\n", i, res);}
     }
-    char * chaine1 = "test pour voir l'arithmétique des pointeurs";
-    printf("initialement chaine1 = %s\n", chaine1);
-    for(i = 0; i < 10; ++i){
-        printf("le pointeur incrémenté de %d donne : %s\n", i, ++chaine1);
-    } 
-    printf("la valeur %s est une string\n", intToString(1031)); 
-    printf("la valeur %s est une string\n", intToString(1013)); 
     return 0;
 }

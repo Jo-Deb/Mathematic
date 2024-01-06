@@ -330,14 +330,19 @@ liste * trieSousListe(liste * l, int start){
 	return l;
 }
 
-/*ajoute la liste lb à la suite de la liste la*/
+/*ajoute la liste lb à la suite de la liste la
+ * si une des 2 listes est nulle, l'autre est retournée
+ * si les 2 listes sont nulles, à la fin de la fonction
+ * la liste lb est libérée*/
 liste * concateneListe(liste * la, liste * lb){
+    if(la == NULL){return lb;}
+    if(lb == NULL){return la;}
     liste * tmp = lb;
-
     while(tmp != NULL){ 
         la = ajoutEnQueue(la, tmp->value); 
         tmp = tmp->l;
     }
+    supprimeListe(lb);
     return la;
 }
 
