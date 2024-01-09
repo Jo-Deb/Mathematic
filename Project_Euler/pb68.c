@@ -9,7 +9,6 @@ int * brancheTable = NULL;
 int tailleCombi = 0;
 int brnchTbl_length = 0;
 void ** ListeAnalyse = NULL;
-glist * context = NULL;
 
 /*On cherche tous les triplets a,b,c tel que a+b+c = sommeVal
  * avec a = min 
@@ -250,11 +249,13 @@ void afficheListe68(void * l){ afficheListe((liste *) l); }
  * to generate all possible value for nodes*/
 glist * generateAllValue(liste * l){
     printf("Voici la liste de valeurs de noeud avant le calcul de tous les arrangements:\n");
-    afficheListe(l);
+    afficheListe(l); printf("\n");
     glist * res = NULL;
-    liste * tmp = l;
+    liste * tmp = l, * generatedListe = NULL;
     while(tmp != NULL){
-        g_ajoutFin(res, AllArrangement(tmp->value), NULL);
+        generatedListe = AllArrangement(tmp->value);
+        if(res == NULL) {res = g_ajoutTete(res, generatedListe, NULL);}
+        else{ g_ajoutFin(res, generatedListe, NULL); }
         tmp = tmp->l;
     }
     printf("________________________________________________________________\n\
@@ -289,91 +290,76 @@ void parseListe(liste * prop){
 }
 
 /*Calcule la prochaine combinaison en fonction des arguments*/
-liste * nextCombinaison(int * debut, int * tCmb, int * idxLst){
-    int i, tmp[*tCmb];
+liste * nextCombinaison(int debut, int tCmb, int idxLst){
+    if((idxLst - debut) == (tCmb -1)){
+        printf("nextCombinaison:dernière combinaison atteinte. Retour nulle\n"); return NULL;
+    }
+    int i, tmp[tCmb];
     liste * res = NULL;
-    for(i=0; i<(*tCmb); ++i){tmp[i] = 0;}
-    if(*idxLst == (brnchTbl_length-1)){*debut += 1; *idxLst = *debut + (*tCmb - 1);}
-    else { *idxLst += 1; }
-    for(i=*debut; i<(*tCmb)-1; ++i){ res = ajoutEnQueue(res, tmp[i-(*debut)]); }
-    res = ajoutEnQueue(res, brancheTable[*idxLst]);
+    for(i=0; i<(tCmb); ++i){tmp[i] = 0;}
+    if(idxLst == (brnchTbl_length-1)){debut += 1; idxLst = debut + (tCmb - 1);}
+    else { idxLst += 1; }
+    for(i=debut; i<(tCmb)-1; ++i){ res = ajoutEnQueue(res, tmp[i-(debut)]); }
+    res = ajoutEnQueue(res, brancheTable[idxLst]);
     return res;
 }
 
-/*Cette fonction incrémente la recherche en mettant
- * à jour les indices dans le pointeur contexte. La valeur agrandir
- * permet de savoir s'il faut ajouter un nouvel élément ou changer
- * l'élément dernièrement inséré*/
-void incrementRecherche(glist * possibleBranche, int agrandir){
-    int numList, idx = NumberOfNodes, fini = 0;
-    liste * res = NULL;
-    /*initialisation du contexte dans le cas d'un nouveau tableau*/
-    if(context == NULL){
-        res = ajoutEnTete(ajoutEnTete(NULL, 1), 1);//1er élément du context
-        context = g_ajoutTete(context, res, NULL);
-        res = ajoutEnTete(ajoutEnTete(NULL, 1), 1);//2eme élément du context
-        g_ajoutFin(context, res, NULL);
-        return;
+liste * wrapperCombinaison(liste * previous){
+    int i = 0, tailleCombi = 3, debut = 0, idxLst = 0, val = previous->value;
+    if(previous == NULL) {debut = 0; idxLst = tailleCombi - 1;}
+    else{
+        while(brancheTable[i] != val){++i;}
+        debut = i;
+        i = 0;
+        val = getValue(previous, taille(previous));
+        while(brancheTable[i] != val){++i;}
+        idxLst = i;
+        supprimeListe(previous);
+        previous = NULL;
     }
-    while(fini == 0){
-        if(agrandir){
-            int tailleContext = g_listLongueur(context);
-            if(tailleContext == NumberOfNodes/2){
-                printf("incrementRecherche: Agrandir est une erreur, il y a déjà %d branches indiquées dans le contexte\n",\
-                        NumberOfNodes/2);
-                return;
-            }
-            res = ajoutEnTete(ajoutEnTete(NULL, 1), 1);//2eme élément du context
-            g_ajoutFin(context, res, NULL);
-            fini = 1;
-        }
-        else{
-            //On récupère les informations du dernier élément ajouté dans le contexte
-            res = g_getList(context, g_listLongueur(context));
-            numList = res->value; idx = res->l->value;
-            //tester pour savoir si on a pris le dernier élément de la colonne
-            if(idx == taille((liste *) g_getList(possibleBranche, numList))){
-                if(numList == g_listLongueur(possibleBranche)){context = g_supprimElt(context, res);}
-            }
-            else{ res->l->value = ++idx; fini = 1;}
-        }
-    }
+    return nextCombinaison(debut, tailleCombi, idxLst);
 }
 
-/*Cette fonction permet de vérifier si toutes les 
- * solutions ont été indexées dans le contexte*/
-int checkContext(void ** tab){
-    int i;
-    for(i=0; i < NumberOfNodes; ++i){
-        if(context[i] == 0 && tab[i] != NULL){return 1;}
-        if(context[i] != 0 && taille(tab[i]) != context[i]){return 1;}
+/*Mettre en tableau toutes les branches. Chaque branche est une valeur entière*/
+void mettreEnTableau(glist * possibleBranche){
+    brnchTbl_length = g_listLongueur(possibleBranche);
+    if(brnchTbl_length == 0) {printf("la liste en entrée est vide, sortie en échec."); return;}
+    /*Chaque élément de possibleBranche contient une liste d'entier de 6 éléments*/
+    brnchTbl_length *= 6;
+    if(brancheTable != NULL) {free(brancheTable);}
+    brancheTable = malloc(brnchTbl_length * sizeof(int));
+    glist * pcr = possibleBranche;
+    liste * tmp = NULL;
+    int i = 0;
+    for(i=0; i < brnchTbl_length; ++i){ brancheTable[i] = 0; }
+    while(pcr != NULL){
+        tmp = (liste *)pcr->elt;
+        while(tmp!=NULL){
+            brancheTable[i] = tmp->value;
+            tmp = tmp->l; ++i;
+        }
+        pcr = pcr->next;
     }
-    return 0;
 }
 
 /*Génère toutes les solutions potentielles du problème*/
 glist * gatherPotentialSolution(glist * possibleBranche){
-    int i, idx;
     glist * solTab = NULL;
-    liste * res = NULL;
-    if(context == NULL){incrementRecherche(tab, 1);}
-    while(checkContext(tab)){
-        while(taille(res) < NumberOfNodes/2){
-            freeListeAnalyse();
-            //On construit une liste à partir des index inscrits dans le contexte
-            for(i = 0; i < NumberOfNodes; ++i){ if((idx = context[i])!=0){res = ajoutEnQueue(res, getValue(tab[i], idx));} }
-            construireListeAnalyse(res);
-            if(saturationNoeud() == 0){ incrementRecherche(tab, 1); } 
-            else {
-                supprimeListe(res); 
-                res = NULL;
-                incrementRecherche(tab, 0);
+    liste * res = NULL, * passIt = NULL;
+    mettreEnTableau(possibleBranche);
+    while((res = wrapperCombinaison(passIt)) != NULL){
+        freeListeAnalyse();
+        construireListeAnalyse(res);
+        passIt = recopie(res);
+        if(saturationNoeud() == 0){ 
+            printf("gatherPotentialSolution: liste sans saturation\n"); afficheListe(res);
+            if(saturationExterne() == 0){
+                solTab = g_ajoutTete(solTab, res, NULL);
+                printf("gatherPotentialSolution: la liste "); afficheListe(res);
+                printf("a été ajouté à la liste de solution\n");
             }
-        }
-        printf("gatherPotentialSolution: la liste suivante est ajouté à solTab : "); afficheListe(res); printf("\n");
-        solTab = g_ajoutTete(solTab, res, NULL);
-        res = NULL;
-        incrementRecherche(tab, 0);
+        } 
+        else{ supprimeListe(res); res = NULL; }
     }
     return solTab;
 }
@@ -382,6 +368,7 @@ int main(int argc, char ** argv){
     /*________________________________________vérification des entrées___________________________________*/
     int i, j, res;
     liste * ret = NULL, * tmp = NULL;
+    glist * possibleBranche = NULL;
     if(argc == 2){
         if(sscanf(argv[1], "%d", &NumberOfNodes) != EOF){} 
         else{printf("Mauvais argument %s\nEchec du traitement\n", argv[1]); 
@@ -405,10 +392,10 @@ int main(int argc, char ** argv){
         }
         if((res = check(ret)) == 0){
             printf("voici la liste des valeurs pour %d:\n", i);
-            generateAllValue(ret);
+            possibleBranche = generateAllValue(ret);
             //printf("ci-dessous le tableau complet pour la valeur %d\n", i);
             //afficheTab(tab);
-            gatherPotentialSolution(tab);
+            gatherPotentialSolution(possibleBranche);
         }
         else{printf("la valeur %i n'a pas de solution avec le noeud %d\n", i, res);}
     }
