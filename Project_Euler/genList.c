@@ -103,3 +103,15 @@ void * g_getList(glist * l, int numList){
     return NULL;
 }
 
+void g_freeGenList(glist *l, void(* pt_freeFunction)(void *)){
+    if(l==NULL){printf("g_freeGenList: la liste en argument est nulle, échec\n"); return;}
+    if(pt_freeFunction==NULL){printf("g_freeGenList: la fontion en argument est nulle, échec\n"); return;}
+    glist * tmp = l, * previous = NULL;
+    while(tmp != NULL){
+        freeList(tmp->lst);
+        pt_freeFunction(tmp->elt);
+        previous = tmp;
+        tmp = tmp->next;
+        free(previous); previous = NULL;
+    }
+}

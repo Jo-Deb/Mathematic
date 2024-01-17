@@ -33,3 +33,5 @@ extern void g_freeList(glist * l);
 extern void g_afficheList(glist * l, void(* pt_show)(void *));
 
 extern void * g_getList(glist * l, int numList);
+
+extern void g_freeGenList(glist *l, void(* pt_freeFunction)(void *));

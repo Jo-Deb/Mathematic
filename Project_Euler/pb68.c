@@ -8,7 +8,32 @@ int NumberOfNodes;
 int * brancheTable = NULL;
 int tailleCombi = 0;
 int brnchTbl_length = 0;
+int limitCombinaison = 0;
+int combinaisonEnCours = 0;
 void ** ListeAnalyse = NULL;
+
+
+/*Calcul inVal+1 dans une base 6 et s'assure que inVal+1 est inférieur ou égale limite
+ * On renvoie le résultat dans un tableau pour représenter les unités, les dizaines et les centaines*/
+int * nextValueBase6(int inVal, int limite){
+    int * tb1 = intToTab(inVal);
+    if(inVal >= limite){
+        printf("nextCombinaison: signature : (int inVal, int limite) et inVal < limite. Et maintenant on a inVal >= limite. Echec\n");
+        return NULL;
+    }
+    int i, d, len = calculTailleEntier(limite), ajout = 1, retenue = 0, lenLimite = calculTailleEntier(inVal);
+    int * res = malloc(len * sizeof(int));
+    for(i=0; i<len; ++i){ res[i] = 0;}
+    d = lenLimite - 1;
+    for(i=len-1; i>=0; --i){
+        if(d>=0){
+            if ((tb1[d] + ajout + retenue) > 5){ res[i] = 0; ajout = 0; retenue = 1; --d;}
+            else { res[i] = tb1[d] + ajout + retenue; --d;}
+        }
+        else{ res[i] = ajout + retenue; ajout = 0; retenue = 0; }
+    }
+    return res;
+}
 
 /*On cherche tous les triplets a,b,c tel que a+b+c = sommeVal
  * avec a = min 
@@ -289,11 +314,7 @@ void parseListe(liste * prop){
     }
 }
 
-/*Calcule la prochaine combinaison en fonction des arguments*/
 liste * nextCombinaison(int debut, int tCmb, int idxLst){
-    if((idxLst - debut) == (tCmb -1)){
-        printf("nextCombinaison:dernière combinaison atteinte. Retour nulle\n"); return NULL;
-    }
     int i, tmp[tCmb];
     liste * res = NULL;
     for(i=0; i<(tCmb); ++i){tmp[i] = 0;}
@@ -301,13 +322,20 @@ liste * nextCombinaison(int debut, int tCmb, int idxLst){
     else { idxLst += 1; }
     for(i=debut; i<(tCmb)-1; ++i){ res = ajoutEnQueue(res, tmp[i-(debut)]); }
     res = ajoutEnQueue(res, brancheTable[idxLst]);
+    ++combinaisonEnCours;
     return res;
 }
 
 liste * wrapperCombinaison(liste * previous){
-    int i = 0, tailleCombi = 3, debut = 0, idxLst = 0, val = previous->value;
+    if(combinaisonEnCours == limitCombinaison){
+        printf("wrapperCombinaison: le nombre de combinaisons maximum est atteint\n");
+        return NULL;
+    }
+    int i = 0, tailleCombi = 3, debut = 0, idxLst = 0, val;
+
     if(previous == NULL) {debut = 0; idxLst = tailleCombi - 1;}
     else{
+        val = previous->value;
         while(brancheTable[i] != val){++i;}
         debut = i;
         i = 0;
@@ -323,21 +351,25 @@ liste * wrapperCombinaison(liste * previous){
 /*Mettre en tableau toutes les branches. Chaque branche est une valeur entière*/
 void mettreEnTableau(glist * possibleBranche){
     brnchTbl_length = g_listLongueur(possibleBranche);
-    if(brnchTbl_length == 0) {printf("la liste en entrée est vide, sortie en échec."); return;}
+    if(brnchTbl_length == 0) {printf("mettreEnTableau: la liste en entrée est vide, sortie en échec."); return;}
     /*Chaque élément de possibleBranche contient une liste d'entier de 6 éléments*/
     brnchTbl_length *= 6;
     if(brancheTable != NULL) {free(brancheTable);}
     brancheTable = malloc(brnchTbl_length * sizeof(int));
     glist * pcr = possibleBranche;
     liste * tmp = NULL;
-    int i = 0;
+    int i = 0, j;
     for(i=0; i < brnchTbl_length; ++i){ brancheTable[i] = 0; }
+    i = 0;
     while(pcr != NULL){
         tmp = (liste *)pcr->elt;
         while(tmp!=NULL){
             brancheTable[i] = tmp->value;
             tmp = tmp->l; ++i;
         }
+        printf("mettreEnTableau: brancheTable = ");
+        for(j=0; j<i; ++j){printf("%d ", brancheTable[j]);}
+        printf("\n");
         pcr = pcr->next;
     }
 }
@@ -346,7 +378,12 @@ void mettreEnTableau(glist * possibleBranche){
 glist * gatherPotentialSolution(glist * possibleBranche){
     glist * solTab = NULL;
     liste * res = NULL, * passIt = NULL;
+    int i;
     mettreEnTableau(possibleBranche);
+    limitCombinaison = NbrCombinaison(3, brnchTbl_length);
+    printf("gatherPotentialSolution: affichage du tableau permettant de calculer les combinaisons\n");
+    for(i=0; i<brnchTbl_length; ++i){ printf("%d ", brancheTable[i]); }
+    printf("\n");
     while((res = wrapperCombinaison(passIt)) != NULL){
         freeListeAnalyse();
         construireListeAnalyse(res);
@@ -398,6 +435,9 @@ int main(int argc, char ** argv){
             gatherPotentialSolution(possibleBranche);
         }
         else{printf("la valeur %i n'a pas de solution avec le noeud %d\n", i, res);}
+        supprimeListe(ret); ret = NULL;
+        g_freeGenList(possibleBranche, vfreeListe);
+        possibleBranche = NULL;
     }
     return 0;
 }

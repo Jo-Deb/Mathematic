@@ -128,7 +128,7 @@ int maxListe(liste * l){
 	}
 	return max;
 }
-
+    
 liste * copie(liste * li, int elt){
 	liste * l = NULL; liste * tmp = li;
 	if(li == NULL){return li;}
@@ -354,3 +354,5 @@ void freeListe(liste * la){
         free(current);
     }
 }
+
+void vfreeListe(void * l){ freeListe((liste *) l); }

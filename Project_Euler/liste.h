@@ -70,3 +70,5 @@ extern liste * trieSousListe(liste * l, int start);
 extern liste * concateneListe(liste * la, liste * lb);
 
 extern void freeListe(liste * la);
+
+extern void vfreeListe(void * l);
