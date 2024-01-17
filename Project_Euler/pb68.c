@@ -314,39 +314,6 @@ void parseListe(liste * prop){
     }
 }
 
-liste * nextCombinaison(int debut, int tCmb, int idxLst){
-    int i, tmp[tCmb];
-    liste * res = NULL;
-    for(i=0; i<(tCmb); ++i){tmp[i] = 0;}
-    if(idxLst == (brnchTbl_length-1)){debut += 1; idxLst = debut + (tCmb - 1);}
-    else { idxLst += 1; }
-    for(i=debut; i<(tCmb)-1; ++i){ res = ajoutEnQueue(res, tmp[i-(debut)]); }
-    res = ajoutEnQueue(res, brancheTable[idxLst]);
-    ++combinaisonEnCours;
-    return res;
-}
-
-liste * wrapperCombinaison(liste * previous){
-    if(combinaisonEnCours == limitCombinaison){
-        printf("wrapperCombinaison: le nombre de combinaisons maximum est atteint\n");
-        return NULL;
-    }
-    int i = 0, tailleCombi = 3, debut = 0, idxLst = 0, val;
-
-    if(previous == NULL) {debut = 0; idxLst = tailleCombi - 1;}
-    else{
-        val = previous->value;
-        while(brancheTable[i] != val){++i;}
-        debut = i;
-        i = 0;
-        val = getValue(previous, taille(previous));
-        while(brancheTable[i] != val){++i;}
-        idxLst = i;
-        supprimeListe(previous);
-        previous = NULL;
-    }
-    return nextCombinaison(debut, tailleCombi, idxLst);
-}
 
 /*Mettre en tableau toutes les branches. Chaque branche est une valeur entière*/
 void mettreEnTableau(glist * possibleBranche){
@@ -377,26 +344,28 @@ void mettreEnTableau(glist * possibleBranche){
 /*Génère toutes les solutions potentielles du problème*/
 glist * gatherPotentialSolution(glist * possibleBranche){
     glist * solTab = NULL;
-    liste * res = NULL, * passIt = NULL;
-    int i;
+    int * res = NULL, passIt = 0, i;
+    liste * etudeSol = NULL;
     mettreEnTableau(possibleBranche);
-    limitCombinaison = NbrCombinaison(3, brnchTbl_length);
     printf("gatherPotentialSolution: affichage du tableau permettant de calculer les combinaisons\n");
     for(i=0; i<brnchTbl_length; ++i){ printf("%d ", brancheTable[i]); }
     printf("\n");
-    while((res = wrapperCombinaison(passIt)) != NULL){
+    while((res = nextValueBase6(passIt, 555)) != NULL){
         freeListeAnalyse();
-        construireListeAnalyse(res);
-        passIt = recopie(res);
+        /*res <= 555; brancheTable a 18 éléments donc res[i] + i*6 < 18 
+         * puisque max(res[i] + i*6) = 17*/
+        for(i=0; i<3; ++i){ etudeSol = ajoutEnQueue(etudeSol, brancheTable[(res[i]+i*6)]); }
+        construireListeAnalyse(etudeSol);
+        passIt = tabToInt(res, 3);
         if(saturationNoeud() == 0){ 
-            printf("gatherPotentialSolution: liste sans saturation\n"); afficheListe(res);
+            printf("gatherPotentialSolution: liste sans saturation\n"); afficheListe(etudeSol);
             if(saturationExterne() == 0){
-                solTab = g_ajoutTete(solTab, res, NULL);
-                printf("gatherPotentialSolution: la liste "); afficheListe(res);
+                solTab = g_ajoutTete(solTab, etudeSol, NULL);
+                printf("gatherPotentialSolution: la liste "); afficheListe(etudeSol);
                 printf("a été ajouté à la liste de solution\n");
             }
         } 
-        else{ supprimeListe(res); res = NULL; }
+        else{ supprimeListe(etudeSol); etudeSol = NULL; }
     }
     return solTab;
 }
