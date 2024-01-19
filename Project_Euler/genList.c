@@ -84,7 +84,7 @@ void g_afficheList(glist * l, void (* pt_show)(void *)){
     while(tmp!=NULL){
        if(tmp->next != NULL){
            pt_show(tmp->elt);
-           printf(" -> ");
+           printf("\n ");
        } else {pt_show(tmp->elt);}
        tmp = tmp->next;
     }

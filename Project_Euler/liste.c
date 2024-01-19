@@ -239,10 +239,13 @@ liste * sousListe(liste * l, int start, int end){
 
 int getPosition(liste * l, int elt){
 	liste * pcr = l; int position = 1;
-	while(l!=NULL){
-		if(l->value == elt){ return position;}
-		if(l->l != NULL){ l = l->l; ++position;}
-	}
+	while(pcr != NULL){
+		if(pcr->value == elt){ return position;}
+      else{
+		  if(pcr->l != NULL){ pcr = pcr->l; ++position;}
+        else{pcr = pcr->l;}
+	   }
+   }
 	printf("la valeur %d n'a pas été retrouvé dans la liste :", elt);
 	afficheListe(l);
 	printf("\n La valeur -1 sera retournée\n");
