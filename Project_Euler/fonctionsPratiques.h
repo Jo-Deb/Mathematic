@@ -35,11 +35,19 @@ extern void inverseTriTab(int * tab, int taille);
 
 extern void inverseTriSousTab(int * tab, int taille,  int start);
 
+extern int estCroissant(int * tab, int depart, int taille);
+
+extern int estDecroissant(int * tab, int depart, int taille);
+
 extern int getPositionMin(int * tab, int  depart, int taille);
 
 extern void invert(int * tab, int taille1, int taille2);
 
 extern int positionPivot(int * tab, int depart, int taille);
+
+extern int positionPivot2(int * tab, int taille);
+
+extern int plusPetitMajorant(int * tab, int val, int depart, int taille);
 
 /*chercher le Plus Grand Nombre Inférieur à tab[depart-1]*/
 extern int positionPgnf(int * tab, int depart, int taille);
@@ -49,6 +57,8 @@ extern int sousTabtoInt(int * tab, int depart, int taille);
 extern unsigned long int l_sousTabtoInt(int * tab, int depart, int taille);
 
 extern int pppPandigital(int * tab, int * depart, int taille);
+
+extern int nextGreaterValSameDigit(int val);
 
 extern int * generatePrimes();
 /*supprimer les doublons*/

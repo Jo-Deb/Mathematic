@@ -211,6 +211,18 @@ void inverseTriSousTab(int * tab, int taille, int start){
 	}
 }
 
+int estCroissant(int * tab, int depart, int taille){
+    int i, croit = 1;
+    for(i=depart+1; i<taille; ++i){ if(tab[i-1] > tab[i]){croit=0;} }
+    return croit;
+}
+
+int estDecroissant(int * tab, int depart, int taille){
+    int i, decroit = 1;
+    for(i=depart+1; i< taille; ++i){ if(tab[i-1] < tab[i]){decroit=0;} }
+    return decroit;
+}
+
 int getMinTab(int * tab, int depart, int taille){
 	int i, pos=depart;
 	for(i=depart; i<taille; i++){
@@ -233,6 +245,24 @@ int positionPivot(int * tab, int depart, int taille){
 	}
 	if(posPivot==0){return taille-1;}
 	return posPivot;
+}
+
+int positionPivot2(int * tab, int taille){
+    int i, posPivot = -1;
+    for(i=1; i < taille-1; ++i){
+        if(tab[i-1] < tab[i] && tab[i] > tab[i+1]){ posPivot = i; }
+        if(tab[i-1] > tab[i] && tab[i] < tab[i+1]){ posPivot = i; }
+    }
+    return posPivot;
+}
+
+int plusPetitMajorant(int * tab, int val, int depart, int taille){
+   int i, tmaj = 0;
+   for(i=depart; i < taille; ++i){
+       if(tab[i] > val && tmaj == 0){tmaj = i; }
+       if(tab[i] > val && tab[i] < tab[tmaj]){tmaj = i; }
+   }
+   return tmaj;
 }
 
 int getPositionMin(int * tab, int start, int taille){
@@ -285,6 +315,30 @@ int pppPandigital(int * tab, int * depart, int taille){
 	return tabToInt(tab,taille);
 }
 
+int nextGreaterValSameDigit(int val){
+    int res = 0;
+    int * tab = intToTab(val), tabLen = calculTailleEntier(val);
+    if(estDecroissant(tab, 0, tabLen) == 1) {return val;}
+    if(estCroissant(tab, 0, tabLen) == 1){
+        invert(tab, tabLen-1, tabLen-2);
+        res = tabToInt(tab, tabLen); free(tab);
+        return res;
+    }
+    int posPivot = positionPivot2(tab, tabLen), depart, swtch, ppm;
+    if(tab[posPivot-1] < tab[posPivot] && tab[posPivot+1] < tab[posPivot]){
+        depart = posPivot; swtch = posPivot-1; 
+        ppm = plusPetitMajorant(tab, tab[swtch], depart, tabLen);
+        invert(tab, swtch, ppm);
+        triSousTab(tab, tabLen, depart);
+        res = tabToInt(tab, tabLen); free(tab);
+        return res;
+    }
+    if(tab[posPivot-1] > tab[posPivot] && tab[posPivot+1] > tab[posPivot]){
+        invert(tab, tabLen-1, tabLen-2);
+    }
+    res = tabToInt(tab, tabLen); free(tab);
+    return res;
+}
 
 int * generatePrimes(){
     int * tab = malloc(10000 * sizeof(int));

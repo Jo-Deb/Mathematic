@@ -308,7 +308,7 @@ void mettreEnTableau(glist * possibleBranche){
 }
 
 /*Génère toutes les solutions potentielles du problème*/
-glist * gatherPotentialSolution(glist * possibleBranche){
+glist * premierTri(glist * possibleBranche){
     glist * solTab = NULL;
     int passIt = 0, i;
     int * res = malloc(3*sizeof(int));
@@ -316,10 +316,6 @@ glist * gatherPotentialSolution(glist * possibleBranche){
     liste * etudeSol = NULL, * extNode = NULL;
 
     mettreEnTableau(possibleBranche);
-    //printf("gatherPotentialSolution: affichage du tableau permettant de calculer les combinaisons\n");
-    //for(i=0; i<brnchTbl_length; ++i){ printf("%d ", brancheTable[i]); }
-    //printf("\n");
-
     do{
         //printf("gatherPotentialSolution: masque en cours %d \n", tabToInt(res, 3));
         freeListeAnalyse();
@@ -362,6 +358,26 @@ glist * gatherPotentialSolution(glist * possibleBranche){
     return solTab;
 }
 
+/*2ème tri qui vérifie que le 1er digit de chaque branche est son noeud externe
+ * si la fonction retourne 1*/
+int firstDigitIsExtern(liste * lst){
+    construireListeAnalyse(lst);
+    liste * nxtrn = noeudsExternes(), * prcr = lst;
+    int * tmp = NULL;
+    while(prcr != NULL){
+        tmp = decompose_node(prcr->value);
+        if(EstPresent(nxtrn, tmp[0]) != 0){
+            printf("firstDigitIsExtern: le noeud %d n'est pas le noeud externe de %d\n", tmp[0], prcr->value);
+            printf("firstDigitIsExtern: echec de la liste : "); afficheListe(lst); printf("\n");
+            free(tmp); tmp = NULL;
+            return 1;
+        } 
+        free(tmp); tmp = NULL;
+        prcr = prcr->l;
+    } 
+    return 0;
+}
+
 int main(int argc, char ** argv){
     /*________________________________________vérification des entrées___________________________________*/
     int i, j, res;
@@ -374,6 +390,9 @@ int main(int argc, char ** argv){
         }
     }
     else {printf("Mauvais nombre d'argument\nUsage : ./myExe 6 ou ./myExe 10\n"); return 1;}
+    /*____________________________tests d'une des fonctions majeures pour l'arrangement__________________*/
+    i = 123;
+    while(i < 321){ printf("nextGreaterValSameDigit(%d) = %d\n", i, nextGreaterValSameDigit(i)); i=nextGreaterValSameDigit(i);}
     /*________________________________________Début de la solution_______________________________________*/
     int max = NumberOfNodes + (NumberOfNodes -1) + (NumberOfNodes - 2); 
     /*somme des 3 noeuds les plus grands; sans solution pour le problème 68*/
@@ -393,7 +412,7 @@ int main(int argc, char ** argv){
             possibleBranche = generateAllValue(ret);
             //printf("ci-dessous le tableau complet pour la valeur %d\n", i);
             //afficheTab(tab);
-            solTab=gatherPotentialSolution(possibleBranche);
+            solTab=premierTri(possibleBranche);
             printf("___________________Solutions potentielle pour %d________________________\n", i);
             g_afficheList(solTab, afficheListe68);
             g_freeGenList(solTab, vfreeListe);
