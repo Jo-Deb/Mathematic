@@ -128,6 +128,16 @@ int maxListe(liste * l){
 	}
 	return max;
 }
+
+int minListe(liste * l){
+    int min = l->value;
+    liste * tmp = l;
+    while(tmp != NULL){ 
+        if(tmp->value < min){ min = tmp->value; } 
+        tmp = tmp->l;
+    }
+    return min;
+}
     
 liste * copie(liste * li, int elt){
 	liste * l = NULL; liste * tmp = li;

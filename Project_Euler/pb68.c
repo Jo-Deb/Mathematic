@@ -307,62 +307,10 @@ void mettreEnTableau(glist * possibleBranche){
     }
 }
 
-/*Génère toutes les solutions potentielles du problème*/
-glist * premierTri(glist * possibleBranche){
-    glist * solTab = NULL;
-    int passIt = 0, i;
-    int * res = malloc(3*sizeof(int));
-    for(i=0; i<3; ++i){res[i]=0;}
-    liste * etudeSol = NULL, * extNode = NULL;
-
-    mettreEnTableau(possibleBranche);
-    do{
-        //printf("gatherPotentialSolution: masque en cours %d \n", tabToInt(res, 3));
-        freeListeAnalyse();
-        /*res <= 555; brancheTable a 18 éléments donc res[i] + i*6 < 18 
-         * puisque max(res[i] + i*6) = 17*/
-        for(i=0; i<3; ++i){ etudeSol = ajoutEnQueue(etudeSol, brancheTable[(res[i]+i*6)]); }
-        construireListeAnalyse(etudeSol);
-        passIt = tabToInt(res, 3);
-        /*
-        printf("gatherPotentialSolution: liste etudeSol en cours d'analyse : "); afficheListe(etudeSol); printf("\n");
-        printf("gatherPotentialSolution: Ci-dessous le tableau ListeAnalyse pour la solution en cours \n");
-        for(i=0; i<NumberOfNodes; ++i){
-            printf("gatherPotentialSolution : liste pour le noeud %d : ", i+1); afficheListe(ListeAnalyse[i]); 
-            printf("\n"); 
-        }
-        */
-        if(saturationNoeud() == 0){ 
-            //printf("gatherPotentialSolution: liste sans saturation : "); afficheListe(etudeSol); printf("\n");
-            extNode = noeudsExternes();
-            if(taille(etudeSol) != taille(extNode)){
-                //printf("gatherPotentialSolution : le nombre de noeuds externes n'est pas identique au nombre de branches.");
-                //printf(" Liste suivante\n");
-                supprimeListe(etudeSol); etudeSol = NULL; 
-                supprimeListe(extNode); extNode = NULL; 
-            }
-            else{
-                solTab = g_ajoutTete(solTab, etudeSol, NULL);
-                //printf("gatherPotentialSolution: la liste "); afficheListe(etudeSol);
-                //printf("a été ajouté à la liste de solution\n");
-                etudeSol = NULL; 
-                supprimeListe(extNode); extNode = NULL; 
-            }        
-        } 
-        else{
-            //printf("gatherPotentialSolution: La liste : "); afficheListe(etudeSol);  printf(" est saturée \n");
-            supprimeListe(etudeSol); etudeSol = NULL; 
-        }
-    }while((res = nextValueBase6(passIt, 555)) != NULL);
-    
-    return solTab;
-}
-
 /*2ème tri qui vérifie que le 1er digit de chaque branche est son noeud externe
  * si la fonction retourne 1*/
-int firstDigitIsExtern(liste * lst){
-    construireListeAnalyse(lst);
-    liste * nxtrn = noeudsExternes(), * prcr = lst;
+int firstDigitIsExtern(liste * lst, liste * nxtrn){
+    liste * prcr = lst;
     int * tmp = NULL;
     while(prcr != NULL){
         tmp = decompose_node(prcr->value);
@@ -376,6 +324,62 @@ int firstDigitIsExtern(liste * lst){
         prcr = prcr->l;
     } 
     return 0;
+}
+
+/*Génère toutes les solutions potentielles du problème*/
+glist * gatherPotentialSolution(glist * possibleBranche){
+    glist * solTab = NULL;
+    int passIt = 0, i;
+    int * res = malloc(3*sizeof(int));
+    for(i=0; i<3; ++i){res[i]=0;}
+    liste * etudeSol = NULL, * extNode = NULL;
+
+    mettreEnTableau(possibleBranche);
+    do{
+        freeListeAnalyse();
+        /*res <= 555; brancheTable a 18 éléments donc res[i] + i*6 < 18 
+         * puisque max(res[i] + i*6) = 17*/
+        for(i=0; i<3; ++i){ etudeSol = ajoutEnQueue(etudeSol, brancheTable[(res[i]+i*6)]); }
+        construireListeAnalyse(etudeSol);
+        passIt = tabToInt(res, 3);
+        if(saturationNoeud() == 0){ 
+            extNode = noeudsExternes();
+            if(taille(etudeSol) != taille(extNode)){
+                supprimeListe(etudeSol); etudeSol = NULL; 
+                supprimeListe(extNode); extNode = NULL; 
+            }
+            else{
+                if(firstDigitIsExtern(etudeSol, extNode) == 0){
+                    solTab = g_ajoutTete(solTab, etudeSol, NULL);
+                    printf("gatherPotentialSolution: la liste "); afficheListe(etudeSol);
+                    printf("a été ajouté à la liste de solution\n");
+                    etudeSol = NULL; 
+                    supprimeListe(extNode); extNode = NULL; 
+                }
+                else{
+                    printf("gatherPotentialSolution : la liste "); afficheListe(etudeSol);
+                    printf(" n'a pas les noeuds externes en 1ère position\n");
+                    etudeSol = NULL; 
+                    supprimeListe(extNode); extNode = NULL; 
+                }
+            }        
+        } 
+        else{
+            //printf("gatherPotentialSolution: La liste : "); afficheListe(etudeSol);  printf(" est saturée \n");
+            supprimeListe(etudeSol); etudeSol = NULL; 
+        }
+    }while((res = nextValueBase6(passIt, 555)) != NULL);
+    
+    return solTab;
+}
+
+glist * magicGongRing(glist * solTab){
+    glist * tmp = solTab, * res = NULL;
+    liste * lst = NULL;
+    while (tmp != NULL){
+
+    }
+
 }
 
 int main(int argc, char ** argv){
@@ -412,7 +416,7 @@ int main(int argc, char ** argv){
             possibleBranche = generateAllValue(ret);
             //printf("ci-dessous le tableau complet pour la valeur %d\n", i);
             //afficheTab(tab);
-            solTab=premierTri(possibleBranche);
+            solTab=gatherPotentialSolution(possibleBranche);
             printf("___________________Solutions potentielle pour %d________________________\n", i);
             g_afficheList(solTab, afficheListe68);
             g_freeGenList(solTab, vfreeListe);
