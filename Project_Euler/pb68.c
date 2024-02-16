@@ -373,6 +373,21 @@ glist * gatherPotentialSolution(glist * possibleBranche){
     return solTab;
 }
 
+/*Hypothèse : on suppose que la 1ere valeur de chaque branches est un noeud externe
+*On retourne la position de la branche ayant le plus petit noeud externe*/
+int positionMinExterne(liste * lst){
+	int * tmp = NULL, val = lst->value, pos=0;
+	liste * lt = lst;
+	while(lt != NULL){
+		tmp = decompose_node(lt->value);
+		if(val < tmp[0]) {val = tmp[0]; ++pos;}
+		free(tmp); tmp = NULL;
+		lt = lt->l;
+	}
+}
+
+
+/*générer les bonnes combinaisons pour avoir des magicGongRing*/
 glist * magicGongRing(glist * solTab){
     glist * tmp = solTab, * res = NULL;
     liste * lst = NULL;
