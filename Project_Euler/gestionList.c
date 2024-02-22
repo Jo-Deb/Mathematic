@@ -99,7 +99,7 @@ list * getPartList(list * l, int n){
 }
 
 void freeList(list * l){
-	if(l==NULL){printf("freeList: La liste est nulle, pas de free possible\n"); return;}
+	if(l==NULL){/*printf("freeList: La liste est nulle, pas de free possible\n");*/ return;}
 	list * current=NULL, *next=NULL;
 	current = l; next = current->l;
 	while(next!=NULL){free(current); current=next; next = next->l;}

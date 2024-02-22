@@ -300,7 +300,7 @@ void mettreEnTableau(glist * possibleBranche){
             brancheTable[i] = tmp->value;
             tmp = tmp->l; ++i;
         }
-        printf("mettreEnTableau: brancheTable = ");
+        //printf("mettreEnTableau: brancheTable = ");
         for(j=0; j<i; ++j){printf("%d ", brancheTable[j]);}
         printf("\n");
         pcr = pcr->next;
@@ -315,8 +315,8 @@ int firstDigitIsExtern(liste * lst, liste * nxtrn){
     while(prcr != NULL){
         tmp = decompose_node(prcr->value);
         if(EstPresent(nxtrn, tmp[0]) != 0){
-            printf("firstDigitIsExtern: le noeud %d n'est pas le noeud externe de %d\n", tmp[0], prcr->value);
-            printf("firstDigitIsExtern: echec de la liste : "); afficheListe(lst); printf("\n");
+            //printf("firstDigitIsExtern: le noeud %d n'est pas le noeud externe de %d\n", tmp[0], prcr->value);
+            //printf("firstDigitIsExtern: echec de la liste : "); afficheListe(lst); printf("\n");
             free(tmp); tmp = NULL;
             return 1;
         } 
@@ -351,14 +351,14 @@ glist * gatherPotentialSolution(glist * possibleBranche){
             else{
                 if(firstDigitIsExtern(etudeSol, extNode) == 0){
                     solTab = g_ajoutTete(solTab, etudeSol, NULL);
-                    printf("gatherPotentialSolution: la liste "); afficheListe(etudeSol);
-                    printf("a été ajouté à la liste de solution\n");
+                    //printf("gatherPotentialSolution: la liste "); afficheListe(etudeSol);
+                    //printf("a été ajouté à la liste de solution\n");
                     etudeSol = NULL; 
                     supprimeListe(extNode); extNode = NULL; 
                 }
                 else{
-                    printf("gatherPotentialSolution : la liste "); afficheListe(etudeSol);
-                    printf(" n'a pas les noeuds externes en 1ère position\n");
+                    //printf("gatherPotentialSolution : la liste "); afficheListe(etudeSol);
+                    //printf(" n'a pas les noeuds externes en 1ère position\n");
                     etudeSol = NULL; 
                     supprimeListe(extNode); extNode = NULL; 
                 }
@@ -384,24 +384,67 @@ int positionMinExterne(liste * lst){
 		free(tmp); tmp = NULL;
 		lt = lt->l;
 	}
+   return pos;
 }
 
+/*Cette fonction nous permet de voir si la valeur en 1er argument
+ * est en 2ème position de la branche indiqué par le 2ème argument
+ * retourne 1 si v1 est en 2ème position dans la branche, sinon 0*/
+int isValScdPos(int v1, int branche){
+    int * tb = decompose_node(branche);
+    if(v1 == tb[1]){free(tb); return 1;}
+    free(tb);
+    return 0;
+}
 
-/*générer les bonnes combinaisons pour avoir des magicGongRing*/
+/*Cherche la branche de la liste qui aura val comme 2ème valeur*/
+int findElement(int val, liste * lst){
+    liste * tmp = lst;
+    while(tmp != NULL){
+        if(isValScdPos(val, tmp->value)){return tmp->value;}
+        tmp = tmp->l;
+    }
+    printf("findElement: comportement inattendu, la valeur -1 est retournée.\n");
+    return -1;
+}
+
+/*générer les bonnes combinaisons pour avoir des magicGongRing.
+ * Afin que le sens des aiguilles d'une montre soit respecté, il faut : 
+ * que la dernière valeur d'une branche soit la 2ème valeur de la branche suivante*/
 glist * magicGongRing(glist * solTab){
     glist * tmp = solTab, * res = NULL;
-    liste * lst = NULL;
+    int pos, *tb = NULL, tval = 0;
+    liste * lst = NULL, *wrklst = NULL;
+    //cette boucle sert construire les magicGong
     while (tmp != NULL){
-
+        wrklst = (liste*)tmp->elt;
+        //On récupère la place de la branche à mettre en 1er
+        pos = positionMinExterne(wrklst);
+        //Construit la 1ère branche
+        tval = getValue(wrklst, pos);
+        lst = ajoutEnTete(lst, getValue(wrklst, pos));
+        //Construit la 2ème branche
+        tb = decompose_node(tval);
+        tval = findElement(tb[2], wrklst);
+        lst = ajoutEnQueue(lst, tval);
+        //Construction de la 3ème branche
+        free(tb); tb = NULL;
+        tb = decompose_node(tval);
+        tval = findElement(tb[2], wrklst);
+        lst = ajoutEnQueue(lst, tval);
+        free(tb);
+        res = g_ajoutTete(res, (void *) lst, NULL);
+        lst = NULL;
+        tmp = tmp->next;
     }
-
+    return res;
 }
 
 int main(int argc, char ** argv){
     /*________________________________________vérification des entrées___________________________________*/
     int i, j, res;
     liste * ret = NULL, * tmp = NULL;
-    glist * possibleBranche = NULL, * solTab = NULL;
+    glist * possibleBranche = NULL, * solTab = NULL, * allSol = NULL;
     if(argc == 2){
         if(sscanf(argv[1], "%d", &NumberOfNodes) != EOF){} 
         else{printf("Mauvais argument %s\nEchec du traitement\n", argv[1]); 
@@ -411,7 +454,7 @@ int main(int argc, char ** argv){
     else {printf("Mauvais nombre d'argument\nUsage : ./myExe 6 ou ./myExe 10\n"); return 1;}
     /*____________________________tests d'une des fonctions majeures pour l'arrangement__________________*/
     i = 123;
-    while(i < 321){ printf("nextGreaterValSameDigit(%d) = %d\n", i, nextGreaterValSameDigit(i)); i=nextGreaterValSameDigit(i);}
+    //while(i < 321){ printf("nextGreaterValSameDigit(%d) = %d\n", i, nextGreaterValSameDigit(i)); i=nextGreaterValSameDigit(i);}
     /*________________________________________Début de la solution_______________________________________*/
     int max = NumberOfNodes + (NumberOfNodes -1) + (NumberOfNodes - 2); 
     /*somme des 3 noeuds les plus grands; sans solution pour le problème 68*/
@@ -419,7 +462,7 @@ int main(int argc, char ** argv){
     for(i = min; i < max; ++i){
         for(j = 0; j < NumberOfNodes/2; ++j){
             tmp = trouveCombinaison(i, j+1);
-            if(tmp == NULL){ printf("on ne peut pas former une branche de somme %d avec %d comme valeur max\n", i, j); }
+            if(tmp == NULL){/* printf("on ne peut pas former une branche de somme %d avec %d comme valeur max\n", i, j);*/ }
             else {
                 printf("avec %d en partant de %d on obtient : ", i, j);
                 afficheListe(tmp); printf("\n");
@@ -427,14 +470,19 @@ int main(int argc, char ** argv){
             }
         }
         if((res = check(ret)) == 0){
-            printf("voici la liste des valeurs pour %d:\n", i);
+            //printf("voici la liste des valeurs pour %d:\n", i);
             possibleBranche = generateAllValue(ret);
             //printf("ci-dessous le tableau complet pour la valeur %d\n", i);
             //afficheTab(tab);
             solTab=gatherPotentialSolution(possibleBranche);
             printf("___________________Solutions potentielle pour %d________________________\n", i);
             g_afficheList(solTab, afficheListe68);
+            printf("_____________Solutions avec bon ordre des branches %d___________________\n", i);
+            allSol = magicGongRing(solTab);
+            g_afficheList(allSol, afficheListe68);
             g_freeGenList(solTab, vfreeListe);
+            g_freeGenList(allSol, vfreeListe);
+            printf("__________________________Fin pour valeur de branche %d___________________________________________\n",i);
         }
         else{printf("la valeur %i n'a pas de solution avec le noeud %d\n", i, res);}
         supprimeListe(ret); ret = NULL;
