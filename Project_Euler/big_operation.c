@@ -26,7 +26,7 @@ long long tabToInt(char *a){
 }
 
 //l'unité occupe le rang 999
-char * intToTab(int a){
+char * int_To_Tab(int a){
 	int i, j, c, d;
 	char * res = malloc(1001*sizeof(char));
 	// On remplit le tableau de a.

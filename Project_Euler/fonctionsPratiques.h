@@ -71,3 +71,4 @@ extern int getMax(int * tab, int len);
 extern char * concatString(char ** tab, int tailleTab);
 
 extern char * intToString(int n);
+

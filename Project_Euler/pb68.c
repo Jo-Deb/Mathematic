@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "genList.h"
 #include "fonctionsPratiques.h"
 #include "liste.h"
@@ -438,6 +439,32 @@ glist * magicGongRing(glist * solTab){
         tmp = tmp->next;
     }
     return res;
+}
+
+char * brancheTochar(liste * lst){
+//On doit d'abord calculer la taille de la branche
+    liste * tmp = lst;
+    int tl = 0;
+    while(tmp != NULL){ tl += calculTailleEntier(tmp->value); tmp = tmp->l; }
+    char * res = malloc((tl+1)*sizeof(char));
+    res[0]='\0';
+    tmp = lst;
+    while(tmp != NULL){ res = strcat(res, intToString(tmp->value)); tmp = tmp->l;}
+    printf("brancheTochar: voici la chaine de caractère obtenu : %s\n", res);
+    return res;
+}
+
+/*On compare b1 à b2. Si b1 est plus grand on renvoie 1 si plus petit -1
+ * si égalité 0*/
+int compareString(char * b1, char * b2){
+   int tb1 = strlen(b1), tb2 = strlen(b2);
+   if(tb1 > tb2){return 1;}
+   if(tb1 < tb2){return -1;}
+   if(tb1 == tb2){
+       if(strncmp(b1, b2, tb1) > 0){return 1;}
+       if(strncmp(b1, b2, tb1) < 0){return -1;}
+   }
+   return strncmp(b1, b2, tb2);
 }
 
 int main(int argc, char ** argv){

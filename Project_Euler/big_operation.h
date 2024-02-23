@@ -9,7 +9,7 @@ extern void bigAffiche(char * a);
 
 extern long long tabToInt(char * a); 
 
-extern char * intToTab(int a);
+extern char * int_To_Tab(int a);
 
 extern char * longToTab(long a);
 
