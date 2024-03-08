@@ -376,12 +376,14 @@ glist * gatherPotentialSolution(glist * possibleBranche){
 
 /*Hypothèse : on suppose que la 1ere valeur de chaque branches est un noeud externe
 *On retourne la position de la branche ayant le plus petit noeud externe*/
-int positionMinExterne(liste * lst){
+int positionMinExterne(liste * lst){ 
 	int * tmp = NULL, val = lst->value, pos=0;
+   tmp = decompose_node(val);
+   val = tmp[0];
 	liste * lt = lst;
 	while(lt != NULL){
 		tmp = decompose_node(lt->value);
-		if(val < tmp[0]) {val = tmp[0]; ++pos;}
+		if(val <= tmp[0]) {val = tmp[0]; ++pos;}
 		free(tmp); tmp = NULL;
 		lt = lt->l;
 	}
@@ -467,11 +469,26 @@ int compareString(char * b1, char * b2){
    return strncmp(b1, b2, tb2);
 }
 
+liste * trouveMax(glist * allSol){
+    char *smax = NULL, *sanalyse = NULL;
+    glist * tmp = allSol->next;
+    liste * lmax = (liste *) allSol->elt;
+    while(tmp != NULL){
+        smax = brancheTochar(lmax); sanalyse = brancheTochar((liste *)tmp->elt);
+        if(compareString(smax, sanalyse) <= 0){ lmax = (liste *)tmp->elt;}
+        tmp = tmp->next;
+        free(smax); free(sanalyse);
+        smax = NULL; sanalyse = NULL;
+    }
+    return lmax;
+}
+
 int main(int argc, char ** argv){
     /*________________________________________vérification des entrées___________________________________*/
     int i, j, res;
-    liste * ret = NULL, * tmp = NULL;
-    glist * possibleBranche = NULL, * solTab = NULL, * allSol = NULL;
+    liste * ret = NULL, * tmp = NULL, * lmax = NULL;
+    char * smax = NULL, * sanalyse = NULL;
+    glist * possibleBranche = NULL, * solTab = NULL, * allSol = NULL, * allMax = NULL;
     if(argc == 2){
         if(sscanf(argv[1], "%d", &NumberOfNodes) != EOF){} 
         else{printf("Mauvais argument %s\nEchec du traitement\n", argv[1]); 
@@ -484,7 +501,7 @@ int main(int argc, char ** argv){
     //while(i < 321){ printf("nextGreaterValSameDigit(%d) = %d\n", i, nextGreaterValSameDigit(i)); i=nextGreaterValSameDigit(i);}
     /*________________________________________Début de la solution_______________________________________*/
     int max = NumberOfNodes + (NumberOfNodes -1) + (NumberOfNodes - 2); 
-    /*somme des 3 noeuds les plus grands; sans solution pour le problème 68*/
+    /*somme des 2 noeuds les plus grands; sans solution pour le problème 68*/
     int min = NumberOfNodes + 2 + 1; /*la plus petite somme de branche que l'on puisse faire avec le sommet le grand*/
     for(i = min; i < max; ++i){
         for(j = 0; j < NumberOfNodes/2; ++j){
@@ -507,6 +524,9 @@ int main(int argc, char ** argv){
             printf("_____________Solutions avec bon ordre des branches %d___________________\n", i);
             allSol = magicGongRing(solTab);
             g_afficheList(allSol, afficheListe68);
+            lmax = trouveMax(allSol);
+            printf("Voici la solution max : "); afficheListe(lmax); printf("\n");
+            allMax = g_ajoutTete(allMax, (void*) recopie(lmax), NULL);
             g_freeGenList(solTab, vfreeListe);
             g_freeGenList(allSol, vfreeListe);
             printf("__________________________Fin pour valeur de branche %d___________________________________________\n",i);
@@ -516,5 +536,7 @@ int main(int argc, char ** argv){
         g_freeGenList(possibleBranche, vfreeListe);
         possibleBranche = NULL;
     }
+    printf("Voici la solution max : "); afficheListe(trouveMax(allMax)); printf("\n");
+    g_freeGenList(allMax, vfreeListe);
     return 0;
 }
