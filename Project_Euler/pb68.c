@@ -38,7 +38,7 @@ int * nextValueBase6(int inVal, int limite){
 
 int power(int base, int exposant){
     int i, res = base;
-    for(i = 1; i < exposant; ++i){res *= res;}
+    for(i = 1; i < exposant; ++i){res = res * base;}
     return res;
 }
 
@@ -249,7 +249,7 @@ void afficheListe68(void * l){ afficheListe((liste *) l); }
 /*Just iterate over the function AllArrangement
  * to generate all possible value for nodes*/
 glist * generateAllValue(liste * l){
-    printf("Voici la liste de valeurs de noeud avant le calcul de tous les arrangements:\n");
+    printf("generateAllValue: Voici la liste de valeurs de noeud avant le calcul de tous les arrangements:\n");
     afficheListe(l); printf("\n");
     glist * res = NULL;
     liste * tmp = l, * generatedListe = NULL;
@@ -262,6 +262,7 @@ glist * generateAllValue(liste * l){
     printf("________________________________________________________________\n\
             Voici le tableau de valeurs des noeuds après le calcul des arrangements:\n");
     g_afficheList(res, afficheListe68);
+    printf("generateAllValue: fin de la fonction\n");
     return res;
 }
 
@@ -338,7 +339,8 @@ int firstDigitIsExtern(liste * lst, liste * nxtrn){
 /*Génère toutes les solutions potentielles du problème*/
 glist * gatherPotentialSolution(glist * possibleBranche){
     glist * solTab = NULL;
-    int passIt = 0, i;
+    int passIt = 0, i, limitNextValue = 0, solLen = 0;
+    if(NumberOfNodes == 6) {limitNextValue = 555; solLen = 3;} else {limitNextValue = 55555; solLen = 5;}
     int * res = malloc(3*sizeof(int));
     for(i=0; i<3; ++i){res[i]=0;}
     liste * etudeSol = NULL, * extNode = NULL;
@@ -348,9 +350,9 @@ glist * gatherPotentialSolution(glist * possibleBranche){
         freeListeAnalyse();
         /*res <= 555; brancheTable a 18 éléments donc res[i] + i*6 < 18 
          * puisque max(res[i] + i*6) = 17*/
-        for(i=0; i<3; ++i){ etudeSol = ajoutEnQueue(etudeSol, brancheTable[(res[i]+i*6)]); }
+        for(i=0; i<solLen; ++i){ etudeSol = ajoutEnQueue(etudeSol, brancheTable[(res[i]+i*6)]); }
         construireListeAnalyse(etudeSol);
-        passIt = tabToInt(res, 3);
+        passIt = tabToInt(res, solLen);
         if(saturationNoeud() == 0){ 
             extNode = noeudsExternes();
             if(taille(etudeSol) != taille(extNode)){
@@ -360,24 +362,24 @@ glist * gatherPotentialSolution(glist * possibleBranche){
             else{
                 if(firstDigitIsExtern(etudeSol, extNode) == 0){
                     solTab = g_ajoutTete(solTab, etudeSol, NULL);
-                    //printf("gatherPotentialSolution: la liste "); afficheListe(etudeSol);
-                    //printf("a été ajouté à la liste de solution\n");
+                    printf("gatherPotentialSolution: la liste "); afficheListe(etudeSol);
+                    printf("a été ajouté à la liste de solution\n");
                     etudeSol = NULL; 
                     supprimeListe(extNode); extNode = NULL; 
                 }
                 else{
-                    //printf("gatherPotentialSolution : la liste "); afficheListe(etudeSol);
-                    //printf(" n'a pas les noeuds externes en 1ère position\n");
+                    printf("gatherPotentialSolution : la liste "); afficheListe(etudeSol);
+                    printf(" n'a pas les noeuds externes en 1ère position\n");
                     etudeSol = NULL; 
                     supprimeListe(extNode); extNode = NULL; 
                 }
             }        
         } 
         else{
-            //printf("gatherPotentialSolution: La liste : "); afficheListe(etudeSol);  printf(" est saturée \n");
+            printf("gatherPotentialSolution: La liste : "); afficheListe(etudeSol);  printf(" est saturée \n");
             supprimeListe(etudeSol); etudeSol = NULL; 
         }
-    }while((res = nextValueBase6(passIt, 555)) != NULL);
+    }while((res = nextValueBase6(passIt, limitNextValue)) != NULL);
     
     return solTab;
 }
