@@ -36,6 +36,12 @@ int * nextValueBase6(int inVal, int limite){
     return res;
 }
 
+int power(int base, int exposant){
+    int i, res = base;
+    for(i = 1; i < exposant; ++i){res *= res;}
+    return res;
+}
+
 /*On cherche tous les triplets a,b,c tel que a+b+c = sommeVal
  * avec a = min 
  */
@@ -46,7 +52,15 @@ liste * trouveCombinaison(int sommeVal, int min){
         if(a+i >= sommeVal){return res;}
         else{
             for(j=i+1; j<=NumberOfNodes; ++j){
-                if(a+i+j == sommeVal){ res = ajoutEnTete(res, a*100+i*10+j); }
+                if(a+i+j == sommeVal){ 
+                    res = ajoutEnTete(res, 
+                            a*power(10, calculTailleEntier(i)+calculTailleEntier(j))
+                            +
+                            i*power(10, calculTailleEntier(j))
+                            +
+                            j
+                        ); 
+                }
                 else{ if(a+i+j > sommeVal) {break;} }
             }
         }
@@ -197,12 +211,6 @@ void affiche_decomposition(int tab[]){
 
 /*retourne -1 si val_noeud n'est pas un noeud externe*/
 int estNoeudExterne(int val_noeud, liste * externeNoeud){return getPosition(externeNoeud, val_noeud);}
-
-int power(int base, int exposant){
-    int i, res = base;
-    for(i = 1; i < exposant; ++i){res *= res;}
-    return res;
-}
 
 int concateneEntier(int a1, int a2, int a3){
     return ((a1*power(10,calculTailleEntier(a2))+a2)*power(10,calculTailleEntier(a3)))+a3;
@@ -377,13 +385,14 @@ glist * gatherPotentialSolution(glist * possibleBranche){
 /*Hypothèse : on suppose que la 1ere valeur de chaque branches est un noeud externe
 *On retourne la position de la branche ayant le plus petit noeud externe*/
 int positionMinExterne(liste * lst){ 
-	int * tmp = NULL, val = lst->value, pos=0;
+	int * tmp = NULL, val = lst->value, pos=0, firstNode = 0;
    tmp = decompose_node(val);
-   val = tmp[0];
+   firstNode = tmp[0];
 	liste * lt = lst;
 	while(lt != NULL){
-		tmp = decompose_node(lt->value);
-		if(val <= tmp[0]) {val = tmp[0]; ++pos;}
+      val = lt->value;
+		tmp = decompose_node(val);
+		if(firstNode >= tmp[0]) {firstNode = tmp[0]; pos = getPosition(lst, val);}
 		free(tmp); tmp = NULL;
 		lt = lt->l;
 	}
@@ -525,7 +534,7 @@ int main(int argc, char ** argv){
             allSol = magicGongRing(solTab);
             g_afficheList(allSol, afficheListe68);
             lmax = trouveMax(allSol);
-            printf("Voici la solution max : "); afficheListe(lmax); printf("\n");
+            printf("Voici la solution max pour la somme %d: ", i); afficheListe(lmax); printf("\n");
             allMax = g_ajoutTete(allMax, (void*) recopie(lmax), NULL);
             g_freeGenList(solTab, vfreeListe);
             g_freeGenList(allSol, vfreeListe);
