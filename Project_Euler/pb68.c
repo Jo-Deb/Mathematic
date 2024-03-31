@@ -341,8 +341,9 @@ glist * gatherPotentialSolution(glist * possibleBranche){
     glist * solTab = NULL;
     int passIt = 0, i, limitNextValue = 0, solLen = 0;
     if(NumberOfNodes == 6) {limitNextValue = 555; solLen = 3;} else {limitNextValue = 55555; solLen = 5;}
-    int * res = malloc(3*sizeof(int));
-    for(i=0; i<3; ++i){res[i]=0;}
+    //la variable res permet d'encoder un index afin de récupérer chaque branche du magic gong
+    int * res = malloc(solLen*sizeof(int));
+    for(i=0; i<solLen; ++i){res[i]=0;}
     liste * etudeSol = NULL, * extNode = NULL;
 
     mettreEnTableau(possibleBranche);
@@ -376,7 +377,8 @@ glist * gatherPotentialSolution(glist * possibleBranche){
             }        
         } 
         else{
-            printf("gatherPotentialSolution: La liste : "); afficheListe(etudeSol);  printf(" est saturée \n");
+           // printf("gatherPotentialSolution: La liste : "); 
+           // afficheListe(etudeSol);  printf(" est saturée et passIt = %d \n", passIt);
             supprimeListe(etudeSol); etudeSol = NULL; 
         }
     }while((res = nextValueBase6(passIt, limitNextValue)) != NULL);
@@ -494,6 +496,77 @@ liste * trouveMax(glist * allSol){
     return lmax;
 }
 
+/*allvalues est une liste de listes, chacune de ces listes est de taille 6
+ * En fonction de ces informations on récupère l'élément adéquat*/
+int getElement68(glist * allvalues, int next_elt){
+    int numListe = next_elt/6, placeGlist = next_elt%6;
+    glist * tmp = allvalues; liste * lst = NULL;
+    int cpt = 0;
+    while(cpt < numListe){tmp = tmp->next; ++cpt;}
+    lst = (liste *)tmp->elt;
+    return getValue(lst, placeGlist);
+}
+
+/*Fonction pour permettre d'identifier un cycle dans une solution
+ * arguments: la liste qu'on souhaite étendre et l'élément à partir duquel vérifier les cycles
+ * si retour 1 alors au moins un cycle est présent, si retour 0 pas de cycle*/
+int cyclePresent(glist * allvalues, liste * etud, int next_elt){
+    int j, * tb = NULL, brch = 0;
+    liste * tmp = etud, * tr = NULL;
+    while(tmp != NULL){
+        brch = getElement68(allvalues, tmp->value);
+        tb = decompose_node(brch);
+        for(j=0; j<3; j++){tr = ajoutEnTete(tr, tb[j]);}
+        tmp = tmp->l;
+    }
+    brch = getElement68(allvalues, next_elt);
+    tb = decompose_node(brch);
+    //on vérifie si le 1er terme et le dernier terme de la branche next_elt 
+    //sont bien absents des autres branches de etud
+    if(EstPresent(tr, tb[0]) == 0 || EstPresent(tr, tb[2]) == 0){ return 1; }
+    return 0;
+}
+
+/*déterminer si le dernier terme de la dernière branche est bien présente
+ * dans un groupe de branches 
+ * lstBrch : le dernier nombre de la dernière branche
+ * grpBrch : les nombres qui composent chaque branche du groupe
+ * si retour 1 alors il y a discrimination, sinon 0*/
+int discrimination(int lstBrch, int grpBrch){
+   int * tb = decompose_node(grpBrch);
+   if(tb[0] == lstBrch || tb[1] == lstBrch || tb[2] == lstBrch) {return 0;}
+   return 1;
+}
+
+/*Lien de branchement : 
+* 1 - il y a lien de branchement si le dernier nombre de la dernière branche 
+* est égale au 2ème nombre de la branche qu'on veut ajouter. Si retour 1 alors il y a branchement
+* si retour 0 il n'y a pas de lien de branchement*/
+int lienBranchement(int lstBrch, int middleNumber){
+    int * tb = decompose_node(lstBrch);
+    if(tb[2] == middleNumber){free(tb); return 1;}
+    return 0;
+}
+
+
+
+/*la fonction est récursive, elle s'appelle quand elle a ajouté ou retirer un élément à la liste
+ * allvalues : la totalité des branches possibles, 
+ * etud : la solution en cours de calcul, les éléments de la liste sont de type next_elt (une valeur
+ * entière permettant d'identifier un élément dans allvalues) 
+ * next_elt : la place à partir d'où commencer les tests. Attention next_elt correspond à la position
+ * de la branche si elles étaient toutes rangées dans un tableau à une dimension*/
+glist * getPotentialSolution(glist * allvalues, liste * etud, glist * potentialSolution, int next_elt){
+    int tAllValue = g_listLongueur(allvalues), tetud = taille(etud), currentFloor = (next_elt/6)+1;
+    etud = ajoutEnQueue(etud, next_elt); //la liste de solution contient l'emplacement des branches
+
+    while(tAllValue - currentFloor >= 5){//condition d'arrêt, quand il reste moins de 5 groupes de branches pas encore analysés 
+                                         //On considère que toutes les solutions ont été vérifiées. On est un peu fébrile encore dessus
+
+    }
+
+}    
+
 int main(int argc, char ** argv){
     /*________________________________________vérification des entrées___________________________________*/
     int i, j, res;
@@ -535,9 +608,10 @@ int main(int argc, char ** argv){
             printf("_____________Solutions avec bon ordre des branches %d___________________\n", i);
             allSol = magicGongRing(solTab);
             g_afficheList(allSol, afficheListe68);
-            lmax = trouveMax(allSol);
-            printf("Voici la solution max pour la somme %d: ", i); afficheListe(lmax); printf("\n");
-            allMax = g_ajoutTete(allMax, (void*) recopie(lmax), NULL);
+            if(allSol != NULL){
+                lmax = trouveMax(allSol);
+                allMax = g_ajoutTete(allMax, (void*) recopie(lmax), NULL);
+            }
             g_freeGenList(solTab, vfreeListe);
             g_freeGenList(allSol, vfreeListe);
             printf("__________________________Fin pour valeur de branche %d___________________________________________\n",i);
@@ -547,7 +621,9 @@ int main(int argc, char ** argv){
         g_freeGenList(possibleBranche, vfreeListe);
         possibleBranche = NULL;
     }
-    printf("Voici la solution max : "); afficheListe(trouveMax(allMax)); printf("\n");
-    g_freeGenList(allMax, vfreeListe);
+    if(allMax != NULL){
+        printf("Voici la solution max : "); afficheListe(trouveMax(allMax)); printf("\n");
+        g_freeGenList(allMax, vfreeListe);
+    }
     return 0;
 }

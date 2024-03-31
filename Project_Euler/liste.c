@@ -369,3 +369,5 @@ void freeListe(liste * la){
 }
 
 void vfreeListe(void * l){ freeListe((liste *) l); }
+
+int lastElement(liste * l){ return getValue(l, taille(l)); }

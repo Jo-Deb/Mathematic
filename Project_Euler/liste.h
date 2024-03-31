@@ -55,6 +55,8 @@ extern int getPosition(liste *l, int elt);
 
 extern int getValue(liste * l, int pos);
 
+extern int lastElement(liste * l);
+
 extern liste * setPosition(liste * l, int pos, int elt);
 
 extern liste * inversePosition(liste * l, int pos1, int pos2);
