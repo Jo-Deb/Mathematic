@@ -548,7 +548,29 @@ int lienBranchement(int lstBrch, int middleNumber){
     return 0;
 }
 
+/*Return l'indice du 1er élément de l'étage suivant*/
+int etage_plus_1(int next_elt){
+    if(next_elt%6 == 0){return (next_elt + 6);}
+    else { return (next_elt += 6 - (next_elt%6)); }
+}
 
+/*calculer l'étage de l'élément*/
+int getEtage(int next_elt){return (next_elt/6)+1;}
+
+/*Une fonction qui renvoie une valeur next_elt pour une branche donnée dans allvalues*/
+int pb68_getPosition(int branchVal, glist * allvalues){
+    int res = 0, posLg = 0;
+    glist * tmp = allvalues;
+    while(tmp != NULL){
+        if(EstPresent((liste*)tmp->elt, branchVal) == 0){
+            res = posLg*6 + getPosition((liste*)tmp->elt, branchVal);
+            return res ; 
+        } 
+        tmp = tmp->next;
+        ++posLg;
+    }
+    return res;
+}
 
 /*la fonction est récursive, elle s'appelle quand elle a ajouté ou retirer un élément à la liste
  * allvalues : la totalité des branches possibles, 
@@ -557,20 +579,57 @@ int lienBranchement(int lstBrch, int middleNumber){
  * next_elt : la place à partir d'où commencer les tests. Attention next_elt correspond à la position
  * de la branche si elles étaient toutes rangées dans un tableau à une dimension*/
 glist * getPotentialSolution(glist * allvalues, liste * etud, glist * potentialSolution, int next_elt){
-    int tAllValue = g_listLongueur(allvalues), tetud = taille(etud), currentFloor = (next_elt/6)+1;
-    etud = ajoutEnQueue(etud, next_elt); //la liste de solution contient l'emplacement des branches
+    int tAllValue = g_listLongueur(allvalues), tetud = taille(etud), lim = tAllValue*6 - 1, debut = 0, parcours; 
+    short int tmp;
+    etud = NULL; //la liste de solution contient l'emplacement des branches
 
-    while(tAllValue - currentFloor >= 5){//condition d'arrêt, quand il reste moins de 5 groupes de branches pas encore analysés 
-                                         //On considère que toutes les solutions ont été vérifiées. On est un peu fébrile encore dessus
-
+    while(tAllValue - getEtage(debut) >= 4){//condition d'arrêt, quand il reste moins de 5 groupes de branches pas encore analysés 
+        etud = ajoutEnQueue(NULL, getElement68(allvalues, debut));//On considère que toutes les solutions ont été vérifiées. On est un peu fébrile encore dessus
+        parcours = 0;
+        while(parcours <= lim && tetud < 5){
+            if(cyclePresent(allvalues, etud, parcours)){ 
+                if(parcours == lim){
+                    parcours = (lastElement(etud) == lim) ? 0 : lastElement(etud) + 1; 
+                    etud = supprElt(etud, lastElement(etud));
+                    if(taille(etud) == 0){ break;}
+                }
+                else {parcours = etage_plus_1(parcours);}
+            } 
+            else {
+                if(discrimination(getElement68(allvalues, lastElement(etud)), getElement68(allvalues, parcours))){
+                    parcours = etage_plus_1(parcours);
+                }
+                else {
+                    tmp = decompose_node(getElement68(allvalues, parcours))[1];
+                    if(lienBranchement(getElement68(allvalues, lastElement(etud)), tmp)){
+                        etud = ajoutEnQueue(etud, parcours);
+                        parcours = 0;
+                        if(taille(etud) == 5){ 
+                            potentialSolution = g_ajoutTete(potentialSolution, (void*)recopie(etud), NULL); 
+                            parcours = (lastElement(etud) == lim) ? 0 : lastElement(etud) + 1; 
+                            etud = supprElt(etud, lastElement(etud)); 
+                        }
+                    }
+                    else {
+                        if(parcours == lim){
+                        parcours = lastElement(etud) + 1; 
+                        etud = supprElt(etud, lastElement(etud));
+                        }
+                        else {++parcours;}
+                    }
+                }
+            }
+        }
+        ++debut;
+        etud = NULL;
     }
-
+    return potentialSolution;
 }    
 
 int main(int argc, char ** argv){
     /*________________________________________vérification des entrées___________________________________*/
     int i, j, res;
-    liste * ret = NULL, * tmp = NULL, * lmax = NULL;
+    liste * ret = NULL, * tmp = NULL, * lmax = NULL, * lwork = NULL;
     char * smax = NULL, * sanalyse = NULL;
     glist * possibleBranche = NULL, * solTab = NULL, * allSol = NULL, * allMax = NULL;
     if(argc == 2){
@@ -590,7 +649,7 @@ int main(int argc, char ** argv){
     for(i = min; i < max; ++i){
         for(j = 0; j < NumberOfNodes/2; ++j){
             tmp = trouveCombinaison(i, j+1);
-            if(tmp == NULL){/* printf("on ne peut pas former une branche de somme %d avec %d comme valeur max\n", i, j);*/ }
+            if(tmp == NULL){ printf("on ne peut pas former une branche de somme %d avec %d comme valeur max\n", i, j); }
             else {
                 printf("avec %d en partant de %d on obtient : ", i, j);
                 afficheListe(tmp); printf("\n");
@@ -598,11 +657,12 @@ int main(int argc, char ** argv){
             }
         }
         if((res = check(ret)) == 0){
-            //printf("voici la liste des valeurs pour %d:\n", i);
+            printf("voici la liste des valeurs pour %d:\n", i);
             possibleBranche = generateAllValue(ret);
-            //printf("ci-dessous le tableau complet pour la valeur %d\n", i);
+            printf("ci-dessous le tableau complet pour la valeur %d\n", i);
             //afficheTab(tab);
             solTab=gatherPotentialSolution(possibleBranche);
+            solTab=getPotentialSolution(possibleBranche, lwork, allSol, 0);
             printf("___________________Solutions potentielle pour %d________________________\n", i);
             g_afficheList(solTab, afficheListe68);
             printf("_____________Solutions avec bon ordre des branches %d___________________\n", i);
