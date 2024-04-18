@@ -499,6 +499,7 @@ liste * trouveMax(glist * allSol){
 /*allvalues est une liste de listes, chacune de ces listes est de taille 6
  * En fonction de ces informations on récupère l'élément adéquat*/
 int getElement68(glist * allvalues, int next_elt){
+    printf("getElement68 : à la recherche de l'elt %d\n", next_elt);
     int numListe = next_elt/6, placeGlist = next_elt%6;
     glist * tmp = allvalues; liste * lst = NULL;
     int cpt = 0;
@@ -584,7 +585,8 @@ glist * getPotentialSolution(glist * allvalues, liste * etud, glist * potentialS
     etud = NULL; //la liste de solution contient l'emplacement des branches
 
     while(tAllValue - getEtage(debut) >= 4){//condition d'arrêt, quand il reste moins de 5 groupes de branches pas encore analysés 
-        etud = ajoutEnQueue(NULL, getElement68(allvalues, debut));//On considère que toutes les solutions ont été vérifiées. On est un peu fébrile encore dessus
+        //Dans la liste etud on met l'adresse pas la valeur.
+        etud = ajoutEnQueue(NULL, debut);
         parcours = 0;
         while(parcours <= lim && tetud < 5){
             if(cyclePresent(allvalues, etud, parcours)){ 
@@ -596,7 +598,7 @@ glist * getPotentialSolution(glist * allvalues, liste * etud, glist * potentialS
                 else {parcours = etage_plus_1(parcours);}
             } 
             else {
-                if(discrimination(getElement68(allvalues, lastElement(etud)), getElement68(allvalues, parcours))){
+                if(discrimination(decompose_node(getElement68(allvalues, lastElement(etud)))[2], getElement68(allvalues, parcours))){
                     parcours = etage_plus_1(parcours);
                 }
                 else {
@@ -659,9 +661,8 @@ int main(int argc, char ** argv){
         if((res = check(ret)) == 0){
             printf("voici la liste des valeurs pour %d:\n", i);
             possibleBranche = generateAllValue(ret);
-            printf("ci-dessous le tableau complet pour la valeur %d\n", i);
-            //afficheTab(tab);
-            solTab=gatherPotentialSolution(possibleBranche);
+            //printf("ci-dessous le tableau complet pour la valeur %d\n", i);
+            //solTab=gatherPotentialSolution(possibleBranche);
             solTab=getPotentialSolution(possibleBranche, lwork, allSol, 0);
             printf("___________________Solutions potentielle pour %d________________________\n", i);
             g_afficheList(solTab, afficheListe68);
