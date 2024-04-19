@@ -5,6 +5,8 @@
 #include "fonctionsPratiques.h"
 #include "liste.h"
 
+#define TRADUIT(t, l) traduireList68(t, l); printf("\n")
+
 int NumberOfNodes;
 int * brancheTable = NULL;
 int tailleCombi = 0;
@@ -499,32 +501,34 @@ liste * trouveMax(glist * allSol){
 /*allvalues est une liste de listes, chacune de ces listes est de taille 6
  * En fonction de ces informations on récupère l'élément adéquat*/
 int getElement68(glist * allvalues, int next_elt){
-    printf("getElement68 : à la recherche de l'elt %d\n", next_elt);
+    //printf("getElement68 : à la recherche de l'elt %d\n", next_elt);
     int numListe = next_elt/6, placeGlist = next_elt%6;
     glist * tmp = allvalues; liste * lst = NULL;
     int cpt = 0;
     while(cpt < numListe){tmp = tmp->next; ++cpt;}
     lst = (liste *)tmp->elt;
-    return getValue(lst, placeGlist);
+    //la fonction getValue compte à partir de 1 et non de 0
+    return getValue(lst, placeGlist+1);
 }
 
 /*Fonction pour permettre d'identifier un cycle dans une solution
  * arguments: la liste qu'on souhaite étendre et l'élément à partir duquel vérifier les cycles
  * si retour 1 alors au moins un cycle est présent, si retour 0 pas de cycle*/
 int cyclePresent(glist * allvalues, liste * etud, int next_elt){
-    int j, * tb = NULL, brch = 0;
-    liste * tmp = etud, * tr = NULL;
+    int * tb = NULL, brch = 0, *nb;
+    liste * tmp = NULL, * tr = NULL;
+    if(taille(etud) == 4){tmp = etud->l;} else { tmp = etud; }
+    nb = decompose_node(getElement68(allvalues, next_elt));
     while(tmp != NULL){
         brch = getElement68(allvalues, tmp->value);
         tb = decompose_node(brch);
-        for(j=0; j<3; j++){tr = ajoutEnTete(tr, tb[j]);}
+        tr = ajoutEnTete(tr, tb[0]);
+        tr = ajoutEnTete(tr, tb[1]);
+        //on vérifie si le 1er terme et le dernier terme de la branche next_elt 
+        //sont bien absents des autres branches de etud
+        if(EstPresent(tr, nb[0]) == 0 || EstPresent(tr, nb[2]) == 0){ return 1; }
         tmp = tmp->l;
     }
-    brch = getElement68(allvalues, next_elt);
-    tb = decompose_node(brch);
-    //on vérifie si le 1er terme et le dernier terme de la branche next_elt 
-    //sont bien absents des autres branches de etud
-    if(EstPresent(tr, tb[0]) == 0 || EstPresent(tr, tb[2]) == 0){ return 1; }
     return 0;
 }
 
@@ -573,6 +577,15 @@ int pb68_getPosition(int branchVal, glist * allvalues){
     return res;
 }
 
+/*Traduire les listes etud pour pouvoir visualiser les étapes de construction de solution 
+ * dans getPotentialSolution*/
+void traduireList68(glist * allvalues, liste * etud){
+    liste * tmp = etud, * res = NULL;
+    while(tmp != NULL){ res = ajoutEnQueue(res, getElement68(allvalues, tmp->value)); tmp = tmp->l; }
+    printf("etud : "); afficheListe(etud); printf(" TRADUCTION ==> "); afficheListe(res);
+    freeListe(res);
+}
+
 /*la fonction est récursive, elle s'appelle quand elle a ajouté ou retirer un élément à la liste
  * allvalues : la totalité des branches possibles, 
  * etud : la solution en cours de calcul, les éléments de la liste sont de type next_elt (une valeur
@@ -587,9 +600,11 @@ glist * getPotentialSolution(glist * allvalues, liste * etud, glist * potentialS
     while(tAllValue - getEtage(debut) >= 4){//condition d'arrêt, quand il reste moins de 5 groupes de branches pas encore analysés 
         //Dans la liste etud on met l'adresse pas la valeur.
         etud = ajoutEnQueue(NULL, debut);
+        printf("getPotentialSolution : initialisation de la liste etud : "); TRADUIT(allvalues, etud);
         parcours = 0;
         while(parcours <= lim && tetud < 5){
             if(cyclePresent(allvalues, etud, parcours)){ 
+                printf("getPotentialSolution : on a un cycle si on ajoute %d=>%d - ", parcours, getElement68(allvalues, parcours)); TRADUIT(allvalues, etud);
                 if(parcours == lim){
                     parcours = (lastElement(etud) == lim) ? 0 : lastElement(etud) + 1; 
                     etud = supprElt(etud, lastElement(etud));
@@ -599,6 +614,7 @@ glist * getPotentialSolution(glist * allvalues, liste * etud, glist * potentialS
             } 
             else {
                 if(discrimination(decompose_node(getElement68(allvalues, lastElement(etud)))[2], getElement68(allvalues, parcours))){
+                    printf("getPotentialSolution :il y a discrimination si on ajoute %d=>%d - ", parcours, getElement68(allvalues, parcours)); TRADUIT(allvalues, etud);
                     parcours = etage_plus_1(parcours);
                 }
                 else {
@@ -613,6 +629,7 @@ glist * getPotentialSolution(glist * allvalues, liste * etud, glist * potentialS
                         }
                     }
                     else {
+                        printf("getPotentialSolution :il n'y a pas de lien de branchement si on ajoute %d=>%d - ", parcours, getElement68(allvalues, parcours)); TRADUIT(allvalues, etud);
                         if(parcours == lim){
                         parcours = lastElement(etud) + 1; 
                         etud = supprElt(etud, lastElement(etud));
