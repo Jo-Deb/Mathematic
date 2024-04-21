@@ -14,6 +14,7 @@ int brnchTbl_length = 0;
 int limitCombinaison = 0;
 int combinaisonEnCours = 0;
 void ** ListeAnalyse = NULL;
+int NBR_ELT_ALLVALUE = 0;
 
 
 /*Calcul inVal+1 dans une base 6 et s'assure que inVal+1 est inférieur ou égale limite
@@ -515,18 +516,17 @@ int getElement68(glist * allvalues, int next_elt){
  * arguments: la liste qu'on souhaite étendre et l'élément à partir duquel vérifier les cycles
  * si retour 1 alors au moins un cycle est présent, si retour 0 pas de cycle*/
 int cyclePresent(glist * allvalues, liste * etud, int next_elt){
-    int * tb = NULL, brch = 0, *nb;
+    int j, * tb = NULL, brch = 0, *nb = NULL, lstElt = lastElement(etud);
     liste * tmp = NULL, * tr = NULL;
-    if(taille(etud) == 4){tmp = etud->l;} else { tmp = etud; }
     nb = decompose_node(getElement68(allvalues, next_elt));
     while(tmp != NULL){
         brch = getElement68(allvalues, tmp->value);
         tb = decompose_node(brch);
-        tr = ajoutEnTete(tr, tb[0]);
-        tr = ajoutEnTete(tr, tb[1]);
-        //on vérifie si le 1er terme et le dernier terme de la branche next_elt 
-        //sont bien absents des autres branches de etud
-        if(EstPresent(tr, nb[0]) == 0 || EstPresent(tr, nb[2]) == 0){ return 1; }
+        for(j=0; j<3; ++j){tr = ajoutEnTete(tr, tb[j]);}
+        //La fonction EstPresent renvoie 0 quand l'élément recherché est bien dans la liste
+        if(lstElt != tmp->value && (EstPresent(tr, nb[0]) == 0 || EstPresent(tr, nb[1]) == 0 || EstPresent(tr, nb[2]) == 0) ){return 1;}
+        //La dernière branche de la liste doit avoir un élément en commun avec la branche qu'on souhaite ajouter, c'est ce test qui est fait ici
+        if(lstElt == tmp->value && EstPresent(tr, nb[0]) && EstPresent(tr, nb[2]) && EstPresent(tr, nb[1])==0) {return 0;}
         tmp = tmp->l;
     }
     return 0;
@@ -555,8 +555,11 @@ int lienBranchement(int lstBrch, int middleNumber){
 
 /*Return l'indice du 1er élément de l'étage suivant*/
 int etage_plus_1(int next_elt){
-    if(next_elt%6 == 0){return (next_elt + 6);}
-    else { return (next_elt += 6 - (next_elt%6)); }
+    int res = 0;
+    if(next_elt%6 == 0){res = (next_elt + 6);}
+    else { res = (next_elt += 6 - (next_elt%6)); }
+    if(res > NBR_ELT_ALLVALUE) {return NBR_ELT_ALLVALUE;}
+    return res;
 }
 
 /*calculer l'étage de l'élément*/
@@ -594,7 +597,8 @@ void traduireList68(glist * allvalues, liste * etud){
  * de la branche si elles étaient toutes rangées dans un tableau à une dimension*/
 glist * getPotentialSolution(glist * allvalues, liste * etud, glist * potentialSolution, int next_elt){
     int tAllValue = g_listLongueur(allvalues), tetud = taille(etud), lim = tAllValue*6 - 1, debut = 0, parcours; 
-    short int tmp;
+    short int tmp; 
+    NBR_ELT_ALLVALUE = lim;
     etud = NULL; //la liste de solution contient l'emplacement des branches
 
     while(tAllValue - getEtage(debut) >= 4){//condition d'arrêt, quand il reste moins de 5 groupes de branches pas encore analysés 
