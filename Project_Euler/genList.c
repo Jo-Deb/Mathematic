@@ -44,6 +44,24 @@ glist * g_intAjoutTete(glist * l, int data, list * inner_list){
 }  
 
 
+void g_intAjoutFin(glist * l, int data, list * inner_list){
+    int * ptr = malloc(sizeof(int));
+    *ptr = data;
+    if(l == NULL){
+        l = malloc(sizeof(glist));
+        l->elt = (void *) ptr; l->lst = inner_list; l->next = NULL;
+        return;
+    } 
+	 glist * tmp = l;
+	 //aller à la fin de la liste
+	 while(tmp->next != NULL){tmp = tmp->next;}
+	 glist * inst = malloc(sizeof(glist));
+	 inst->elt = (void*) ptr; 
+	 inst->lst = inner_list;
+	 inst->next = NULL;
+	 tmp->next = inst;	
+} 
+
 //On suppose que les listes n'ont pas de doublons
 //Le 1er élément trouvé sera le seul supprimé
 glist * g_supprimElt(glist * l, void * data){
@@ -114,4 +132,11 @@ void g_freeGenList(glist *l, void(* pt_freeFunction)(void *)){
         tmp = tmp->next;
         free(previous); previous = NULL;
     }
+}
+
+glist * g_getLastElt(glist * l){
+    glist * tmp = l;
+    if(tmp == NULL) {return NULL;}
+    while(tmp->next != NULL){ tmp = tmp->next; }
+    return tmp;
 }

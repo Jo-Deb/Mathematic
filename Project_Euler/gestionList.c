@@ -142,6 +142,17 @@ int getLastElt(list * l){
 	return tmp->elt;
 }
 
+/*Si la valeur retournée est 0 alors elt n'est pas dans la liste, 
+ * si la valeur retournée est 1 c'est le contraire*/
+int gl_isPresent(list * l, int elt){
+    list * tmp = l;
+    while(tmp->l != NULL){
+        if(tmp->elt == elt) {return 1;}
+        tmp = tmp->l;
+    }
+    return 0;
+}
+
 /*int main(){
 	list * l=NULL;
 	int i=0, j, v;

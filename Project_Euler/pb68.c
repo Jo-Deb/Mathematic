@@ -512,21 +512,41 @@ int getElement68(glist * allvalues, int next_elt){
     return getValue(lst, placeGlist+1);
 }
 
+/*Prend une liste d'adresse et la valeur d'un noeud et indique si le noeud est dans la liste*/
+int node_in_liste(glist * allvalues, liste * etud, int node){
+    int * tb = NULL, j; 
+    liste * tmp = NULL, * parcours = etud;
+    while(parcours != NULL){
+        tb = decompose_node(getElement68(allvalues, parcours->value));
+        for(j=0; j<3; ++j){tmp = ajoutEnTete(tmp, tb[j]);}
+        if(EstPresent(tmp, node) == 0) {return 1;}
+        freeListe(tmp); tmp = NULL;
+        parcours = parcours->l;
+    }
+    return 0;
+}
+
 /*Fonction pour permettre d'identifier un cycle dans une solution
  * arguments: la liste qu'on souhaite étendre et l'élément à partir duquel vérifier les cycles
  * si retour 1 alors au moins un cycle est présent, si retour 0 pas de cycle*/
 int cyclePresent(glist * allvalues, liste * etud, int next_elt){
     int j, * tb = NULL, brch = 0, *nb = NULL, lstElt = lastElement(etud);
-    liste * tmp = NULL, * tr = NULL;
+    liste * tmp = etud, * tr = NULL;
     nb = decompose_node(getElement68(allvalues, next_elt));
+    if(taille(etud) == 4) {
+       if(node_in_liste(allvalues, etud, nb[0])){return 1;}
+       if(nb[2] == decompose_node(getElement68(allvalues, etud->value))[1] 
+          && nb[1] == decompose_node(getElement68(allvalues, lstElt))[2]){
+           return 0;
+       }
+    }
     while(tmp != NULL){
         brch = getElement68(allvalues, tmp->value);
         tb = decompose_node(brch);
         for(j=0; j<3; ++j){tr = ajoutEnTete(tr, tb[j]);}
         //La fonction EstPresent renvoie 0 quand l'élément recherché est bien dans la liste
-        if(lstElt != tmp->value && (EstPresent(tr, nb[0]) == 0 || EstPresent(tr, nb[1]) == 0 || EstPresent(tr, nb[2]) == 0) ){return 1;}
+        if(EstPresent(tr, nb[0]) == 0 || EstPresent(tr, nb[2]) == 0) {return 1;}
         //La dernière branche de la liste doit avoir un élément en commun avec la branche qu'on souhaite ajouter, c'est ce test qui est fait ici
-        if(lstElt == tmp->value && EstPresent(tr, nb[0]) && EstPresent(tr, nb[2]) && EstPresent(tr, nb[1])==0) {return 0;}
         tmp = tmp->l;
     }
     return 0;
@@ -558,7 +578,8 @@ int etage_plus_1(int next_elt){
     int res = 0;
     if(next_elt%6 == 0){res = (next_elt + 6);}
     else { res = (next_elt += 6 - (next_elt%6)); }
-    if(res > NBR_ELT_ALLVALUE) {return NBR_ELT_ALLVALUE;}
+    //if(res > NBR_ELT_ALLVALUE) {return NBR_ELT_ALLVALUE;}
+    if(res > NBR_ELT_ALLVALUE) {return 0;}
     return res;
 }
 
@@ -610,11 +631,13 @@ glist * getPotentialSolution(glist * allvalues, liste * etud, glist * potentialS
             if(cyclePresent(allvalues, etud, parcours)){ 
                 printf("getPotentialSolution : on a un cycle si on ajoute %d=>%d - ", parcours, getElement68(allvalues, parcours)); TRADUIT(allvalues, etud);
                 if(parcours == lim){
+                    while(lastElement(etud) == lim){etud = supprElt(etud, lastElement(etud));}
                     parcours = (lastElement(etud) == lim) ? 0 : lastElement(etud) + 1; 
                     etud = supprElt(etud, lastElement(etud));
                     if(taille(etud) == 0){ break;}
                 }
-                else {parcours = etage_plus_1(parcours);}
+                //else {parcours = etage_plus_1(parcours);}
+                else {++parcours;}
             } 
             else {
                 if(discrimination(decompose_node(getElement68(allvalues, lastElement(etud)))[2], getElement68(allvalues, parcours))){
@@ -628,6 +651,7 @@ glist * getPotentialSolution(glist * allvalues, liste * etud, glist * potentialS
                         parcours = 0;
                         if(taille(etud) == 5){ 
                             potentialSolution = g_ajoutTete(potentialSolution, (void*)recopie(etud), NULL); 
+                            while(lastElement(etud) == lim){etud = supprElt(etud, lastElement(etud));}
                             parcours = (lastElement(etud) == lim) ? 0 : lastElement(etud) + 1; 
                             etud = supprElt(etud, lastElement(etud)); 
                         }
@@ -635,8 +659,9 @@ glist * getPotentialSolution(glist * allvalues, liste * etud, glist * potentialS
                     else {
                         printf("getPotentialSolution :il n'y a pas de lien de branchement si on ajoute %d=>%d - ", parcours, getElement68(allvalues, parcours)); TRADUIT(allvalues, etud);
                         if(parcours == lim){
-                        parcours = lastElement(etud) + 1; 
-                        etud = supprElt(etud, lastElement(etud));
+                            while(lastElement(etud) == lim){etud = supprElt(etud, lastElement(etud));}
+                            parcours = lastElement(etud) + 1; 
+                            etud = supprElt(etud, lastElement(etud));
                         }
                         else {++parcours;}
                     }
@@ -648,6 +673,67 @@ glist * getPotentialSolution(glist * allvalues, liste * etud, glist * potentialS
     }
     return potentialSolution;
 }    
+
+/*Il s'agit d'une liste permettant de changer la glist en liste 
+ * afin de récupérer uniquement les éléments d'adresse*/
+liste * glist_to_liste(glist * gl ){
+    glist * tmp = gl;
+    liste * res = NULL;
+    while(tmp != NULL){
+        res = ajoutEnQueue(res, *(int*)tmp->elt);
+        tmp = tmp->next;
+    }
+    return res;
+}
+
+/*Il s'agit de changer une list en listes*/
+liste * list_to_liste(list * l){
+    list * tmp = l; 
+    liste * res = NULL;
+    while(tmp != NULL){
+        res = ajoutEnQueue(res, tmp->elt);
+        tmp = tmp->l;
+    }
+    return res;
+}
+
+liste * get_all_floor_elt(glist * allValues, int elt){
+    int etage = elt%6,i;
+    glist * tmp = g_getList(allValues, etage);
+    liste * res = NULL;
+    for(i=0; i<6; ++i){res = ajoutEnQueue(res, *(int*)tmp->elt); tmp = tmp->next;}
+    return res;
+}
+
+/*La fonction compute_parcours est appelée quand un cycle est détecté, elle doit : 
+ * ajouter l'élément en cause du cycle à la liste des éléments déjà testés sans succès
+ * appelons là liste_rejet. L'étape suivante est l'incrémentation de de parcours jusqu'à tomber 
+ * sur une valeur qui n'est encore pas encore dans liste_rejet. Le dernier élément de la liste 
+ * est supprimé quand sa liste rejet est égale à allValues. La suppression d'un élément dans 
+ * etud c'est l'ajout dans la liste_rejet de son précédent dans etud suivi de sa suppression 
+ * dans etud*/
+void compute_parcours(glist * allvalues, glist * etud, int * parcours, int flag){
+    
+}
+
+/*Cette fonction a le même objectif que getPotentialSolution mais on essaiera de la faire plus simple*/
+glist * potentialSolution(glist * allvalues){
+    int tAllValue = g_listLongueur(allvalues), lim = tAllValue*6-1, debut = 0, parcours = 0, tmp, tetud = 0;
+    glist * etud = NULL;
+    liste * ltmp = NULL;
+    NBR_ELT_ALLVALUE = lim;
+    while(tAllValue - getEtage(debut) >= 4){
+        etud = g_intAjoutTete(etud, debut, etud->lst);
+        ++tetud;
+        parcours = *((int *)etud->elt) + 1;
+        while(parcours <= lim && tetud < 5){
+            ltmp = glist_to_liste(etud);
+            if(cyclePresent(allvalues, ltmp, parcours)){ gestionCycle(allvalues, etud, &parcours); }
+                
+            }
+        }
+    }
+}
 
 int main(int argc, char ** argv){
     /*________________________________________vérification des entrées___________________________________*/
