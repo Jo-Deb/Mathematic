@@ -371,3 +371,17 @@ void freeListe(liste * la){
 void vfreeListe(void * l){ freeListe((liste *) l); }
 
 int lastElement(liste * l){ return getValue(l, taille(l)); }
+
+extern liste * liste_diff(liste * la, liste * lb){
+    liste * tmp = la, * res = NULL;
+    while(tmp != NULL){
+       if(EstPresent(lb, tmp->value) == 1){ res = ajoutEnTete(res, tmp->value);} 
+       tmp = tmp->l;
+    }
+    tmp = lb;
+    while(tmp != NULL){
+       if(EstPresent(la, tmp->value) == 1){ res = ajoutEnTete(res, tmp->value);} 
+       tmp = tmp->l;
+    }
+    return res;
+}

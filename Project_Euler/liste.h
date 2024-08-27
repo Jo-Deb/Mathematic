@@ -76,3 +76,5 @@ extern liste * concateneListe(liste * la, liste * lb);
 extern void freeListe(liste * la);
 
 extern void vfreeListe(void * l);
+
+extern liste * liste_diff(liste * la, liste * lb);
