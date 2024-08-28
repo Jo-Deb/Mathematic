@@ -540,6 +540,7 @@ void compute_parcours(glist * allvalues, glist * etud, int * parcours, int flag)
     
 }
 
+/*retourne une valeur parcours qu'on n'a pas encore testé pour le dernier élément de etud*/
 int set_val_for_test(glist * etud, int parcours, int * len){
     glist * tmp = g_getLastElt(etud);
     list * tested_elt = tmp->lst;
@@ -553,7 +554,7 @@ int set_val_for_test(glist * etud, int parcours, int * len){
 }
 
 void gestionCycle(glist * allvalues, glist * etud, int * parcours){
-
+    
 }
 
 /*Cette fonction a le même objectif que getPotentialSolution mais on essaiera de la faire plus simple*/
