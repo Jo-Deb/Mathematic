@@ -519,27 +519,6 @@ liste * get_all_floor_elt(glist * allValues, int elt){
     return res;
 }
 
-/*prend une liste d'adresse et retourne une liste de valeur*/
-liste * adress_to_val(glist * allvalues, liste * ad){
-    liste * tmp = ad, * res = NULL;
-    while(tmp != NULL){ res = ajoutEnQueue(res, getElement68(allvalues, tmp->value)); }
-}
-
-/*La fonction compute_parcours est appelée quand un cycle est détecté, elle doit : 
- * ajouter l'élément en cause du cycle à la liste des éléments déjà testés sans succès
- * appelons là liste_rejet. L'étape suivante est l'incrémentation de de parcours jusqu'à tomber 
- * sur une valeur qui n'est pas encore dans liste_rejet. Le dernier élément de la liste 
- * est supprimé quand sa liste rejet est égale à allValues. La suppression d'un élément dans 
- * etud c'est l'ajout dans la liste_rejet de son précédent dans etud suivi de sa suppression 
- * dans etud*/
-void compute_parcours(glist * allvalues, glist * etud, int * parcours, int flag){
-    glist * tmp = g_getLastElt(etud);
-    tmp->lst = ajoutFin(tmp->lst, (*parcours));
-    liste * lst_tested = concateneListe(glist_to_liste(etud), list_to_liste(tmp->lst));
-    liste * diff = liste_diff(adress_to_val(allvalues, lst_tested), glist_to_liste(allvalues));
-    
-}
-
 /*retourne une valeur parcours qu'on n'a pas encore testé pour le dernier élément de etud*/
 int set_val_for_test(glist * etud, int parcours, int * len){
     glist * tmp = g_getLastElt(etud);
@@ -555,25 +534,6 @@ int set_val_for_test(glist * etud, int parcours, int * len){
 
 void gestionCycle(glist * allvalues, glist * etud, int * parcours){
     
-}
-
-/*Cette fonction a le même objectif que getPotentialSolution mais on essaiera de la faire plus simple*/
-glist * potentialSolution(glist * allvalues){
-    int tAllValue = g_listLongueur(allvalues), lim = tAllValue*6-1, debut = 0, parcours = 0, tmp, tetud = 0;
-    glist * etud = NULL;
-    liste * ltmp = NULL;
-    NBR_ELT_ALLVALUE = lim;
-    while(tAllValue - getEtage(debut) >= 4){
-        etud = g_intAjoutTete(etud, debut, etud->lst);
-        ++tetud;
-        parcours = set_val_for_test(etud, parcours, &tetud);
-        while(parcours <= lim && tetud < 5){
-            ltmp = glist_to_liste(etud);
-            if(cyclePresent(allvalues, ltmp, parcours)){ gestionCycle(allvalues, etud, &parcours); }
-                
-            }
-        }
-    }
 }
 
 int main(int argc, char ** argv){
