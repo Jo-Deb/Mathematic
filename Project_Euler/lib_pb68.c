@@ -30,10 +30,6 @@ liste * computeComb(int t_comb, int t_set){
             ++compteur;
         }
         i = t_comb - 1;
-        lc = tab_to_liste(comb, t_comb); ls = tab_to_liste(set, t_set); 
-        freeListe(liste_diff); liste_diff = NULL;
-        liste_diff = soustrait_a_de_b(lc, ls);
-        lc = NULL, ls = NULL;
         while(comb[i] >= max) {--i;}
         comb[i] = best_majorant(comb[i], liste_diff);
         tmp = i;
