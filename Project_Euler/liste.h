@@ -78,3 +78,9 @@ extern void freeListe(liste * la);
 extern void vfreeListe(void * l);
 
 extern liste * liste_diff(liste * la, liste * lb);
+
+extern liste * soustrait_a_de_b(liste * la, liste *lb);
+
+extern liste * tab_to_liste(int * tab, int ttab);
+
+extern int best_majorant(int a, liste * l);
