@@ -416,5 +416,6 @@ int best_majorant(int a, liste * l){
         if(tmp->value < bm && tmp->value > a){ bm = tmp->value; }
         tmp = tmp->l;
     }
+    return bm;
 }
 
