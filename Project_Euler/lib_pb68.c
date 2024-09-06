@@ -67,6 +67,12 @@ liste * computeComb(int t_comb, int t_set){
     return res;
 }
 
+/*liste des arrangements avec répétition pour une longueur donnée
+ * et une base donnée*/
+liste * combinaison(int t_comb, int base){
+
+}
+
 int main(int argc, char ** argv){
     int taille_set, taille_comb, return_scanf = 0;
     if(argc != 3){ 
