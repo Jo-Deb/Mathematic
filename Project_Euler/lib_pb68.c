@@ -68,9 +68,26 @@ liste * computeComb(int t_comb, int t_set){
 }
 
 /*liste des arrangements avec répétition pour une longueur donnée
- * et une base donnée*/
-liste * combinaison(int t_comb, int base){
-
+ * et une base donnée. On part de 11111 et on arrive à 66666, 
+ * on a donc 6 puissance 5 valeur a calculer, soit 7776*/
+liste * combinaison(int len, int base){
+	int tab[len], nbr_comb = base, i, compteur = 0, ret = 0;
+	//calcul du nombre de combinaisons
+	for(i=1; i < len; ++i){ nbr_comb *= base; }
+	for(i=0; i < len; ++i){ tab[i] = 1; }
+	liste * res = ajoutEnTete(NULL, tabToInt(tab, len));
+	++compteur;
+	while(compteur < nbr_comb){
+		i = len - 1;
+	//Boucle pour incrémenter la valeur contenu dans tab
+		do {
+			if(tab[i] == 6){ ret = 1; tab[i] = 1; --i;}
+			else {tab[i] += 1; ret = 0;}
+		}while(ret == 1 && i >= 0);
+		res = ajoutEnTete(res, tabToInt(tab, len));
+		++compteur;
+	}
+	return res;
 }
 
 int main(int argc, char ** argv){
@@ -89,7 +106,9 @@ int main(int argc, char ** argv){
         printf("la conversion de l'argument %s a échoué\n", argv[2]); 
         return 0;
     }
-    liste * res = computeComb(taille_comb, taille_set);
-    afficheListe(res);
-    return 0;
+   // liste * res = computeComb(taille_comb, taille_set);
+   // afficheListe(res);
+	liste * res = combinaison(5, 6);
+	afficheListe(res);
+   return 0;
 }
