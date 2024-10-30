@@ -19,29 +19,6 @@ void ** ListeAnalyse = NULL;
 int NBR_ELT_ALLVALUE = 0;
 
 
-
-/*Calcul inVal+1 dans une base 6 et s'assure que inVal+1 est inférieur ou égale limite
- * On renvoie le résultat dans un tableau pour représenter les unités, les dizaines et les centaines*/
-int * nextValueBase6(int inVal, int limite){
-    int * tb1 = intToTab(inVal);
-    if(inVal >= limite){
-        printf("nextCombinaison: signature : (int inVal, int limite) et inVal < limite. Et maintenant on a inVal >= limite. Echec\n");
-        return NULL;
-    }
-    int i, d, len = calculTailleEntier(limite), ajout = 1, retenue = 0, lenLimite = calculTailleEntier(inVal);
-    int * res = malloc(len * sizeof(int));
-    for(i=0; i<len; ++i){ res[i] = 0;}
-    d = lenLimite - 1;
-    for(i=len-1; i>=0; --i){
-        if(d>=0){
-            if ((tb1[d] + ajout + retenue) > 5){ res[i] = 0; ajout = 0; retenue = 1; --d;}
-            else { res[i] = tb1[d] + ajout + retenue; --d; ajout = 0; retenue = 0;}
-        }
-        else{ res[i] = ajout + retenue; ajout = 0; retenue = 0; }
-    }
-    return res;
-}
-
 int power(int base, int exposant){
     int i, res = base;
     for(i = 1; i < exposant; ++i){res = res * base;}
@@ -146,78 +123,6 @@ liste * analyse(int node_to_search, int tab[]){
     return res;
 }
 
-/*calcul le nombre de noeud distints dans une liste solution*/
-int nbrDistinctNodes(liste *ls){
-    liste * tmp = ls, * lt = NULL;
-    int res = 0, i, * tab = NULL;
-    while(tmp != NULL){
-        tab = decompose_node(tmp->value);
-        for(i = 0; i<3; ++i){ if(EstPresent(lt, tab[i])){lt = ajoutEnTete(lt, tab[i]);} }
-        free(tab);
-        tab = NULL;
-        tmp = tmp->l;
-    }
-    res = taille(lt);
-    freeListe(lt);
-    return res;
-}
-
-/*Identifie si dans une liste solution il y a un noeud saturé*/
-int saturationNoeud(){
-    int i;
-    for(i=0; i < NumberOfNodes; ++i){
-        if(taille(ListeAnalyse[i]) > 3){return i+1;}
-    }
-    return 0;
-}
-
-/*Fonction de libération d'espace du pointeur void ** ListeAnalyse*/
-void freeListeAnalyse(){
-    if(ListeAnalyse == NULL){return;}
-    int i;
-    for(i=NumberOfNodes; i>0; --i){ free(ListeAnalyse[i]); ListeAnalyse[i] = NULL; }
-    free(ListeAnalyse);
-    ListeAnalyse = NULL;
-}
-
-/*Pour une liste solution proposée, retourne un tableau ListeAnalyse
- * la fonction suppose que la liste ls est non nulle*/
-void construireListeAnalyse(liste * ls){
-    int * tab = NULL, i;
-    liste * tmp = ls;
-    freeListeAnalyse();
-    ListeAnalyse = malloc(NumberOfNodes * sizeof(void *));
-    for(i=0; i < NumberOfNodes; ++i){ListeAnalyse[i] = NULL;}
-    while(tmp != NULL){
-        tab = decompose_node(tmp->value);
-        for(i=0; i < 3; ++i){ ListeAnalyse[tab[i] - 1] = concateneListe(ListeAnalyse[(tab[i]-1)], analyse(tab[i], tab)); }
-        tmp = tmp->l;
-        free(tab); 
-        tab = NULL;
-    }
-}
-
-/*Une fonction pour identifier les noeuds externes. 
- * Attention: il faut identifier les noeuds externes quand
- * on a une liste solution à 5 branches*/
-liste * noeudsExternes(){
-    int i, len = 0;
-    liste * res = NULL;
-    for(i = 0; i < NumberOfNodes; ++i){
-        if((len=taille(ListeAnalyse[i])) == 1) { res = ajoutEnTete(res, i+1); }
-    }
-    return res;
-}
-
-void affiche_decomposition(int tab[]){
-    int i;
-    for(i=0; i<3; ++i) {printf("%d ", tab[i]);}
-    printf("\n");
-}
-
-/*retourne -1 si val_noeud n'est pas un noeud externe*/
-int estNoeudExterne(int val_noeud, liste * externeNoeud){return getPosition(externeNoeud, val_noeud);}
-
 int concateneEntier(int a1, int a2, int a3){
     return ((a1*power(10,calculTailleEntier(a2))+a2)*power(10,calculTailleEntier(a3)))+a3;
 }
@@ -274,29 +179,6 @@ glist * generateAllValue(liste * l){
 
 void showElt(void * pt){ printf(" %s ", (char*)pt); }
 
-/*Récupère prop, qu'on considère comme une liste d'une solution
- * potentielle. La fonction va parser toutes les branches de la 
- * liste et remplir ListeAnalyse pour indiquer les noeuds
- * reliés au noeud représenté par l'indice du tableau + 1
- * ListeAnalyse est un tableau à 2 dimensions, on suppose qu'il a
- * une taille de 10 NumberOfNodes*/
-void parseListe(liste * prop){
-    liste * tmp = prop;
-    int i;
-    if(ListeAnalyse != NULL){
-        for(i=0; i < NumberOfNodes; ++i){free(ListeAnalyse[i]);}
-        ListeAnalyse = NULL;
-    }
-    ListeAnalyse = malloc(NumberOfNodes*sizeof(void *));
-    for(i=0; i < NumberOfNodes; ++i){
-        tmp = prop;
-        while(tmp != NULL){
-            ListeAnalyse[i] = concateneListe(ListeAnalyse[i], analyse(i+1, decompose_node(tmp->value)) );
-            tmp = tmp->l;
-        }
-    }
-}
-
 /*Mettre en tableau toutes les branches. Chaque branche est une valeur entière*/
 void mettreEnTableau(glist * possibleBranche){
     brnchTbl_length = g_listLongueur(possibleBranche);
@@ -321,75 +203,6 @@ void mettreEnTableau(glist * possibleBranche){
         printf("\n");
         pcr = pcr->next;
     }
-}
-
-/*2ème tri qui vérifie que le 1er digit de chaque branche est son noeud externe
- * si la fonction retourne 1*/
-int firstDigitIsExtern(liste * lst, liste * nxtrn){
-    liste * prcr = lst;
-    int * tmp = NULL;
-    while(prcr != NULL){
-        tmp = decompose_node(prcr->value);
-        if(EstPresent(nxtrn, tmp[0]) != 0){
-            //printf("firstDigitIsExtern: le noeud %d n'est pas le noeud externe de %d\n", tmp[0], prcr->value);
-            //printf("firstDigitIsExtern: echec de la liste : "); afficheListe(lst); printf("\n");
-            free(tmp); tmp = NULL;
-            return 1;
-        } 
-        free(tmp); tmp = NULL;
-        prcr = prcr->l;
-    } 
-    return 0;
-}
-
-/*Génère toutes les solutions potentielles du problème*/
-glist * gatherPotentialSolution(glist * possibleBranche){
-    glist * solTab = NULL;
-    int passIt = 0, i, limitNextValue = 0, solLen = 0;
-    if(NumberOfNodes == 6) {limitNextValue = 555; solLen = 3;} else {limitNextValue = 55555; solLen = 5;}
-    //la variable res permet d'encoder un index afin de récupérer chaque branche du magic gong
-    int * res = malloc(solLen*sizeof(int));
-    for(i=0; i<solLen; ++i){res[i]=0;}
-    liste * etudeSol = NULL, * extNode = NULL;
-
-    mettreEnTableau(possibleBranche);
-    do{
-        freeListeAnalyse();
-        /*res <= 555; brancheTable a 18 éléments donc res[i] + i*6 < 18 
-         * puisque max(res[i] + i*6) = 17*/
-        for(i=0; i<solLen; ++i){ etudeSol = ajoutEnQueue(etudeSol, brancheTable[(res[i]+i*6)]); }
-        construireListeAnalyse(etudeSol);
-        passIt = tabToInt(res, solLen);
-        if(saturationNoeud() == 0){ 
-            extNode = noeudsExternes();
-            if(taille(etudeSol) != taille(extNode)){
-                supprimeListe(etudeSol); etudeSol = NULL; 
-                supprimeListe(extNode); extNode = NULL; 
-            }
-            else{
-                if(firstDigitIsExtern(etudeSol, extNode) == 0){
-                    solTab = g_ajoutTete(solTab, etudeSol, NULL);
-                    printf("gatherPotentialSolution: la liste "); afficheListe(etudeSol);
-                    printf("a été ajouté à la liste de solution\n");
-                    etudeSol = NULL; 
-                    supprimeListe(extNode); extNode = NULL; 
-                }
-                else{
-                    printf("gatherPotentialSolution : la liste "); afficheListe(etudeSol);
-                    printf(" n'a pas les noeuds externes en 1ère position\n");
-                    etudeSol = NULL; 
-                    supprimeListe(extNode); extNode = NULL; 
-                }
-            }        
-        } 
-        else{
-           // printf("gatherPotentialSolution: La liste : "); 
-           // afficheListe(etudeSol);  printf(" est saturée et passIt = %d \n", passIt);
-            supprimeListe(etudeSol); etudeSol = NULL; 
-        }
-    }while((res = nextValueBase6(passIt, limitNextValue)) != NULL);
-    
-    return solTab;
 }
 
 /*Hypothèse : on suppose que la 1ere valeur de chaque branches est un noeud externe
@@ -708,39 +521,22 @@ liste * get_all_floor_elt(glist * allValues, int elt){
     return res;
 }
 
-/*La fonction est appelée quand un cycle ou une discrimination est détecté, elle doit : 
- * ajouter l'élément en cause du cycle ou discriminé à la liste des éléments déjà testés sans succès,
- * appelons là liste_rejet. L'étape suivante est l'incrémentation de parcours jusqu'à tomber 
- * sur une valeur qui n'est encore pas encore dans liste_rejet. Le dernier élément de la liste 
- * est supprimé quand sa liste rejet est égale à allValues. La suppression d'un élément dans 
- * etud c'est l'ajout dans la liste_rejet de son précédent dans etud suivi de sa suppression 
- * dans etud*/
-void compute_parcours(glist * allvalues, glist * etud, int * parcours, int flag){
-   glist * dernier_terme = g_getLastElt(etud);
-
-	if(flag == CYCLE){ 
-	
-	}
- 
+/*retourne une valeur parcours qu'on n'a pas encore testé pour le dernier élément de etud*/
+int set_val_for_test(glist * etud, int parcours, int * len){
+    glist * tmp = g_getLastElt(etud);
+    list * tested_elt = tmp->lst;
+    /*on vérifie avec la valeur de parcours qu'on n'a pas encore testé*/
+    while(gl_isPresent(tested_elt, parcours) && parcours < NBR_ELT_ALLVALUE){++parcours;}
+    if(gl_isPresent(tested_elt, parcours)==0){return parcours;}
+    /*si toutes les valeurs ont été testées alors l'élément tmp doit être supprimé*/
+    if(gl_isPresent(tested_elt, parcours) && parcours==NBR_ELT_ALLVALUE){ etud = g_supprimElt(etud, tmp->elt); --(*len); parcours=0;}
+    /*récursif terminal*/
+    return set_val_for_test(etud, parcours, len);
+>>>>>>> 23953196df0a1df5017987289a549511b71ee149
 }
 
-/*Cette fonction a le même objectif que getPotentialSolution mais on essaiera de la faire plus simple*/
-glist * potentialSolution(glist * allvalues){
-    int tAllValue = g_listLongueur(allvalues), lim = tAllValue*6-1, debut = 0, parcours = 0, tmp, tetud = 0;
-    glist * etud = NULL;
-    liste * ltmp = NULL;
-    NBR_ELT_ALLVALUE = lim;
-    while(tAllValue - getEtage(debut) >= 4){
-        etud = g_intAjoutTete(etud, debut, etud->lst);
-        ++tetud;
-        parcours = *((int *)etud->elt) + 1;
-        while(parcours <= lim && tetud < 5){
-            ltmp = glist_to_liste(etud);
-            if(cyclePresent(allvalues, ltmp, parcours)){ gestionCycle(allvalues, etud, &parcours); }
-                
-            }
-        }
-    }
+void gestionCycle(glist * allvalues, glist * etud, int * parcours){
+    
 }
 
 int main(int argc, char ** argv){

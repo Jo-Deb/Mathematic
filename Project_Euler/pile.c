@@ -39,6 +39,38 @@ void affichePile(pile * p){
 	}
 }
 
+int taille_pile(pile * p){
+    if(p == NULL){return 0;}
+    pile * tmp = p;
+    int res = 1;
+    while(tmp->back != NULL){ ++res; tmp = tmp->back; }
+    Taille_p = res;
+    return res;
+}
+
+pile ** map_pile(pile * p){
+    Taille_p = taille_pile(p); int i;
+    pile ** res = malloc(Taille_p * sizeof(pile *)), * tmp = p;
+    for(i=0; i<Taille_p; ++i){ res[i] = tmp; tmp = tmp->back; }
+    return res;
+}
+
+void detruire_map(pile ** m, int taille){
+    int i;
+    for(i=0; i<taille; i++){ detruirePile(m[i]); }
+    free(m);
+}
+
+/*On ajoute la pile b pardessus la pile a c'est donc la tête de b qui sera
+ * le premier élément de la pile*/
+pile * concatene_pile(pile * a, pile * b){
+    pile ** m = map_pile(b);
+    int i;
+    for(i=Taille_p-1; i>= 0; --i){a = empilePile(a, m[i]->data);}
+    detruire_map(m, Taille_p);
+    return a;
+}
+
 /*
 int main(){
 	int i=0, *tmp; pile * p = NULL;

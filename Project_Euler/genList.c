@@ -90,7 +90,6 @@ glist * g_supprimElt(glist * l, void * data){
 	return tmp;
 }
 
-
 void g_freeList(glist * l){
 	glist * tmp = l;
 	while(tmp!=NULL){tmp = g_supprimElt(tmp, tmp->elt);}

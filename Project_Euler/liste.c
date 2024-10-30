@@ -371,3 +371,51 @@ void freeListe(liste * la){
 void vfreeListe(void * l){ freeListe((liste *) l); }
 
 int lastElement(liste * l){ return getValue(l, taille(l)); }
+
+extern liste * liste_diff(liste * la, liste * lb){
+    liste * tmp = la, * res = NULL;
+    while(tmp != NULL){
+       if(EstPresent(lb, tmp->value) == 1){ res = ajoutEnTete(res, tmp->value);} 
+       tmp = tmp->l;
+    }
+    tmp = lb;
+    while(tmp != NULL){
+       if(EstPresent(la, tmp->value) == 1){ res = ajoutEnTete(res, tmp->value);} 
+       tmp = tmp->l;
+    }
+    return res;
+}
+
+/*Prend la liste a et soustrait les éléments de cette liste à la liste b*/
+liste * soustrait_a_de_b(liste * la, liste * lb){
+    liste * tmp = la, *res = recopie(lb);
+    while(tmp != NULL){
+        if(EstPresent(res, tmp->value) == 0){ res = supprElt(res, tmp->value); }
+        tmp = tmp->l;
+    }
+    return res;
+}
+
+/*change le tableau donné en argument en liste*/
+liste * tab_to_liste(int * tab, int ttab){
+    liste * res = NULL;
+    int i;
+    for(i=0; i<ttab; ++i){ res = ajoutEnQueue(res, tab[i]); }
+    return res;
+}
+
+/*Renvoyer le meilleur majorant dans une liste pour une valeur entière donnée en 
+ * argument. Le meilleur majorant étant celui le plus près de la valeur donnée
+ * valeur retournée : le majorant si celui-ci existe ou une valeur négative dans
+ * le cas contraire*/
+int best_majorant(int a, liste * l){
+    liste * tmp = l;
+    int bm = maxListe(l);
+    if(a >= bm){ printf("best_majorant: aucune valeur dans %p ne majore %d\n", l, a); return -1; }
+    while(tmp != NULL){
+        if(tmp->value < bm && tmp->value > a){ bm = tmp->value; }
+        tmp = tmp->l;
+    }
+    return bm;
+}
+
