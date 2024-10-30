@@ -6,6 +6,8 @@
 #include "liste.h"
 
 #define TRADUIT(t, l) traduireList68(t, l); printf("\n")
+#define CYCLE 1
+#define DISCRIMINATION 2
 
 int NumberOfNodes;
 int * brancheTable = NULL;
@@ -15,6 +17,7 @@ int limitCombinaison = 0;
 int combinaisonEnCours = 0;
 void ** ListeAnalyse = NULL;
 int NBR_ELT_ALLVALUE = 0;
+
 
 
 /*Calcul inVal+1 dans une base 6 et s'assure que inVal+1 est inférieur ou égale limite
@@ -705,15 +708,20 @@ liste * get_all_floor_elt(glist * allValues, int elt){
     return res;
 }
 
-/*La fonction compute_parcours est appelée quand un cycle est détecté, elle doit : 
- * ajouter l'élément en cause du cycle à la liste des éléments déjà testés sans succès
- * appelons là liste_rejet. L'étape suivante est l'incrémentation de de parcours jusqu'à tomber 
+/*La fonction est appelée quand un cycle ou une discrimination est détecté, elle doit : 
+ * ajouter l'élément en cause du cycle ou discriminé à la liste des éléments déjà testés sans succès,
+ * appelons là liste_rejet. L'étape suivante est l'incrémentation de parcours jusqu'à tomber 
  * sur une valeur qui n'est encore pas encore dans liste_rejet. Le dernier élément de la liste 
  * est supprimé quand sa liste rejet est égale à allValues. La suppression d'un élément dans 
  * etud c'est l'ajout dans la liste_rejet de son précédent dans etud suivi de sa suppression 
  * dans etud*/
 void compute_parcours(glist * allvalues, glist * etud, int * parcours, int flag){
-    
+   glist * dernier_terme = g_getLastElt(etud);
+
+	if(flag == CYCLE){ 
+	
+	}
+ 
 }
 
 /*Cette fonction a le même objectif que getPotentialSolution mais on essaiera de la faire plus simple*/
