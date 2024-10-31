@@ -393,3 +393,6 @@ char * intToString(int n){
     return res;
 }
 
+int isPresent(int * tab, int len, int e){
+	
+}

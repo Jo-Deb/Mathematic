@@ -72,3 +72,4 @@ extern char * concatString(char ** tab, int tailleTab);
 
 extern char * intToString(int n);
 
+extern int isPresent(int * tab, int len, int e);
