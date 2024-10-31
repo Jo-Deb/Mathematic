@@ -393,6 +393,11 @@ char * intToString(int n){
     return res;
 }
 
+/*
+*si e est dans tab retourne 1 sinon 0
+*/
 int isPresent(int * tab, int len, int e){
-	
+	int i = 0;
+	for(i=0; i<len; ++i){ if(tab[i] == e) {return 1;} }
+	return 0;
 }
