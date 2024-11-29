@@ -90,6 +90,67 @@ liste * combinaison(int len, int base){
 	return res;
 }
 
+/*Cette fonction permet de savoir si deux branches ont un lien de branchement.
+ * Avoir un lien de branchement c'est avoir en position 3 de elt la même valeur 
+ * que cur en position 1. Si retour 1 alors lien de branchement, 
+ * si 0 pas de lien de branchement */
+int matching(glist * elt, glist * cur){
+    if(elt == NULL || cur == NULL){return 0;}
+
+    int * tab_elt = intToTab(*((int*)elt->elt));
+    int * tab_cur = intToTab(*((int*)cur->elt));
+    int len = calculTailleEntier(*((int*)elt->elt));
+    
+    if(isPresent(tab_elt, len, tab_cur[0]) == 0 &&\
+       isPresent(tab_elt, len, tab_cur[2]) == 0 &&\
+       tab_elt[2] == tab_cur[1]) { return 1; }
+    return 0;
+}
+
+/*Une fonction qui permet de calculer la liste de valeurs 
+ * ayant un lien de branchement avec chaque branche du
+ * tableau allValue*/
+glist * all_with_more(glist * allValue){
+    glist * loop1, * loop2, * res = NULL;
+    loop1 = loop2 = allValue;
+    list * lst = NULL;
+
+    while(loop1 != NULL){
+        lst = NULL;
+        while(loop2 != NULL){
+            if(matching(loop1, loop2)){ lst = ajoutFin(lst, *((int*)loop2->elt)); }
+            loop2 = loop2->next;
+        }
+        g_ajoutFin(res, loop1->elt, lst);
+        loop2 = allValue;
+        loop1 = loop1->next;
+    }
+    return res;
+}
+
+void see_all_with_more(glist * alv){
+    if(alv == NULL) {return;}
+    glist * prc = alv;
+    while(prc != NULL){
+        printf("%d :", *(int*)prc->elt);
+        afficheList(prc->lst); printf("\n");
+        prc = prc->next;
+    }
+}
+
+list * get_link_values(int n, glist * alv){
+    glist * prc = alv;
+    if(alv == NULL){return NULL;}
+    
+    while(prc != NULL){
+        if(n == *(int*)prc->elt){return listCopie(prc->lst);}
+        prc = prc->next;
+    }
+    printf("%d n'est pas une branche du tableau global\n", n);
+    return NULL;
+}
+
+/*
 int main(int argc, char ** argv){
     int taille_set, taille_comb, return_scanf = 0;
     if(argc != 3){ 
@@ -112,3 +173,4 @@ int main(int argc, char ** argv){
 	afficheListe(res);
    return 0;
 }
+*/

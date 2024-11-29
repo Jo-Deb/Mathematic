@@ -9,6 +9,10 @@
 #define CYCLE 1
 #define DISCRIMINATION 2
 
+#define LIBERE_LISTE(x) \
+    freeListe(x); \
+    x = NULL
+
 int NumberOfNodes;
 int * brancheTable = NULL;
 int tailleCombi = 0;
@@ -532,19 +536,171 @@ int set_val_for_test(glist * etud, int parcours, int * len){
     if(gl_isPresent(tested_elt, parcours) && parcours==NBR_ELT_ALLVALUE){ etud = g_supprimElt(etud, tmp->elt); --(*len); parcours=0;}
     /*récursif terminal*/
     return set_val_for_test(etud, parcours, len);
->>>>>>> 23953196df0a1df5017987289a549511b71ee149
+}
+
+/*Une petite fonction pour afficher des tableaux d'entier*/
+void afficheTableau(int * tab, int ttab){
+    int i;
+    for(i=0; i < ttab; ++i){printf(" %d ", tab[i]);}
+    printf("\n");
+}
+
+/*On sait faire la différence entre 2 listes. On fait cette petite fonction pour pouvoir gérer
+ * le cas ou la et lb sont des tableaux*/
+liste * retire_a_dans_b(int * ta, int tta, int * tb, int ttb){
+    liste * la = tab_to_liste(ta, tta), * lb = tab_to_liste(tb, ttb); 
+    liste * res = soustrait_a_de_b(la, lb);
+    freeListe(la); freeListe(lb);
+    return res;
+}
+
+/*Ecrire une fonction pour générer les combinaisons d'une taille donnée et pris dans un ensemble
+ * dont la taille est donnée. Des combinaisons d'entiers seront calculées et chaque entier pourra
+ * être assimilé à un élément de l'ensemble cible.
+ * t_comb : la taille de la combinaison
+ * t_set : la taille de l'ensemble dans lequel sont pris les éléments*/
+liste * computeComb(int t_comb, int t_set){
+    int set[t_set], i, tmp, comb[t_comb], compteur = 0, lim = 1, max;
+    //On calcule le nombre de combinaison à faire
+    for(i=0; i<t_set; ++i){ set[i]=i+1; }
+    for(i=0; i<t_comb; ++i){ lim *= set[7-i]; }
+    for(i=0; i<t_comb; ++i){ comb[i] = set[i]; }
+    liste * liste_diff = retire_a_dans_b(comb, t_comb, set, t_set);
+    liste * res = NULL;
+
+    while(compteur < lim){
+        max = maxListe(liste_diff);
+        res = ajoutEnTete(res, tabToInt(comb, t_comb)); ++compteur;
+        while(comb[t_comb - 1] < max){
+            comb[t_comb-1] = best_majorant(comb[t_comb-1], liste_diff);
+            res = ajoutEnTete(res, tabToInt(comb, t_comb));
+            ++compteur;
+        }
+
+        i = t_comb - 1;
+        while(comb[i] >= max) {
+            comb[i]=0; 
+            LIBERE_LISTE(liste_diff);
+            liste_diff = retire_a_dans_b(comb, t_comb, set, t_set);
+            max = maxListe(liste_diff);
+            --i;
+        }
+        comb[i] = best_majorant(comb[i], liste_diff);
+        tmp = i;
+        for(i=tmp+1; i<t_comb; ++i){ 
+            LIBERE_LISTE(liste_diff);
+            liste_diff = retire_a_dans_b(comb, t_comb, set, t_set);
+            comb[i] = minListe(liste_diff);
+        }
+    }
+    return res;
+}
+
+/*liste des arrangements avec répétition pour une longueur donnée
+ * et une base donnée. On part de 11111 et on arrive à 66666, 
+ * on a donc 6 puissance 5 valeur a calculer, soit 7776*/
+liste * combinaison(int len, int base){
+	int tab[len], nbr_comb = base, i, compteur = 0, ret = 0;
+	//calcul du nombre de combinaisons
+	for(i=1; i < len; ++i){ nbr_comb *= base; }
+	for(i=0; i < len; ++i){ tab[i] = 1; }
+	liste * res = ajoutEnTete(NULL, tabToInt(tab, len));
+	++compteur;
+	while(compteur < nbr_comb){
+		i = len - 1;
+	//Boucle pour incrémenter la valeur contenu dans tab
+		do {
+			if(tab[i] == 6){ ret = 1; tab[i] = 1; --i;}
+			else {tab[i] += 1; ret = 0;}
+		}while(ret == 1 && i >= 0);
+		res = ajoutEnTete(res, tabToInt(tab, len));
+		++compteur;
+	}
+	return res;
+}
+
+/*Cette fonction permet de savoir si deux branches ont un lien de branchement.
+ * Avoir un lien de branchement c'est avoir en position 3 de elt la même valeur 
+ * que cur en position 1. Si retour 1 alors lien de branchement, 
+ * si 0 pas de lien de branchement */
+int matching(int elt, int cur){
+    int * tab_elt = intToTab(elt);
+    int * tab_cur = intToTab(cur);
+    int len = calculTailleEntier(elt);
+
+    if(isPresent(tab_elt, len, tab_cur[0]) == 0 &&\
+       isPresent(tab_elt, len, tab_cur[2]) == 0 &&\
+       tab_elt[2] == tab_cur[1]) { return 1; }
+    return 0;
+}
+
+/*Une fonction qui permet de calculer la liste de valeurs 
+ * ayant un lien de branchement avec chaque branche du
+ * tableau allValue*/
+glist * all_with_more(glist * allValue){
+    glist * loop1, * loop2, * res = NULL;
+    loop1 = allValue;
+    list * lst = NULL;
+    liste * loop1_lst = NULL, * loop2_lst = NULL; 
+
+    while(loop1 != NULL){
+        loop2 = allValue;
+        loop1_lst = (liste *) loop1->elt;//on récupère la liste des permutations du 1er elt de la liste
+        while(loop1_lst != NULL){
+            lst = NULL;
+            while(loop2 != NULL){
+                loop2_lst = (liste *) loop2->elt;
+                while(loop2_lst != NULL){
+                    if(matching(loop1_lst->value, loop2_lst->value)){ lst = ajoutFin(lst, loop2_lst->value); }
+                    loop2_lst = loop2_lst->l;
+                }
+                loop2 = loop2->next;
+            }
+            printf("[all_with_more] liste pour %d : ", loop1_lst->value); afficheList(lst); printf("\n");
+            g_intAjoutFin(res, loop1_lst->value, lst);
+            loop1_lst = loop1_lst->l;
+        }
+        loop1 = loop1->next;
+    }
+    return res;
+}
+
+/*Afficher le résultat de la requête précédente*/
+void see_all_with_more(glist * alv){
+    if(alv == NULL) {return;}
+    glist * prc = alv;
+    while(prc != NULL){
+        printf("%d :", *(int*)prc->elt);
+        afficheList(prc->lst); printf("\n");
+        prc = prc->next;
+    }
+}
+
+/*Permet de récupérer la liste d'élément qui peuvent être associés à la
+ * valeur n, dans le contexte du problème 68*/
+list * get_link_values(int n, glist * alv){
+    glist * prc = alv;
+    if(alv == NULL){return NULL;}
+    
+    while(prc != NULL){
+        if(n == *(int*)prc->elt){return listCopie(prc->lst);}
+        prc = prc->next;
+    }
+    printf("%d n'est pas une branche du tableau global\n", n);
+    return NULL;
 }
 
 void gestionCycle(glist * allvalues, glist * etud, int * parcours){
     
 }
 
+
 int main(int argc, char ** argv){
     /*________________________________________vérification des entrées___________________________________*/
     int i, j, res;
     liste * ret = NULL, * tmp = NULL, * lmax = NULL, * lwork = NULL;
     char * smax = NULL, * sanalyse = NULL;
-    glist * possibleBranche = NULL, * solTab = NULL, * allSol = NULL, * allMax = NULL;
+    glist * possibleBranche = NULL, * awm = NULL, * solTab = NULL, * allSol = NULL, * allMax = NULL;
     if(argc == 2){
         if(sscanf(argv[1], "%d", &NumberOfNodes) != EOF){} 
         else{printf("Mauvais argument %s\nEchec du traitement\n", argv[1]); 
@@ -572,6 +728,8 @@ int main(int argc, char ** argv){
         if((res = check(ret)) == 0){
             printf("voici la liste des valeurs pour %d:\n", i);
             possibleBranche = generateAllValue(ret);
+            awm = all_with_more(possibleBranche);
+            see_all_with_more(awm);
             //printf("ci-dessous le tableau complet pour la valeur %d\n", i);
             //solTab=gatherPotentialSolution(possibleBranche);
             solTab=getPotentialSolution(possibleBranche, lwork, allSol, 0);

@@ -39,3 +39,6 @@ extern void * g_getList(glist * l, int numList);
 extern void g_freeGenList(glist *l, void(* pt_freeFunction)(void *));
 
 extern glist * g_getLastElt(glist * l);
+
+/*cette fonction met la liste b à la suite de a */
+extern glist * glistConcat(glist * a, glist * b);

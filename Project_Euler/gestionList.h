@@ -27,3 +27,6 @@ extern list * concatList(list * l1, list * l2);
 extern int 	  getLastElt(list * l);
 
 extern int    gl_isPresent(list * l, int elt);
+
+extern list * listCopie(list * l);
+

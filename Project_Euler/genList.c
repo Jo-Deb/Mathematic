@@ -139,3 +139,12 @@ glist * g_getLastElt(glist * l){
     while(tmp->next != NULL){ tmp = tmp->next; }
     return tmp;
 }
+
+extern glist * glistConcat(glist * a, glist * b){
+    if(a == NULL){return b;}
+    if(b == NULL){return a;}
+    glist * prc = a;
+    while(prc->next != NULL){prc = prc->next;}
+    prc->next = b;
+    return a;
+}

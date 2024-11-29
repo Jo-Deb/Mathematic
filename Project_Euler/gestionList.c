@@ -153,6 +153,15 @@ int gl_isPresent(list * l, int elt){
     return 0;
 }
 
+list * listCopie(list * l){
+    list * res = NULL, * ptr = l;
+    while(ptr != NULL){
+        res = ajoutFin(res, ptr->elt);
+        ptr = ptr->l;
+    }
+    return res;
+}
+
 /*int main(){
 	list * l=NULL;
 	int i=0, j, v;

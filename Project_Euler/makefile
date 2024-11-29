@@ -1,5 +1,5 @@
-myExe_68 : pb68.o gestionList.o genList.o fonctionsPratiques.o liste.o lib_pb68.o
-	cc -o myExe_68 pb68.o gestionList.o genList.o fonctionsPratiques.o liste.o lib_pb68.o
+myExe_68 : pb68.o gestionList.o genList.o fonctionsPratiques.o liste.o 
+	cc -o myExe_68 pb68.o gestionList.o genList.o fonctionsPratiques.o liste.o 
 
 liste.o : liste.c liste.h
 	cc -c -g liste.c
@@ -15,9 +15,6 @@ genList.o : genList.c genList.h
 
 pb68.o : pb68.c
 	cc -c -g pb68.c
-
-lib_pb68.o : lib_pb68.c
-	cc -c -g lib_pb68.c
 
 clean : 
 	rm liste.o fonctionsPratiques.o gestionList.o genList.o pb68.o
