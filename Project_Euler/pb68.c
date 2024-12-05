@@ -624,8 +624,8 @@ liste * combinaison(int len, int base){
  * que cur en position 1. Si retour 1 alors lien de branchement, 
  * si 0 pas de lien de branchement */
 int matching(int elt, int cur){
-    int * tab_elt = intToTab(elt);
-    int * tab_cur = intToTab(cur);
+    int * tab_elt = decompose_node(elt); //intToTab(elt);
+    int * tab_cur = decompose_node(cur); //intToTab(cur);
     int len = calculTailleEntier(elt);
 
     if(isPresent(tab_elt, len, tab_cur[0]) == 0 &&\
@@ -644,23 +644,29 @@ glist * all_with_more(glist * allValue){
     liste * loop1_lst = NULL, * loop2_lst = NULL; 
 
     while(loop1 != NULL){
-        loop2 = allValue;
-        loop1_lst = (liste *) loop1->elt;//on récupère la liste des permutations du 1er elt de la liste
+        /*On récupère toutes les permutation courante de loop1*/
+        loop1_lst = (liste *)loop1->elt; 
+        //printf("[all_with_more] voici la liste loop1 : "); afficheListe(loop1_lst); printf("\n");
         while(loop1_lst != NULL){
+            loop2 = allValue;
             lst = NULL;
             while(loop2 != NULL){
-                loop2_lst = (liste *) loop2->elt;
+                loop2_lst = (liste *)loop2->elt; 
+                //printf("[all_with_more] voici la liste loop2 : "); afficheListe(loop2_lst); printf("\n");
                 while(loop2_lst != NULL){
+                    //printf("[all_with_more] matching %d with %d\n", loop1_lst->value, loop2_lst->value);
                     if(matching(loop1_lst->value, loop2_lst->value)){ lst = ajoutFin(lst, loop2_lst->value); }
                     loop2_lst = loop2_lst->l;
                 }
                 loop2 = loop2->next;
+                loop2_lst = NULL;
             }
             printf("[all_with_more] liste pour %d : ", loop1_lst->value); afficheList(lst); printf("\n");
             g_intAjoutFin(res, loop1_lst->value, lst);
             loop1_lst = loop1_lst->l;
         }
         loop1 = loop1->next;
+        loop1_lst = NULL;
     }
     return res;
 }

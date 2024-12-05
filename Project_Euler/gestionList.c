@@ -16,6 +16,13 @@ int listLongueur(list * l){
 	return i;
 }
 
+list * ajoutDebut(list * lst, int n){
+    list * tmp = malloc(sizeof(list));
+    tmp->elt = n; tmp->l = lst; tmp->prev = NULL;
+    if(lst != NULL){lst->prev = tmp;}
+    return tmp;
+}
+
 list * ajoutFin(list *l, int n){
 	list * tmp= malloc(sizeof(list));
 	tmp->elt = n; tmp->l = NULL;

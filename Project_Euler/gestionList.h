@@ -8,6 +8,8 @@ typedef struct g_list list;
 
 extern int    listLongueur(list * l);
 
+extern list * ajoutDebut(list * lst, int n);
+
 extern list * ajoutFin(list * l, int n);
 
 extern list * deleteLastElts(list * l, int n);
