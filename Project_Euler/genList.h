@@ -28,7 +28,9 @@ extern void g_intAjoutFin(glist * l, int data, list * inner_list);
 
 extern void g_purgeData(void * data);
 
-extern glist * g_supprimElt(glist * l, void * data);
+extern glist * g_supprimElt(glist * l, void * data, void(* pt_freeFunction)(void *));
+
+extern glist * g_supprimElt2(glist * l, void * data);
 
 extern void g_freeList(glist * l);
 
@@ -42,3 +44,7 @@ extern glist * g_getLastElt(glist * l);
 
 /*cette fonction met la liste b à la suite de a */
 extern glist * glistConcat(glist * a, glist * b);
+
+extern int g_estPresent(glist * l, void * data, int(* pt_compare)(void*, void*));
+
+extern glist * g_deleteDuplicate(glist * l, void(* pt_freeFunction)(void *), int(* pt_compare)(void*, void*));

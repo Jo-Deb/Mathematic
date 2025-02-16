@@ -62,37 +62,33 @@ void g_intAjoutFin(glist * l, int data, list * inner_list){
 	 tmp->next = inst;	
 } 
 
-//On suppose que les listes n'ont pas de doublons
-//Le 1er élément trouvé sera le seul supprimé
-glist * g_supprimElt(glist * l, void * data){
-	glist * tmp = l, * prec = NULL, * suiv = NULL, * cibl = NULL;
+/*On suppose que les listes n'ont pas de doublons
+Le 1er élément trouvé sera le seul supprimé*/
+glist * g_supprimElt(glist * l, void * data, void(* pt_freeFunction)(void *)){
+	glist * tmp = l, * prec = l, * suiv = NULL, * cibl = NULL;
+    if(l==NULL){printf("g_supprimElt: la liste en argument est nulle, pas de suppression faite\n"); return NULL;}
+    if(pt_freeFunction==NULL){printf("g_supprimElt: la fontion en argument est nulle, échec\n"); return NULL;}
+   int position = 0;
 	while(tmp!=NULL){
+       ++position;
 		if(tmp->elt == data){
-            //printf("g_supprimElt: suppression du pointeur : %p\n", tmp);
 			cibl = tmp;
-			if(prec !=NULL){prec->next = tmp->next;}
-			else{suiv = tmp->next;}
-			free(cibl->elt); cibl->elt = NULL;
-			freeList(cibl->lst); cibl->lst = NULL;
- 			free(cibl); cibl = NULL;
-            //printf("g_supprimElt: tous les pointeurs supprimés ont été mis à NULL\n");
-			if(prec!=NULL){
-            //printf("g_supprimElt: prec retournée : %p\n", prec);
-            return prec;
-        }
-			else{
-            //printf("g_supprimElt: suiv retournée : %p\n", suiv);
-            return suiv;
-         }
+         freeList(cibl->lst);
+         pt_freeFunction(cibl->elt);
+         if(position == 1){prec = tmp->next; free(tmp); tmp=NULL; return prec;}
+         else{prec->next = tmp->next;}
+         free(cibl); cibl = NULL;
 		}
 		prec = tmp; tmp=tmp->next;
 	}
-	return tmp;
+	return l;
 }
+
+glist * g_supprimElt2(glist * l, void * data){return g_supprimElt(l, data, free);}
 
 void g_freeList(glist * l){
 	glist * tmp = l;
-	while(tmp!=NULL){tmp = g_supprimElt(tmp, tmp->elt);}
+	while(tmp!=NULL){tmp = g_supprimElt2(tmp, tmp->elt);}
 }
 
 void g_afficheList(glist * l, void (* pt_show)(void *)){
@@ -147,4 +143,44 @@ extern glist * glistConcat(glist * a, glist * b){
     while(prc->next != NULL){prc = prc->next;}
     prc->next = b;
     return a;
+}
+
+/*retourne 0 si absent, 1 sinon. De plus on considère que la fonction 
+ * identifiée par pt_compare retourne 0 si égalité, 1 sinon*/
+int g_estPresent(glist * l, void * data, int(* pt_compare)(void*, void*)){
+    glist * tmp = l;
+    while(tmp != NULL){
+        if(tmp->elt == data){return 1;}
+        if(pt_compare(data, tmp->elt) == 0){return 1;}
+        tmp = tmp->next;
+    }
+    return 0;
+}
+
+/*Supprimer les doublons d'une liste générique*/
+glist * g_deleteDuplicate(glist * l, void(* pt_freeFunction)(void *), int(* pt_compare)(void*, void*)){
+    glist * c1 = l, * c2 = l, * res = NULL, * tmp = NULL; 
+    int niv = 1, fl_set = 0;
+    while( c1 != NULL){
+        if(g_estPresent(res, c1->elt, pt_compare) == 0){ res = g_ajoutTete(res, c1->elt, c1->lst);}
+        c1 = c1->next;
+    }
+    /*pour certains termes de l il faut effectuer une suppression complète, pour d'autres ceux qui sont dans res
+     * il faut juste une suppression de pointeur*/
+    c2 = res, c1 = l;
+    while(c2 != NULL){
+        c1 = l; niv = 1;
+        while(c1 != NULL){
+            if(c1->elt == c2->elt){ 
+                tmp = c1; 
+                if(niv == 1) {l = c1->next;}
+                c1 = c1->next; free(tmp); tmp = NULL; fl_set = 1;
+            }
+            if(c1->elt != c2->elt && pt_compare(c1->elt, c2->elt) == 0){l = g_supprimElt(l, c2->elt, pt_freeFunction);}
+            if(fl_set == 0){c1 = c1->next;}
+            ++niv;
+        }
+        c2 = c2->next;
+    }
+    return res;
 }

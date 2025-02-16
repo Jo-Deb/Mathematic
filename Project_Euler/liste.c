@@ -59,11 +59,12 @@ void afficheCycle(liste * l, int elt, int taille){
 }
 
 void afficheListe(liste * l){
-	liste * tmp = l;
-	while (tmp != NULL){
+    if(l == NULL){printf("la liste %p est vide\n", l); return;}
+	 liste * tmp = l;
+	 while (tmp != NULL){
 		printf("%d ", tmp->value);
 		tmp = tmp->l;
-	}
+	 }
 }
 
 int taille(liste * l){
@@ -233,16 +234,17 @@ liste * listTrie(liste * l){
 
 liste * sousListe(liste * l, int start, int end){
 	liste * pcr = l; liste * res = NULL;
-	if(start + end > taille(l)) {
+	if(end > taille(l) || start > taille(l) || end <= 0 || start <= 0) {
 		printf("l'intervalle demandé n'existe pas \n");
 		return NULL;
 	}
-	int position = 0;
+	int position = 1;
 	while(position < start){++position; pcr = pcr->l;}
-	if(start == end){ return ajoutEnTete(res, pcr->value); }
-	while(position < end){
-		res = ajoutEnTete(res, pcr->value);
-		if(pcr->l != NULL){pcr = pcr->l;}
+	if(start == end){ return ajoutEnQueue(res, pcr->value); }
+	while(position <= end){
+		  res = ajoutEnQueue(res, pcr->value);
+		  if(pcr->l != NULL){pcr = pcr->l;}
+        ++position;
 	}
 	return res;
 }
@@ -419,3 +421,13 @@ int best_majorant(int a, liste * l){
     return bm;
 }
 
+/*retourne 0 si les listes sont identiques, sinon 1*/
+int identique(liste * la, liste * lb){
+    if(taille(la) != taille(lb)){return 1;}
+    liste * tmp = la, * tmq = lb;
+    while(tmp != NULL){
+        if(tmp->value != tmq->value){return 1;}
+        tmp = tmp->l; tmq = tmq->l;
+    }
+    return 0;
+}

@@ -279,6 +279,30 @@ glist * magicGongRing(glist * solTab){
     return res;
 }
 
+int identique2(void * l1, void * l2){ return identique((liste *)l1, (liste *)l2); }
+
+glist * secondMagicGong(glist * solTab){
+    if(solTab == NULL){ printf("secondMagicGong: la liste en entrée est nulle\n"); return NULL; }
+    glist * tmp = solTab, * res = NULL;
+    int pos,ltaille;
+    liste *la = NULL, *lb = NULL, *lt = NULL;
+    while( tmp != NULL){
+        lt = (liste*)tmp->elt;
+        ltaille = taille(lt);
+        pos = positionMinExterne(lt);
+        if(pos == 1){ res = g_ajoutTete(res,(void*)lt, NULL);}
+        else{
+            la = sousListe(lt, pos, ltaille);
+            lb = sousListe(lt, 1, pos-1);
+            la = concateneListe(la, lb);
+            res = g_ajoutTete(res, (void*) la, NULL);
+        }    
+        tmp = tmp->next;
+        la = NULL, lb = NULL, lt = NULL;
+    }
+    return g_deleteDuplicate(res, vfreeListe, identique2);
+}
+
 char * brancheTochar(liste * lst){
 //On doit d'abord calculer la taille de la branche
     liste * tmp = lst;
@@ -508,6 +532,7 @@ liste * glist_to_liste(glist * gl ){
 
 /*Il s'agit de changer une list en listes*/
 liste * list_to_liste(list * l){
+    if(l == NULL) {return NULL;}
     list * tmp = l; 
     liste * res = NULL;
     while(tmp != NULL){
@@ -533,7 +558,7 @@ int set_val_for_test(glist * etud, int parcours, int * len){
     while(gl_isPresent(tested_elt, parcours) && parcours < NBR_ELT_ALLVALUE){++parcours;}
     if(gl_isPresent(tested_elt, parcours)==0){return parcours;}
     /*si toutes les valeurs ont été testées alors l'élément tmp doit être supprimé*/
-    if(gl_isPresent(tested_elt, parcours) && parcours==NBR_ELT_ALLVALUE){ etud = g_supprimElt(etud, tmp->elt); --(*len); parcours=0;}
+    if(gl_isPresent(tested_elt, parcours) && parcours==NBR_ELT_ALLVALUE){ etud = g_supprimElt(etud, tmp->elt, vfreeListe); --(*len); parcours=0;}
     /*récursif terminal*/
     return set_val_for_test(etud, parcours, len);
 }
@@ -661,8 +686,9 @@ glist * all_with_more(glist * allValue){
                 loop2 = loop2->next;
                 loop2_lst = NULL;
             }
-            printf("[all_with_more] liste pour %d : ", loop1_lst->value); afficheList(lst); printf("\n");
-            g_intAjoutFin(res, loop1_lst->value, lst);
+            //printf("[all_with_more] liste pour %d : ", loop1_lst->value); afficheList(lst); printf("\n");
+            if(res == NULL){res = g_intAjoutTete(NULL, loop1_lst->value, lst);}
+            else{g_intAjoutFin(res, loop1_lst->value, lst);}
             loop1_lst = loop1_lst->l;
         }
         loop1 = loop1->next;
@@ -689,15 +715,154 @@ list * get_link_values(int n, glist * alv){
     if(alv == NULL){return NULL;}
     
     while(prc != NULL){
-        if(n == *(int*)prc->elt){return listCopie(prc->lst);}
+        if(n == *(int*)prc->elt){
+            if(prc->lst == NULL){return NULL;}
+            return listCopie(prc->lst);
+        }
         prc = prc->next;
     }
     printf("%d n'est pas une branche du tableau global\n", n);
     return NULL;
 }
 
-void gestionCycle(glist * allvalues, glist * etud, int * parcours){
-    
+/*Teste si le 1er et 3eme chiffre de la branche (br) sont déjà dans la liste 
+ * si on retourne 0 pas de cycle, si 1 alors un cycle est présent*/
+int is_a_cycle(int br, liste * sp){
+    liste * tmp = sp;
+    int * tab = decompose_node(br), *ttab = NULL, cpt0=0, cpt1=0, cpt2=0, i;
+    while(tmp!=NULL){
+        ttab = decompose_node(tmp->value);
+        for(i=0; i<3; ++i){
+            if(tab[0]==ttab[i]){++cpt0;}
+            if(tab[1]==ttab[i]){++cpt1;}
+            if(tab[2]==ttab[i]){++cpt2;}
+        }
+        tmp = tmp->l;
+    }
+    if(cpt0 == 0 && cpt1 == 1 && cpt2 == 0){return 0;}
+    return 1;
+}
+
+/*il y a 2 tests à faire : s'assurer que le 1er digit de la branche n'est pas dans sp
+ * 2 test : s'assurer que le 1er élément de la liste est dans la liste des liens de la branche
+ */
+int isDernierEltOk(int br, liste * sp, glist * awm){
+    //1er test
+    liste * tmp = sp, * lien = list_to_liste(get_link_values(br, awm));
+    /*return 1 si la 1ère branche de sp n'est pas un lien de br*/
+    if(EstPresent(lien, tmp->value)){return 1;}
+    //2ème test
+    int * tb = decompose_node(br), * tab = NULL, i, cpt = 0;
+    while(tmp != NULL){
+        tab = decompose_node(tmp->value);
+        for(i=0; i<3; ++i){ if(tb[0]==tab[i]){++cpt;} }
+        tmp = tmp->l;
+    }
+    /*Si le noeud externe tb[0] est décompté dans sp, alors présence de cycle*/
+    if(cpt){return 1;}
+   return 0;
+}
+
+/*cette fonction est à utiliser uniquement dans potentiel, elle prend argument des pointeurs
+ * sur des variables provenant de potentiel. Elle permet d'assurer une valeur non nulle
+ * à la liste des lien*/
+void search_next_link_list(glist * awm, liste ** buildSol, liste ** link_brch, int * cur, int * prev){
+    int old_cur = 0, old_cur_pos = 0, i;
+    //1ère boucle pour identifier s'il reste des valeurs à tester dans link_brch
+    while(*link_brch != NULL && (*link_brch)->l != NULL){
+        *link_brch = (*link_brch)->l;
+        if(get_link_values((*link_brch)->value, awm) != NULL){return;}
+    }
+
+    /*Si link_brch est nulle, il faut retirer le cur  de buildSol et identifier dans la link_brch précédente
+    /si il y a certaines valeurs non-testées et on itère de cette façon dans une boucle do while*/
+    do{
+        //printf("search_next_link_list::A::situation: cur = %d, prev = %d, old_cur = %d\n", *cur, *prev, old_cur);
+        //printf("search_next_link_list::B::buildSol = "); afficheListe(*buildSol);printf("\n");
+        //printf("search_next_link_list::C::link_brch= "); afficheListe(*link_brch);printf("\n");
+        old_cur = *cur;
+        if(taille(*buildSol)>1){ *buildSol = supprElt(*buildSol, *cur);} 
+        else { 
+            //printf("search_next_link_list: buildSol et link_brch seront vidés et mis à NULL\n");
+            supprimeListe(*buildSol); *buildSol = NULL; 
+            *link_brch = NULL;
+            return;
+        }
+        //printf("search_next_link_list::D::buildSol = "); afficheListe(*buildSol); printf("\n");
+        *cur = lastElement(*buildSol);
+        *link_brch = list_to_liste(get_link_values(*cur, awm));
+        //printf("search_next_link_list::E::link_brch = "); afficheListe(*link_brch); printf("\n");
+        old_cur_pos = getPosition(*link_brch, old_cur); //printf("search_next_link_list::F: old_cur_pos = %d\n", old_cur_pos);
+        if(old_cur_pos < taille(*link_brch)){ for(i=0; i < old_cur_pos; i++){ *link_brch = (*link_brch)->l; } } 
+        else {*link_brch = NULL; /*printf("search_next_link_list::G:on a mis link_brch à NULL\n");*/}
+        //printf("search_next_link_list::H:link_brch = "); afficheListe(*link_brch); printf("\n");
+        if(taille(*buildSol) > 1){* prev = precedent(*buildSol, *cur);} else { *prev = *cur;}
+        //printf("search_next_link_list::J::situation: cur = %d, prev = %d, old_cur_pos = %d\n", *cur, *prev, old_cur_pos);
+        //if(*buildSol != NULL){printf("search_next_link_list::K::buildSol = "); afficheListe(*buildSol);printf("\n");}
+        //if(*link_brch!= NULL){printf("search_next_link_list::L::link_brch= "); afficheListe(*link_brch);printf("\n");}
+    }while(*link_brch == NULL && *cur != getValue(*buildSol, 1));
+    return;
+}
+
+/*On récupère toutes les branches ainsi que leurs liens et on compose
+ * pour sortir les solutions potentielles*/
+glist * potentiel(glist * awm){
+    glist *pawm = awm, * res = NULL;
+    while(pawm->lst == NULL){pawm = pawm->next;}
+    int cur, prev, tbrch = 0;
+    liste * link_brch = NULL, * buildSol = NULL;
+   /*1er while pour boucler sur toutes les branches afin de trouver
+   /les solutions potentielles démarrant par chaque branche*/
+    while(pawm != NULL){
+        buildSol = ajoutEnTete(NULL, *((int *)pawm->elt));
+        prev = cur = lastElement(buildSol);
+        link_brch = list_to_liste(get_link_values(cur, awm));
+        /*Ce pointeur va beaucoup commuter entre différentes adresses
+        afin de toujours indiquer la liste de lien en cours */
+        while(link_brch != NULL){
+            if(taille(buildSol) < 4){ //si < 4 on cherche une valeur adéquate pour agrandir buildSol
+                tbrch = link_brch->value; //on récupère un lien de branchement
+                if(is_a_cycle(tbrch, buildSol) == 0){ 
+                    //printf("potentiel::contexte::A: tbrch=%d, cur=%d, prev=%d\n", tbrch, cur, prev);
+                    //printf("potentiel::buildSol::B: = "); afficheListe(buildSol); printf("\n");
+                    //printf("potentiel::link_brch::C: = "); afficheListe(link_brch); printf("\n");
+                    //la branche tbrch n'apporte pas de cycle, on l'ajoute à la solution en construction
+                    buildSol = ajoutEnQueue(buildSol, tbrch); 
+                    //la liste des prochaines valeurs potentielles est la liste de lien de tbrch;
+                    prev = cur; cur = lastElement(buildSol);
+                    if((link_brch = list_to_liste(get_link_values(cur, awm))) == NULL){
+                        search_next_link_list(awm, &buildSol, &link_brch, &cur, &prev); 
+                    }
+                    //printf("potentiel::contexte::D: tbrch=%d, cur=%d, prev=%d\n", tbrch, cur, prev);
+                    //printf("potentiel::buildSol::E: = "); afficheListe(buildSol); printf("\n");
+                    //printf("potentiel::link_brch::F: = "); afficheListe(link_brch); printf("\n");
+                }else{search_next_link_list(awm, &buildSol, &link_brch, &cur, &prev);}
+            }
+            else{ //si dans ce else alors taille(buildSol) == 4
+                //si la condition du if est validée, une solution a été trouvée!
+                //printf("potentiel::contexte::G: tbrch=%d, cur=%d, prev=%d\n", tbrch, cur, prev);
+                //printf("potentiel::buildSol::H: = "); afficheListe(buildSol); printf("\n");
+                //printf("potentiel::link_brch::I: = "); afficheListe(link_brch); printf("\n");
+                tbrch = link_brch->value;
+                if(isDernierEltOk(tbrch, buildSol, awm) == 0){
+                    buildSol = ajoutEnQueue(buildSol,tbrch);
+                    res = g_ajoutTete(res, (void*) buildSol, NULL);
+                    //printf("potentiel::M: une solution potentielle a été trouvée pour %d\n", *(int*)pawm->elt);
+                    buildSol = recopie(buildSol); buildSol = supprElt(buildSol, tbrch);
+                    search_next_link_list(awm, &buildSol, &link_brch, &cur, &prev);
+                    //printf("potentiel::contexte::J: tbrch=%d, cur=%d, prev=%d\n", tbrch, cur, prev);
+                    //printf("potentiel::buildSol::K: = "); afficheListe(buildSol); printf("\n");
+                    //printf("potentiel::link_brch::L: = "); afficheListe(link_brch); printf("\n");
+                }
+                else{search_next_link_list(awm, &buildSol, &link_brch, &cur, &prev);}
+            }
+        }
+        pawm = pawm->next;
+        //if(pawm!=NULL){printf("############ potentiel: calculs pour %d débutent ############\n", *((int *)pawm->elt));}
+    }
+    if(res == NULL){printf("search_next_link_list: pas de solution identifiée\n");}
+    else {printf("potentiel: %d solutions identifiées\n", g_listLongueur(res));}
+    return res;
 }
 
 
@@ -734,15 +899,18 @@ int main(int argc, char ** argv){
         if((res = check(ret)) == 0){
             printf("voici la liste des valeurs pour %d:\n", i);
             possibleBranche = generateAllValue(ret);
+            if(possibleBranche == NULL){ return 1; }
             awm = all_with_more(possibleBranche);
-            see_all_with_more(awm);
             //printf("ci-dessous le tableau complet pour la valeur %d\n", i);
             //solTab=gatherPotentialSolution(possibleBranche);
-            solTab=getPotentialSolution(possibleBranche, lwork, allSol, 0);
+            //solTab=getPotentialSolution(possibleBranche, lwork, allSol, 0);
+            //see_all_with_more(awm);
+            solTab = potentiel(awm);
             printf("___________________Solutions potentielle pour %d________________________\n", i);
             g_afficheList(solTab, afficheListe68);
             printf("_____________Solutions avec bon ordre des branches %d___________________\n", i);
             allSol = magicGongRing(solTab);
+            //allSol = secondMagicGong(solTab);
             g_afficheList(allSol, afficheListe68);
             if(allSol != NULL){
                 lmax = trouveMax(allSol);
