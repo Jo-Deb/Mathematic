@@ -281,6 +281,17 @@ glist * magicGongRing(glist * solTab){
 
 int identique2(void * l1, void * l2){ return identique((liste *)l1, (liste *)l2); }
 
+/*renvoie une glist de liste sans doublon*/
+glist * dedoubler(glist * gl){
+    glist * res = NULL, * tmp = gl;
+    while(tmp != NULL){
+       if(g_estPresent(res, tmp->elt, identique2) == 0){res = g_ajoutTete(res,(void *)recopie((liste*)tmp->elt), NULL); } 
+       tmp = tmp->next;
+    }
+    g_freeGenList(gl, vfreeListe); 
+    return res;
+}
+
 glist * secondMagicGong(glist * solTab){
     if(solTab == NULL){ printf("secondMagicGong: la liste en entrée est nulle\n"); return NULL; }
     glist * tmp = solTab, * res = NULL;
@@ -300,7 +311,7 @@ glist * secondMagicGong(glist * solTab){
         tmp = tmp->next;
         la = NULL, lb = NULL, lt = NULL;
     }
-    return g_deleteDuplicate(res, vfreeListe, identique2);
+    return dedoubler(res);
 }
 
 char * brancheTochar(liste * lst){
@@ -909,8 +920,8 @@ int main(int argc, char ** argv){
             printf("___________________Solutions potentielle pour %d________________________\n", i);
             g_afficheList(solTab, afficheListe68);
             printf("_____________Solutions avec bon ordre des branches %d___________________\n", i);
-            allSol = magicGongRing(solTab);
-            //allSol = secondMagicGong(solTab);
+            //allSol = magicGongRing(solTab);
+            allSol = secondMagicGong(solTab);
             g_afficheList(allSol, afficheListe68);
             if(allSol != NULL){
                 lmax = trouveMax(allSol);

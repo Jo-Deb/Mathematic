@@ -33,7 +33,6 @@ glist * g_ajoutTete(glist * l, void * data, list * inner_list){
 	return inst;
 }
 
-
 glist * g_intAjoutTete(glist * l, int data, list * inner_list){
     glist * head = (glist *) malloc(sizeof(glist));
     head->elt = malloc(sizeof(int));
@@ -42,7 +41,6 @@ glist * g_intAjoutTete(glist * l, int data, list * inner_list){
     if(l==NULL){head->next = NULL;}else{head->next=l;}
     return head;
 }  
-
 
 void g_intAjoutFin(glist * l, int data, list * inner_list){
     int * ptr = malloc(sizeof(int));
@@ -78,6 +76,7 @@ glist * g_supprimElt(glist * l, void * data, void(* pt_freeFunction)(void *)){
          if(position == 1){prec = tmp->next; free(tmp); tmp=NULL; return prec;}
          else{prec->next = tmp->next;}
          free(cibl); cibl = NULL;
+         return l;
 		}
 		prec = tmp; tmp=tmp->next;
 	}
@@ -159,28 +158,11 @@ int g_estPresent(glist * l, void * data, int(* pt_compare)(void*, void*)){
 
 /*Supprimer les doublons d'une liste générique*/
 glist * g_deleteDuplicate(glist * l, void(* pt_freeFunction)(void *), int(* pt_compare)(void*, void*)){
-    glist * c1 = l, * c2 = l, * res = NULL, * tmp = NULL; 
-    int niv = 1, fl_set = 0;
+    glist * c1 = l, * res = NULL, * tmp = l;
     while( c1 != NULL){
-        if(g_estPresent(res, c1->elt, pt_compare) == 0){ res = g_ajoutTete(res, c1->elt, c1->lst);}
+        if(g_estPresent(res, c1->elt, pt_compare) == 0){ res = g_ajoutTete(res,(void*)recopie((liste *)c1->elt), c1->lst);}
         c1 = c1->next;
     }
-    /*pour certains termes de l il faut effectuer une suppression complète, pour d'autres ceux qui sont dans res
-     * il faut juste une suppression de pointeur*/
-    c2 = res, c1 = l;
-    while(c2 != NULL){
-        c1 = l; niv = 1;
-        while(c1 != NULL){
-            if(c1->elt == c2->elt){ 
-                tmp = c1; 
-                if(niv == 1) {l = c1->next;}
-                c1 = c1->next; free(tmp); tmp = NULL; fl_set = 1;
-            }
-            if(c1->elt != c2->elt && pt_compare(c1->elt, c2->elt) == 0){l = g_supprimElt(l, c2->elt, pt_freeFunction);}
-            if(fl_set == 0){c1 = c1->next;}
-            ++niv;
-        }
-        c2 = c2->next;
-    }
+    while(l != NULL){tmp = l; l = l->next; free(tmp);}
     return res;
 }
