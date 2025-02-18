@@ -160,7 +160,7 @@ int g_estPresent(glist * l, void * data, int(* pt_compare)(void*, void*)){
 glist * g_deleteDuplicate(glist * l, void(* pt_freeFunction)(void *), int(* pt_compare)(void*, void*)){
     glist * c1 = l, * res = NULL, * tmp = l;
     while( c1 != NULL){
-        if(g_estPresent(res, c1->elt, pt_compare) == 0){ res = g_ajoutTete(res,(void*)recopie((liste *)c1->elt), c1->lst);}
+        if(g_estPresent(res, c1->elt, pt_compare) == 0){ res = g_ajoutTete(res,c1->elt, c1->lst);}
         c1 = c1->next;
     }
     while(l != NULL){tmp = l; l = l->next; free(tmp);}
