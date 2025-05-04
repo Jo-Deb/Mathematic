@@ -330,6 +330,9 @@ char * brancheTochar(liste * lst){
 /*On compare b1 à b2. Si b1 est plus grand on renvoie 1 si plus petit -1
  * si égalité 0*/
 int compareString(char * b1, char * b2){
+   if(b1 == NULL && b2 == NULL){return 0;}
+   if(b1 == NULL && b2 != NULL){return -1;}
+   if(b1 != NULL && b2 == NULL){return 1;}
    int tb1 = strlen(b1), tb2 = strlen(b2);
    if(tb1 > tb2){return 1;}
    if(tb1 < tb2){return -1;}
@@ -341,16 +344,22 @@ int compareString(char * b1, char * b2){
 }
 
 liste * trouveMax(glist * allSol){
+    if(allSol == NULL) {printf("trouveMax: allSol est nulle. trouveMax retournera NULL\n"); return NULL;}
     char *smax = NULL, *sanalyse = NULL;
-    glist * tmp = allSol->next;
-    liste * lmax = (liste *) allSol->elt;
-    while(tmp != NULL){
-        smax = brancheTochar(lmax); sanalyse = brancheTochar((liste *)tmp->elt);
-        if(compareString(smax, sanalyse) <= 0){ lmax = (liste *)tmp->elt;}
+    glist * tmp = allSol;
+    liste * lmax = NULL;
+    do{
+        //on doit trouver le plus grand 16 digit
+        while(tmp != NULL && strlen(brancheTochar((liste*)tmp->elt)) > 16){ tmp = tmp->next; }
+        if(tmp == NULL){break;}
+        sanalyse = brancheTochar((liste*)tmp->elt);
+        if(compareString(smax, sanalyse) <= 0){
+            free(smax); free(sanalyse); smax = NULL; sanalyse = NULL;
+            lmax = (liste*)tmp->elt;
+            smax = brancheTochar(lmax);
+        }
         tmp = tmp->next;
-        free(smax); free(sanalyse);
-        smax = NULL; sanalyse = NULL;
-    }
+    }while(tmp != NULL);
     return lmax;
 }
 
@@ -886,7 +895,7 @@ int main(int argc, char ** argv){
         if((res = check(ret)) == 0){
             printf("voici la liste des valeurs pour %d:\n", i);
             possibleBranche = generateAllValue(ret);
-            if(possibleBranche == NULL){ return 1; }
+            if(possibleBranche == NULL){ g_afficheList(allMax, afficheListe68); g_freeGenList(allMax, vfreeListe); return 1; }
             awm = all_with_more(possibleBranche);
             //see_all_with_more(awm);
             solTab = potentiel(awm);
@@ -909,6 +918,7 @@ int main(int argc, char ** argv){
         supprimeListe(ret); ret = NULL;
         g_freeGenList(possibleBranche, vfreeListe);
         possibleBranche = NULL;
+        g_afficheList(allMax, afficheListe68);
     }
     if(allMax != NULL){
         printf("Voici la solution max : "); afficheListe(trouveMax(allMax)); printf("\n");
