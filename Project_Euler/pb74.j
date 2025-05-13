@@ -9,16 +9,24 @@ liste =: 1 2 3 4 5
 (":"liste) fappends 'pb74.txt'    NB. permet d'ajouter la liste au fichier pb74.txt
 
 lg =: ''
-fres =: ''
+fres =: 1 2 $ _1 _1
 
-v =: sf
+v =: monad : 0
+lg =: lg, y
+sf y
+)
+
 u =: monad : 0
 _3 Z: 70                                           NB. limiter à 70 itérations maximum
-if. y e. lg do. _2 Z: 1 else. lg =: lg,y end.
-vc =. {."1 fres
-index_y =. (y i.~ {."1 fres)
+vc =: {."1]fres
+if. (y e. vc) *. (1 = #lg) do. _2 Z: 1 end.
+if. y e. lg do. 
+    fres =: fres, (({.lg), (#lg)) 
+    _2 Z: 1 
+end.
+index_y =: (y i.~ {."1]fres)
 if. index_y < #vc do.
-    info =. (index_y 0) {. fres
+    info =: (index_y,0) {. fres
     fres =: fres, (0{.info, (1{.info) + index_y)
     _2 Z: 1
 end.
@@ -28,6 +36,7 @@ y
 vfold =: monad : 0
 if. 0 = #y do. _2 Z: 1 end.
 lg =: ''
+res =: ''
 res =: u F: v {.y 
 head =: {.y
 lg =: head, lg
