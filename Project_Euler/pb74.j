@@ -8,27 +8,38 @@ NB. pour retirer les éléments d'une liste il faut utiliser x -. y qui retourne
 liste =: 1 2 3 4 5
 (":"liste) fappends 'pb74.txt'    NB. permet d'ajouter la liste au fichier pb74.txt
 
+prerequis =: monad : 0 
 lg =: ''
 fres =: 1 2 $ _1 _1
+)
 
 v =: monad : 0
 lg =: lg, y
 sf y
 )
 
+cal_all =: dyad : 0
+x =: x, (({.y), #lg)
+
 u =: monad : 0
 _3 Z: 70                                           NB. limiter à 70 itérations maximum
 vc =: {."1]fres
-if. (y e. vc) *. (1 = #lg) do. _2 Z: 1 end.
+if. (y e. vc) *. (1 = #lg) do. 
+    1 Z: 1 
+    y return. 
+end.
 if. y e. lg do. 
     fres =: fres, (({.lg), (#lg)) 
-    _2 Z: 1 
+    1 Z: 1                                         NB. indique que c'est la dernière itération et exécute le return qui suit
+    y return.
 end.
 index_y =: (y i.~ {."1]fres)
 if. index_y < #vc do.
-    info =: (index_y,0) {. fres
-    fres =: fres, (0{.info, (1{.info) + index_y)
-    _2 Z: 1
+    info =: index_y { fres
+    fres =: fres, (({.lg), (1{info) + #lg)
+    lg =: lg, y
+    1 Z: 1                                         NB. indique qu'il s'agit de l'itération finale et exécute le return qui suit
+    y return.
 end.
 y
 )
@@ -36,12 +47,8 @@ y
 vfold =: monad : 0
 if. 0 = #y do. _2 Z: 1 end.
 lg =: ''
-res =: ''
-res =: u F: v {.y 
-head =: {.y
-lg =: head, lg
-nexty =: y -. res
-nexty -. head
+u F: v {.y 
+1 }. y
 )
 
 ufold_old =: monad : 0
