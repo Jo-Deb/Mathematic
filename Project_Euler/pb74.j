@@ -13,30 +13,42 @@ lg =: ''
 fres =: 1 2 $ _1 _1
 )
 
+parse_list =: monad : 0
+    d =: {: y
+    l =: ({.,#)\. y
+    in =: y i. (sf d)
+    data =: in { l
+    (}:l), (d, (1{data) )
+)
+
+NB. prend un nombre et la longueur de sa suite factorielle dans le contexte du pb74
+middle_parse =: dyad : 0
+    tl =: 1 { x
+    ({:,tl&-@:#) \ y
+)
+
 v =: monad : 0
 lg =: lg, y
 sf y
 )
 
-cal_all =: dyad : 0
-x =: x, (({.y), #lg)
-
 u =: monad : 0
 _3 Z: 70                                           NB. limiter à 70 itérations maximum
-vc =: {."1]fres
-if. (y e. vc) *. (1 = #lg) do. 
-    1 Z: 1 
-    y return. 
+vc =: {."1 ] fres
+index_y =: vc i. y
+if. (index_y < #vc) *. (1 = #lg) do. 
+    1 Z: 1
+    y return.
 end.
 if. y e. lg do. 
-    fres =: fres, (({.lg), (#lg)) 
+    fres =: fres, (parse_list lg) 
     1 Z: 1                                         NB. indique que c'est la dernière itération et exécute le return qui suit
     y return.
 end.
-index_y =: (y i.~ {."1]fres)
-if. index_y < #vc do.
+if. (index_y < #vc) do.
     info =: index_y { fres
     fres =: fres, (({.lg), (1{info) + #lg)
+    fres =: fres, ( ({:fres) middle_parse (}.lg) )
     lg =: lg, y
     1 Z: 1                                         NB. indique qu'il s'agit de l'itération finale et exécute le return qui suit
     y return.
@@ -48,7 +60,9 @@ vfold =: monad : 0
 if. 0 = #y do. _2 Z: 1 end.
 lg =: ''
 u F: v {.y 
-1 }. y
+vdr =: y -. lg
+echo 'nbr elt retour ', ":#vdr
+vdr
 )
 
 ufold_old =: monad : 0
