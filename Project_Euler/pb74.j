@@ -61,7 +61,6 @@ if. 0 = #y do. _2 Z: 1 end.
 lg =: ''
 u F: v {.y 
 vdr =: y -. lg
-echo 'nbr elt retour ', ":#vdr
 vdr
 )
 
@@ -77,3 +76,37 @@ ufold =: monad : 0
 
 ufold F: vfold (3+i.(1e6-3))
 +/ 60 = 1 {"1 (ufold F: vfold (3 + i.(1e6-3) ) )         NB. ne marche pas très bien
+NB.################################################################################################################
+NB. On essaie une nouvelle solution, la précédente ne peut pas gérer le seuil de 1000000
+itl =: 10&(#.^:_1)   NB. monad qui prend un nombre et retourne une liste
+sf =: +/@:!@:itl       NB. prend un entier en entrée et retourne la somme des factorielles des digits qui composent l'entier
+m =: (],.sf)"0 i.1e6
+lg =: ''
+NB. calculer la chaine factorielle
+callg =: monad : 0
+    e1 =: {.lg
+    idx =: < (e1, 2)
+    tch =: 2 { (y{m)
+    NB. si y est dans lg
+    if. (y e. lg) do.
+        m =: #lg idx} m
+        lg return.
+    end.
+    NB. si y n'est pas dans lg et qu'on connait la taille de sa chaine factorielle
+    if. (0 = y e. lg) *. (tch > 0) do.
+        m =: (tch + #lg) idx} m
+        (lg =: lg, y) return.
+    end.
+    NB. Si on arrive ici c'est que y n'est pas dans lg et son tch n'est pas connu
+    lg =: lg, y
+    if. (0 = y e. lg) *. (y < 1e6) do. callg (1 { (y{m)) return. end.
+    callg (sf y)
+)
+
+v =: monad : 0 
+    lg =: ''
+    callg {.y
+    (":lg) fappends '/Users/jojo/Informatique/Mathematic/Project_Euler/pb74.txt'
+    (}. y return.)^:(#y>0)
+    lg
+)
