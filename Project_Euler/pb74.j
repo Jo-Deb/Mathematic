@@ -80,21 +80,30 @@ NB.#############################################################################
 NB. On essaie une nouvelle solution, la précédente ne peut pas gérer le seuil de 1000000
 itl =: 10&(#.^:_1)   NB. monad qui prend un nombre et retourne une liste
 sf =: +/@:!@:itl       NB. prend un entier en entrée et retourne la somme des factorielles des digits qui composent l'entier
+
+NB. une fonction initialise_m qui met en place les prérequis
+initialise_m =: monad : 0
+    m =: ((],.sf)"0 i.y) ,. (y,1)$0
+    lg =: ''
+)
+complete_lg =: monad : 0
+NB. à compléter
+)
 m =: (],.sf)"0 i.1e6
 lg =: ''
 NB. calculer la chaine factorielle
 callg =: monad : 0
     e1 =: {.lg
-    idx =: < (e1, 2)
-    tch =: 2 { (y{m)
+    if. (#lg) > 0 do. idx =: < (e1, 2) end.
+    if. y < {. $ m do. tch =: 2 { (y{m) else. tch =: 0 end.
     NB. si y est dans lg
     if. (y e. lg) do.
-        m =: #lg idx} m
+        m =: (#lg) idx } m
         lg return.
     end.
     NB. si y n'est pas dans lg et qu'on connait la taille de sa chaine factorielle
     if. (0 = y e. lg) *. (tch > 0) do.
-        m =: (tch + #lg) idx} m
+        m =: (tch + #lg) idx } m
         (lg =: lg, y) return.
     end.
     NB. Si on arrive ici c'est que y n'est pas dans lg et son tch n'est pas connu
@@ -104,9 +113,10 @@ callg =: monad : 0
 )
 
 v =: monad : 0 
+    echo 'traitement : ', (":{.y), ' en cours'
     lg =: ''
     callg {.y
-    (":lg) fappends '/Users/jojo/Informatique/Mathematic/Project_Euler/pb74.txt'
-    (}. y return.)^:(#y>0)
-    lg
+NB.    (":lg) fappends '/Users/jojo/Informatique/Mathematic/Project_Euler/pb74.txt'
+    if. 1<#y do. (}.y) return. end.
+    if. 1 = #y do. _2 Z: 1 end.
 )
