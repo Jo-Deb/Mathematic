@@ -85,9 +85,17 @@ NB. une fonction initialise_m qui met en place les prérequis
 initialise_m =: monad : 0
     m =: ((],.sf)"0 i.y) ,. (y,1)$0
     lg =: ''
+    nbrlm =: y
 )
-complete_lg =: monad : 0
-NB. à compléter
+NB. l'objectif de compléter les valeurs inférieurs à 100 pour lesquelles on ne connait pas la longueur
+NB. l'argument à gauche du verbe (x) représente la taille de la liste initiale d'où le préfixe est tiré.
+complete_lg =: dyad : 0
+    if. 0 = #y do. return. end.
+    ql =. {: y
+    if. ql < nbrlm do. 
+        idx =. <(ql, 2)
+        m =: (x - #y) idx } m
+    end.
 )
 m =: (],.sf)"0 i.1e6
 lg =: ''
@@ -95,15 +103,18 @@ NB. calculer la chaine factorielle
 callg =: monad : 0
     e1 =: {.lg
     if. (#lg) > 0 do. idx =: < (e1, 2) end.
-    if. y < {. $ m do. tch =: 2 { (y{m) else. tch =: 0 end.
+    if. y < nbrlm do. tch =: 2 { (y{m) else. tch =: 0 end.
+    if.(0 = #lg) *. (tch > 0) do. y return. end.
     NB. si y est dans lg
     if. (y e. lg) do.
         m =: (#lg) idx } m
+        (#lg)&complete_lg\ (}.lg)
         lg return.
     end.
     NB. si y n'est pas dans lg et qu'on connait la taille de sa chaine factorielle
     if. (0 = y e. lg) *. (tch > 0) do.
         m =: (tch + #lg) idx } m
+        (tch + #lg)&complete_lg\ (}.lg)
         (lg =: lg, y) return.
     end.
     NB. Si on arrive ici c'est que y n'est pas dans lg et son tch n'est pas connu
@@ -116,7 +127,24 @@ v =: monad : 0
     echo 'traitement : ', (":{.y), ' en cours'
     lg =: ''
     callg {.y
-NB.    (":lg) fappends '/Users/jojo/Informatique/Mathematic/Project_Euler/pb74.txt'
+    (":lg) fappends '/Users/jojo/Informatique/Mathematic/Project_Euler/pb74.txt'
     if. 1<#y do. (}.y) return. end.
     if. 1 = #y do. _2 Z: 1 end.
 )
+NB. les deux instructions suivantes ont permis d'avoir le résultat.
+initialise_m 1000000
+]F.v i.1000000
+NB. maintenant il faut trier m et garder uniquement les lignes qui ont une valeur supérieure ou égale à 60
+60 >: 2({"1)m
+NB. identifier les indices
+I. 60 <: 2{"1]m
+
+NB. Olegyk code 
+NB. cette fonction n permet de casser un nombre en ces digits et de calculer la somme 
+NB. de la valeur factorielle de chaque digit
+n=: +/@(!@"."0@":@x:) NB. x: permet de récupérer l'entrée de la monade et d'en déterminer le rang, 
+NB. ensuite cette entrée est donnée à la fonction ": "
+N=: n"0 i.1000000
++/60&=#@((,`[@.(e.~) n`({&N)@.(<&1e6)@{:)^:_)"0 i.1e6
+
+(,`[@.(e.~) n`({&N)@.(<&1e6)@{:) NB. Hook : [x] (u v) y = (x or y) u v y
