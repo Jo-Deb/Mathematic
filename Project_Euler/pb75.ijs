@@ -71,8 +71,10 @@ diophante =: dyad : 0
 NB. ac ad
 NB. bc bd
     t  =. x */ y
-    l1 =. (*:((<0;0) { t) - ((<1;1){t)) , (*:((<0;1) { t) + ((<1;0){t)) 
-    l2 =. (*:((<0;0) { t) + ((<1;1){t)) , (*:((<0;1) { t) - ((<1;0){t)) 
+NB.    l1 =. (*:((<0;0) { t) - ((<1;1){t)) , (*:((<0;1) { t) + ((<1;0){t)) 
+NB.    l2 =. (*:((<0;0) { t) + ((<1;1){t)) , (*:((<0;1) { t) - ((<1;0){t)) 
+    l1 =. ((<0;0) { t) - ((<1;1){t) , ((<0;1) { t) + ((<1;0){t) 
+    l2 =. ((<0;0) { t) + ((<1;1){t) , ((<0;1) { t) - ((<1;0){t) 
     l1,:l2
 )
 NB. Fonction pour rechercher une valeur dans un tableau, elle retoune la liste des lignes dans lesquelles se trouve la valeur.
