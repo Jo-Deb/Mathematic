@@ -65,22 +65,45 @@ sommeCote =: 4 : 0
     tln =: ln { y NB. les décompositions des racines dans l'ordre de l'entrée x
     x,.tln,. (coef * +/"1 tln)
 )
+diophante =: dyad : 0
 NB. (a^2+b^2)(c^2+d^2) = (ac +/- bd)^2 + (ad -/+ bc)^2, la fonction ci-dessous représente ce calcul
 NB. le terme de gauche x est le vecteur (a b), le terme de droite y est le vecteur (c d)
-diophante =: dyad : 0
 NB. ac ad
 NB. bc bd
     t  =. x */ y
 NB.    l1 =. (*:((<0;0) { t) - ((<1;1){t)) , (*:((<0;1) { t) + ((<1;0){t)) 
 NB.    l2 =. (*:((<0;0) { t) + ((<1;1){t)) , (*:((<0;1) { t) - ((<1;0){t)) 
-    l1 =. ((<0;0) { t) - ((<1;1){t) , ((<0;1) { t) + ((<1;0){t) 
-    l2 =. ((<0;0) { t) + ((<1;1){t) , ((<0;1) { t) - ((<1;0){t) 
+    l1 =.(%:*:((<0;0) { t) - ((<1;1){t)) , (((<0;1) { t) + ((<1;0){t)) 
+    l2 =. (((<0;0) { t) + ((<1;1){t)) , (%:*:((<0;1) { t) - ((<1;0){t)) 
     l1,:l2
 )
+compute_coef =: 3 : 0
+NB. La fonction calcule les coefficients a et b d'un nombre carré x tel que a^2+b^2=x^2. Le calcul est en 2 parties, 
+NB. si les coef de la partie 1 et 2 sont dans A et B respectivement alors A*B donne une solution 
+NB. et A diophante B donne 2 autres solutions; cette fonction met en commun ces solutions.
+    part1 =. ''
+    lpp =. prime75 q:y
+    if. #lpp > 1 do. tb =. %search_2"0 lpp
+    else. 
+        min_pp =. <./q:y
+        vts =. (*/lpp) % min_pp
+        tmp =. (vts, 0) get_line resultat    NB. */lpp % min_pp = vts; cette ligne récupère toutes où sont les coeffcients 
+        tmp =. (<(i.#tmp);6 7) { tmp         NB. vts^2 = a^2+b^2
+        tb =. tmp                            NB. tb conserve les lignes de tmp pour lancer le calcul avec diophante
+        part1 =. min_pp * tmp                NB. part1 représente le 1er ensemble de solutions.
+    end.
+NB.    tb =. %:search_2"0 prime75 q:y        NB. on isole les triplets pythagoricien des pp
+    mc =.(<(i.#tb);1 2){ tb                  NB. on isole uniquement les coef a et b tel que pp^2 = a^2+b^2
+    f  =. diophante"(1,1)~
+    tb =. f/mc                               NB. on calcule tous les coefficient qui permettent d'écrire (*/pp)^2 = a^2+b^2
+    nbl=. (*/$tb) % 2
+    tb =. no_zero ~.(nbl,2) $ ;tb            NB. on travaille tb pour obtenir un tableau de nbl lignes et 2 colonnes
+    if. #part1 > 0 do. part1,tb end.
+)
+get_line =: dyad : 0
 NB. Fonction pour rechercher une valeur dans un tableau, elle retoune la liste des lignes dans lesquelles se trouve la valeur.
 NB. l'élément de gauche est un vecteur à 2 positions: élément 0 la valeur à rechercher et élément 1 la colonne du tableau 
 NB. dans laquelle se trouve cette valeur
-get_line =: dyad : 0
     elt =. 0 { x
     col =. (1{x) get_col y
     (I.elt&= col) { y
@@ -88,8 +111,8 @@ get_line =: dyad : 0
 NB. définir une nouvelle fonction qui initialise un tableau sur 11 colonnes
 initialise_res =: 3 : 'resultat =:(0 11) $i.0 '
 mod4 =: 3 : '4|y'                                                       NB. calcule le reste de la division par 4 
-NB. une fonction pour calculer les premiers termes si la valeur d'entrée le permet
 test_value =: 3 : 0
+NB. une fonction pour calculer les premiers termes si la valeur d'entrée le permet
     partie1 =: ''
     lp =.+/(1&=)mod4 q: y
     if. lp>:1 do.
@@ -97,6 +120,7 @@ test_value =: 3 : 0
     end.
 NB.  partie1
 )
+newsearch =: dyad : 0
 NB. Il faut définir une nouvelle fonction search. La valeur x est c, non élevé au carré, 
 NB. et y la variable resultat qui devra tout contenir. L'algorithme est le suivant : 
 NB. 1 - On teste c pour calculer ses premiers pythagoriciens pp, ses premiers égalent à 3 (mod 4), nommons-les op, 
@@ -104,7 +128,6 @@ NB. ainsi que leur valeurs au carré
 NB. 2 - on regarde si la valeur du produit des pp est déjà disponibles dans resultat (y) 
 NB. et si oui on effectue quelques multiplications par les op pour déterminer le résultat pour x et se résultat 
 NB. est ensuite joint au tableau resultat
-newsearch =: dyad : 0
     c =: x 
     if. nb=.(#((c,0) get_line y)) = 0 do.
         test_value c
@@ -121,15 +144,23 @@ NB.            echo 'on est entré dans le 2ème if'
         elseif. (#partie1 > 0) do. 
 NB.            echo 'on est entré dans le 3ème if'
             coef=.(5 get_col partie1)             
-            line =. search_2 x
-            a =: %:1 get_col line
-            b =: %:2 get_col line
+NB.         line =. search_2 x
+            line =. compute_coef (3 get_col partie1)
+NB.         a =: %:1 get_col line
+NB.         b =: %:2 get_col line
+            a =: coef * 0 get_col line
+            b =: coef * 1 get_col line
             tres =: (1 6) $ partie1
-            tres =: (((((tres,.a),.b),.(*:a)),.(*:b)),.(x+a+b))
+            tres =: tres,.(a,.(b,.((*:a),.((*:b),.(x+a+b)))))
 NB.            echo 'la valeur de tres est : ', (":tres)
             resultat =: resultat, tres
         end.
     end.
+)
+no_zero =: 3 : 0
+NB. récupérer les lignes où il n'y a pas de zéros dans les colonnes 0 et 1
+    lis =. (I.0&=(0 get_col y)),(I.0&=(1 get_col y))           NB. la liste des lignes contenant un zéro
+    ((i.#y) -. lis) { y
 )
 NB. exemple de valeur carré qui est représentable par des sommes de carré différentes : 25^2 = 24^2 + 7^2 ou 25^2 = 20^2 + 15^2
 NB. les déclenchements effectués pour la recherche du résultat
