@@ -38,6 +38,16 @@ search_2 =: monad : 0
     vc,ls
 )
 
+soses =: dyad : 0
+NB. y doit être un atome et une valeur carrée, celle-ci sera additionné à toutes les valeurs carrées dans m
+NB. les résultats qui seront des carrés et les sommes (%:y) + (%:x) + (%:val) qui seront inférieurs à 1500000 seront conservés
+    val =: y + x
+    mask =: val e. m_0             NB. conserve uniquement les éléments carrés
+    soses_res =: mask # val      NB. conserve uniquement les éléments carrés.
+NB.    (%:y),.(%:|soses_res-y),.(%:soses_res),.(%y)+(%:|soses_res-y)+(%:soses_res)
+    (%:y),.(%:soses_res-y),.(%:soses_res),.(%:y)+(%:soses_res-y)+(%:soses_res)
+)
+
 NB. x permet d'indiquer l'index de la colonne et y le tableau où se trouve la colonne
 get_col =: dyad : 0
     x {"1 ] y
@@ -70,35 +80,41 @@ NB. (a^2+b^2)(c^2+d^2) = (ac +/- bd)^2 + (ad -/+ bc)^2, la fonction ci-dessous r
 NB. le terme de gauche x est le vecteur (a b), le terme de droite y est le vecteur (c d)
 NB. ac ad
 NB. bc bd
-    t  =. x */ y
+    t  =.(2,2) $ ;x */ y
 NB.    l1 =. (*:((<0;0) { t) - ((<1;1){t)) , (*:((<0;1) { t) + ((<1;0){t)) 
 NB.    l2 =. (*:((<0;0) { t) + ((<1;1){t)) , (*:((<0;1) { t) - ((<1;0){t)) 
-    l1 =.(%:*:((<0;0) { t) - ((<1;1){t)) , (((<0;1) { t) + ((<1;0){t)) 
-    l2 =. (((<0;0) { t) + ((<1;1){t)) , (%:*:((<0;1) { t) - ((<1;0){t)) 
+    l1 =.(|((<0;0) { t) - ((<1;1){t)) , (((<0;1) { t) + ((<1;0){t)) 
+    l2 =. (((<0;0) { t) + ((<1;1){t)) , (|((<0;1) { t) - ((<1;0){t)) 
+    l1,:l2
+)
+
+diophante2 =: dyad : 0
+NB. (a^2+b^2)(c^2+d^2) = (ac +/- bd)^2 + (ad -/+ bc)^2, la fonction ci-dessous représente ce calcul
+NB. le terme de gauche x est le vecteur (a b), le terme de droite y est le vecteur (c d)
+NB. ac ad
+NB. bc bd
+    t  =.;x */ y
+NB.    l1 =. (*:((<0;0) { t) - ((<1;1){t)) , (*:((<0;1) { t) + ((<1;0){t)) 
+NB.    l2 =. (*:((<0;0) { t) + ((<1;1){t)) , (*:((<0;1) { t) - ((<1;0){t)) 
+    l1 =.(|@:(0&{ - 3&{),(1&{ + 2&{)) t 
+    l2 =.((0&{ + 3&{),|@:(1&{ - 2&{)) t
     l1,:l2
 )
 compute_coef =: 3 : 0
-NB. La fonction calcule les coefficients a et b d'un nombre carré x tel que a^2+b^2=x^2. Le calcul est en 2 parties, 
-NB. si les coef de la partie 1 et 2 sont dans A et B respectivement alors A*B donne une solution 
-NB. et A diophante B donne 2 autres solutions; cette fonction met en commun ces solutions.
-    part1 =. ''
-    lpp =. prime75 q:y
-    if. #lpp > 1 do. tb =. %search_2"0 lpp
+NB. La fonction calcule les coefficients a et b d'un nombre carré x tel que a^2+b^2=x^2. 
+NB. On calcule les facteurs premiers pythagoriciens et on applique la fonction diophante à l'ensemble 
+NB. Cette fonction sort tous les solutions possibles, ensuite on épure pour retirer les doublons et les lignes avec un coeff 0
+    part1 =: ''
+    lpp =: prime75 q:y
+    if. (#lpp) = 1 do. tb =: search_sqrt"0 lpp 
+        ((0 1),:((#tb),2))];.0 tb return.
     else. 
-        min_pp =. <./q:y
-        vts =. (*/lpp) % min_pp
-        tmp =. (vts, 0) get_line resultat    NB. */lpp % min_pp = vts; cette ligne récupère toutes où sont les coeffcients 
-        tmp =. (<(i.#tmp);6 7) { tmp         NB. vts^2 = a^2+b^2
-        tb =. tmp                            NB. tb conserve les lignes de tmp pour lancer le calcul avec diophante
-        part1 =. min_pp * tmp                NB. part1 représente le 1er ensemble de solutions.
+        t1 =: search_sqrt"0 lpp                       NB. on isole la matrice de coefficient
+        t2 =:((0 1),:((#t1),2))];.0 t1                NB. on isole la matrice de coefficient
     end.
-NB.    tb =. %:search_2"0 prime75 q:y        NB. on isole les triplets pythagoricien des pp
-    mc =.(<(i.#tb);1 2){ tb                  NB. on isole uniquement les coef a et b tel que pp^2 = a^2+b^2
-    f  =. diophante"(1,1)~
-    tb =. f/mc                               NB. on calcule tous les coefficient qui permettent d'écrire (*/pp)^2 = a^2+b^2
-    nbl=. (*/$tb) % 2
-    tb =. no_zero ~.(nbl,2) $ ;tb            NB. on travaille tb pour obtenir un tableau de nbl lignes et 2 colonnes
-    if. #part1 > 0 do. part1,tb end.
+    tmp =: diophante2"(1,1)/t2
+    nbl=: (*/$tmp) % 2                                NB. le nombre de lignes permet ensuite de construire un tableau à 2 dimensions
+    tb =: no_zero ~.(nbl,2) $ ; tmp                   NB. on travaille tb pour obtenir un tableau de nbl lignes et 2 colonnes
 )
 get_line =: dyad : 0
 NB. Fonction pour rechercher une valeur dans un tableau, elle retoune la liste des lignes dans lesquelles se trouve la valeur.
@@ -108,6 +124,16 @@ NB. dans laquelle se trouve cette valeur
     col =. (1{x) get_col y
     (I.elt&= col) { y
 )
+getLine2 =: dyad : 0
+NB. les paramètres sont identiques à ceux de get_line
+    val=: 0 { x
+    col=: 1 { x
+    ls=: col get_col y
+    start=: ls i. val
+    end=: ls I. (val+1)
+    (start + i.(end - start)) { y
+)
+
 NB. définir une nouvelle fonction qui initialise un tableau sur 11 colonnes
 initialise_res =: 3 : 'resultat =:(0 11) $i.0 '
 mod4 =: 3 : '4|y'                                                       NB. calcule le reste de la division par 4 
@@ -120,7 +146,7 @@ NB. une fonction pour calculer les premiers termes si la valeur d'entrée le per
     end.
 NB.  partie1
 )
-newsearch =: dyad : 0
+newsearch =: 3 : 0
 NB. Il faut définir une nouvelle fonction search. La valeur x est c, non élevé au carré, 
 NB. et y la variable resultat qui devra tout contenir. L'algorithme est le suivant : 
 NB. 1 - On teste c pour calculer ses premiers pythagoriciens pp, ses premiers égalent à 3 (mod 4), nommons-les op, 
@@ -128,30 +154,30 @@ NB. ainsi que leur valeurs au carré
 NB. 2 - on regarde si la valeur du produit des pp est déjà disponibles dans resultat (y) 
 NB. et si oui on effectue quelques multiplications par les op pour déterminer le résultat pour x et se résultat 
 NB. est ensuite joint au tableau resultat
-    c =: x 
-    if. nb=.(#((c,0) get_line y)) = 0 do.
+    c =: y 
+    if. nb=.(#((c,0) get_line resultat)) = 0 do.
         test_value c
-        if. (#partie1 > 0) do. tmp=.((3 get_col partie1), 0) get_line resultat end.
-NB.        echo 'la valeur de tmp est ',(":tmp)
+        if. (#partie1 > 0) do. tmp=:((3 get_col partie1), 0) get_line resultat end.
+        echo 'la valeur de tmp est ',(":tmp)
         if. (#tmp) > 0 do. 
-NB.            echo 'on est entré dans le 2ème if'
+            echo 'on est entré dans le 2ème if'
             coef=.(5 get_col partie1)             
             cola=.coef * (6 get_col tmp)
             colb=.coef * (7 get_col tmp)
-            tres =.(1 6) $ partie1
-            tres =.((((tres,.cola),.colb),.(*:cola)),.(*:colb)),.(x+cola+colb)
+            tres =.((#cola),6) $ partie1
+            tres =.tres,.cola,.colb,.(*:cola),.(*:colb),.(y+cola+colb)
             resultat =: resultat, tres
         elseif. (#partie1 > 0) do. 
-NB.            echo 'on est entré dans le 3ème if'
+            echo 'on est entré dans le 3ème if'
             coef=.(5 get_col partie1)             
-NB.         line =. search_2 x
-            line =. compute_coef (3 get_col partie1)
+NB.            line =. search_2 x
+            line =. compute_coef (2 get_col partie1)
 NB.         a =: %:1 get_col line
 NB.         b =: %:2 get_col line
             a =: coef * 0 get_col line
             b =: coef * 1 get_col line
-            tres =: (1 6) $ partie1
-            tres =: tres,.(a,.(b,.((*:a),.((*:b),.(x+a+b)))))
+            tres =: ((#a),6) $ partie1
+            tres =: tres,.a,.b,.(*:a),.(*:b),.(y+a+b)
 NB.            echo 'la valeur de tres est : ', (":tres)
             resultat =: resultat, tres
         end.
@@ -165,6 +191,7 @@ NB. récupérer les lignes où il n'y a pas de zéros dans les colonnes 0 et 1
 NB. exemple de valeur carré qui est représentable par des sommes de carré différentes : 25^2 = 24^2 + 7^2 ou 25^2 = 20^2 + 15^2
 NB. les déclenchements effectués pour la recherche du résultat
 initialise_m 750001
+m_0 =: }. m
 NB. la valeur carrée est sur la 1ère colonne
 pthgrc =: (],(+/&:(1&=)&:(4&|@:q:)))"0 (1+i.750000)
 NB. Identifier les triplets pythagoricien s'exprimant d'une seule et unique manière.
@@ -197,3 +224,20 @@ mesureCote =: 3 : '(other_prime * (%:@:search_2"0@:prime75)) y'         NB. donn
 (1500000&<: # ]) +/ mesureCote
 longueur =: monad def '+/"1@:(*/@:other_prime * %:@:search_2"0"@:prime75) y'
 tpu_reduit=: ((1500000&<)@:(2&*) # ]) (0 get_col tpu)                   NB. liste des racines carrées c où 2*c > 1500000
+
+NB. il est probable que tout le travail au-dessus soit une fausse piste, mais une fausse piste qui nous a mené à une autre plus prometteuse, on espère.
+nbp =: p:^:_1 (_4 p: 750000)
+NB. ci-dessous la phrase pour obtenir la liste des premiers égalent à 1 (mod 4) et inférieurs ou égale à 750000
+lpp =: ((1&=@:mod4) # ]) p: i.(nbp+1)
+triplet_premier =: %:search_2"0 lpp
+NB. la liste des triplet pytagoriciens premiers ayant la somme de leurs 3 côtés inférieure à 1500000
+tps =: (1500000&>:@:(3&get_col)#]) (],.+/"1) triplet_premier
+ltps =: (3 get_col tps)
+NB. la liste des longueurs qu'on va analyser
+len_val =: 12+i.(150001-12)
+NB. une fonction qui retourne le nombre d'élément plus que y
+NB. faire une fonction qui calcule le nombre de triplet pytagoricien de longueur y
+how_many_tps =: monad : 0
+    short_ltps =. (i.y) { ltps
+    y,+/(0&=) (|&y) short_ltps 
+)
