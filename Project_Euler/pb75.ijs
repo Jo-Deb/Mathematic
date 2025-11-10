@@ -117,8 +117,9 @@ NB. Cette fonction sort tous les solutions possibles, ensuite on épure pour ret
     tb =: no_zero ~.(nbl,2) $ ; tmp                   NB. on travaille tb pour obtenir un tableau de nbl lignes et 2 colonnes
 )
 get_line =: dyad : 0
-NB. Fonction pour rechercher une valeur dans un tableau, elle retoune la liste des lignes dans lesquelles se trouve la valeur.
-NB. l'élément de gauche est un vecteur à 2 positions: élément 0 la valeur à rechercher et élément 1 la colonne du tableau 
+NB. Fonction pour rechercher une valeur dans un tableau, 
+NB. elle retoune la liste des lignes dans lesquelles se trouve la valeur. l'élément de gauche est 
+NB. un vecteur à 2 positions: élément 0 la valeur à rechercher et élément 1 la colonne du tableau 
 NB. dans laquelle se trouve cette valeur
     elt =. 0 { x
     col =. (1{x) get_col y
@@ -200,31 +201,6 @@ tp =: ((I.@:(0&<)@:(1&get_col)) { ]) pthgrc
 prime75 =: 3 : '(1&=@:mod4 # ]) y'"1                                    NB. identifie les éléments égalent à 1 mod 4
 other_prime =: 3 : '*/&(1:`((1&<@:mod4)#])@.(+/&(1&<@:mod4)>0:)) y'"1   NB. identifie les éléments avec un reste plus grand
                                                                         NB. que 1 mod 4
-racine =: ,prime75 q:"0 (0 get_col tpu)                                 NB. tous les premiers de tpu qui sont égaux à 1 mod 4
-coefficient =: other_prime q:"0 (0 get_col tpu)                         NB. tous les premiers de tpu qui ne sont pas égaux à 1 mod 4
-res1 =: racine,.coefficient                                             NB. tableau à 2 colonnes avec en 0 la racine et en 1 les coeff
-psd =: search_sqrt"0 (~.racine)                                         NB. la décomposition des premiers en somme de 2 carrés
-ln =: (0 get_col psd) i. racine
-tln =: ln { psd
-col1_tln =: (1 get_col tln)
-col2_tln =: (2 get_col tln)
-tln2 =: tln,.(*:(*:col1_tln) - (*:col2_tln)),.*:(2*col1_tln*col2_tln)
-sprimaire =: +/"1 tln                                                   NB. la somme des côtés des triplets (sans produit avec le coef)
-NB.rres =: res1,.tln,.sprimaire,.(coefficient * sprimaire)
-rres =: coefficient,.tln2
-eneBwam =: coefficient,.racine,.(coefficient * racine),.(coefficient * %:4 get_col rres),.(coefficient * %:5 get_col rres)
-eneBwam =: eneBwam,.(2 get_col eneBwam) + (3 get_col eneBwam) + (4 get_col eneBwam)
-tailleok =: (I.(1500000&>:) 5 get_col eneBwam) { eneBwam                NB. Obtenir les lignes de eneBwam dont la 5ème colonne est < 1500000
-tailleok_tri =: tailleok /: (/: 5 get_col tailleok)                     NB. trier tailleok selon sa dernière colonne triée
-len =: (5 get_col tailleok_tri)                                         
-longueurEtOccurence =: (~.len) numberof"(0 _)" len                      NB. Obtenir pour chaque longueur son nombre d'occurence
-analyse=:I. 1&= (1 get_col longueurEtOccurence)
-((I.@:(1&=)@:(1 get_col ])){]) longueurEtOccurence
-mesureCote =: 3 : '(other_prime * (%:@:search_2"0@:prime75)) y'         NB. donne la longueur des 3 côtés
-(1500000&<: # ]) +/ mesureCote
-longueur =: monad def '+/"1@:(*/@:other_prime * %:@:search_2"0"@:prime75) y'
-tpu_reduit=: ((1500000&<)@:(2&*) # ]) (0 get_col tpu)                   NB. liste des racines carrées c où 2*c > 1500000
-
 NB. il est probable que tout le travail au-dessus soit une fausse piste, mais une fausse piste qui nous a mené à une autre plus prometteuse, on espère.
 nbp =: p:^:_1 (_4 p: 750000)
 NB. ci-dessous la phrase pour obtenir la liste des premiers égalent à 1 (mod 4) et inférieurs ou égale à 750000
@@ -232,12 +208,93 @@ lpp =: ((1&=@:mod4) # ]) p: i.(nbp+1)
 triplet_premier =: %:search_2"0 lpp
 NB. la liste des triplet pytagoriciens premiers ayant la somme de leurs 3 côtés inférieure à 1500000
 tps =: (1500000&>:@:(3&get_col)#]) (],.+/"1) triplet_premier
+(":tps) fwrites '/Users/jojo/Informatique/Mathematic/Project_Euler/pb75_output'
 ltps =: (3 get_col tps)
+NB. la ligne ci-dessous permet de classer tps selon l'ordre croissant de ltps
+tps =: tps /: ltps
 NB. la liste des longueurs qu'on va analyser
-len_val =: 12+i.(150001-12)
-NB. une fonction qui retourne le nombre d'élément plus que y
+len_val =: 12+i.(1500001-12)
 NB. faire une fonction qui calcule le nombre de triplet pytagoricien de longueur y
 how_many_tps =: monad : 0
-    short_ltps =. (i.y) { ltps
-    y,+/(0&=) (|&y) short_ltps 
+    short_ltps =. ((y&>:)#]) ((ltps I. y)+1) {. ltps
+    y,(#,])((0&=)@:(|&y) # ]) short_ltps 
 )
+resultat =: how_many_tps"0 len_val
+NB. on élimine les valeurs qui ne sont pas la somme d'un triplet pythagoricien primaire
+resultat_no_zero =: (((0&<)@:(1&get_col)) # ]) resultat
+NB. on élimine les sommes qui sont divisibles par plusieurs triplet pythagoricien
+length_of_one =: (((1&=)@:(1&get_col)) # ]) resultat
+NB. une fonction pour identifier les sommes qui sont des multiples de sommes non premières. 
+NB. Attention ici il faut prendre les ayant 0 ou 1 sur la 2ème colonne car certaines sommes sont directement le résultat des 
+NB. des tps qui la ""plupart du temps"" ne peuvent être obtenu par un autre tps 
+how_many_multiple =: monad : 0
+    smaller_sum =. ~.((ltps I. y) {. ltps) , ((0 get_col length_of_one) I. y) {. 0 get_col length_of_one
+    y,(#,])((0&=)@:(|&y) # ]) smaller_sum
+)
+res1 =: how_many_multiple"0 (0 get_col length_of_one)
+NB. on filtre res1 pour obtenir le nbr de valeur ayant 1 ou 0 multiple
+res2 =: ((1&>:)@:(1&get_col) # ]) res1
+NB. dans les triplets premiers il y a 603 sommes qui sont en doublon, on les identifie ici
+analyse_doublon=:~.((1&<)@:(1&get_col)#]) ltps numberof"(0,1) ltps
+how_many_divisor =: dyad : 0
+NB. les dividendes sont x et les diviseurs y, le rang de travail pour x est 0 et celui pour y 1
+    if. (+/(0&=)(|&x)y) > 0 do. x,((0&=)@:(|&x)#]) y return. end.
+)
+NB. définition des matrices pour la génération des TPP
+m1 =: (3 3) $ 1 _2 2 2 _1 2 2 _2 3
+m2 =: (3 3) $ _1 2 2 _2 1 2 _2 2 3
+m3 =: (3 3) $ 1 2 2 2 1 2 2 2 3
+root =: (3 4 5)
+res =: 0 4 $0
+fct_pm =: 4 : 0   NB. cette fonction simule le produit matriciel
+    x +/ . * y
+)
+tom =: (1 3 3) $ m1,m2,m3   NB. un vecteur de matrice
+NB. fonction pour calculer les triplets pythagoriciens primitifs
+NB. dont le périmètre est inférieure à 1,510e6. ttpp est un tableau de tpp 
+NB. (tpp : triplet pytagoricien primitif). Pour les arguments de la dyade : x est un index
+NB. et y un tableau de tpp
+main0 =: 4 : 0
+    ttpp =: tom fct_pm"(2,1) (x { y)
+    
+fct_ptt =: 3 : 0
+res =: (y, +/y), res NB. On garde ce qui a été déjà calculée
+if. +/y > 1.5e6 do. res return. else. fct_ptt"1 ((3 3) $ (m1 +/ . * y), (m2 +/ . * y), (m3 +/ . * y)) end.
+)
+
+NB. Calcule l'ensemble des TPP (triplet pythagoricien primitif) à partir de y
+NB. et retourne uniquement les TPP dont le périmètre est inférieure à 1.5e6
+main1 =: 4 : 0
+    echo 'itération ', (": x),' en cours'
+    rt =: (((# % 3:), 3:) $ ]) ;tom fct_pm"(2,1)/ y
+    rt =: ((I.@:(<:&1.5e6)@:(+/"1)) { ]) rt
+    if. (# = 0:) rt do. (_2 Z: 1) return. else. rt end.
+)
+res =: (1 3) $ 3 4 5
+wres =: 3 : 0 
+res =: res, y
+)
+root wres F.. main1 1+(i.2000)
+lngr =: +/"1 res
+lnr =: lngr numberof"(0,1) lngr NB. les longueurs et leurs occurences
+(]*((i."0)@:(<.)@:(1.5e6&%))) lnr
+
+main2 =: 4 : 0
+    lt =:(]*((i."0)@:(<.)@:(1.5e6&%))) x
+    lr =: 0&get_col (0, 1) get_line  lt numberof"(0,1) y
+    lr,y
+)
+
+depiler =: 4 : 'x }. y'     NB. retourne y priver de ses x premiers éléments
+nbrValSup =: 4 : 'x I. y'   NB. retourne l'index qui permet de placer y dans x en gardant x trié.
+lngr =: lngr /: lngr        NB. on trie, dans l'ordre croissant, lngr
+main3 =: 4 : 0
+    l =: (>:@:(nbrValSup&x) {. ]) lngr  NB. toutes les valeurs de lngr inférieures à x
+    d =: +/(0&=) l | x                  NB. le nbr de diviseurs de x dans lngr
+    if. d = 1 do. y,x else. y end.      NB. si x a un seul diviseur on ajoute y à x, sinon on retourne uniquement y
+)
+x_arg_m3 =: 12 depiler (i. 1.5e6+1) NB. la liste des valeurs pour lesquels on doit déterminer le nbr de diviseurs
+NB. provenant de lngr.
+
+NB. la ligne ci-dessous permet de calculer les valeurs de x_arg_m3 qui n'ont qu'un seul diviseur dans la liste lngr
+res3 =: '' ] F.. main3 x_arg_m3 
