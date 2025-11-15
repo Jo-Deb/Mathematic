@@ -36,3 +36,17 @@ NB. tres =: ( (*/@:}: , {:)@:$ $ ;) tmp
 )
 
 100 ] F:. main2 1 + i.2500
+
+combil =: 4 : 0
+NB. x = (base, len, value) et y est la liste en cours de construction, cette liste est vide au début.
+    base    =. 0 { x
+    len     =. 1 { x
+    value   =. 2 { x
+    if. ( ((+/y) + len * base) < value ) +. (base > value) do. '' return. end.
+    if. ( value - (+/y) ) > base do.
+        if. (#y) = 0 do. (base, (len - 1), value) combil base return.
+            else. (base, (len - 1), value) combil (y, base) return.
+    end.
+    if. (value-(+/y)) <: base *. (value-(+/y))>0 do. (base,(len - 1),value) combil y,(value-(+/y)-(len-1)) return. end.
+    y
+)
