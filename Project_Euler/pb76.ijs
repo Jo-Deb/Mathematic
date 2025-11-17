@@ -5,7 +5,7 @@ NB. récupère la fin de la liste x à partir de index(y)+1
 endList =: 4 : ' ((1: + i.&y) }. ]) x' 
 
 main0 =: 3 : 0
-NB. si y = 5 par exemple, retourne le tableau 4 1; 3 2. Si y = 6 retourne le tableau 5 1, 4 2, 3 3
+    NB. si y = 5 par exemple, retourne le tableau 4 1; 3 2. Si y = 6 retourne le tableau 5 1, 4 2, 3 3
     if. y > 1 do.
         col =. 1 + i.(<. y%2)
         (y&-,. ]) col
@@ -13,9 +13,9 @@ NB. si y = 5 par exemple, retourne le tableau 4 1; 3 2. Si y = 6 retourne le tab
 )
 
 main1 =: 3 : 0
-NB. ici nous avons la fonction principale elle prend l'élément le plus grand de chaque liste 
-NB. y applique main0 et concatène le résultat avec la suite de la liste
-NB. exemple : si j'ai la liste (5 1) après application de main1 j'aurai (4 1 1, 3 2 1)
+    NB. ici nous avons la fonction principale elle prend l'élément le plus grand de chaque liste 
+    NB. y applique main0 et concatène le résultat avec la suite de la liste
+    NB. exemple : si j'ai la liste (5 1) après application de main1 j'aurai (4 1 1, 3 2 1)
     head    =:  0 getCol y
     queue   =:  }. y
     taq     =:  ((<. head%2) , #queue) $ queue
@@ -24,29 +24,70 @@ NB. exemple : si j'ai la liste (5 1) après application de main1 j'aurai (4 1 1,
 )
 
 main2 =: 4 : 0
-NB. cette fonction est celle qui doit être appelé avec les fold
+    NB. cette fonction est celle qui doit être appelé avec les fold
     echo 'l''itération ',(":x-1),' a produit :',(":y)
     echo 'C''est la ',(":x),' itération'
     if. (y > 1) *. (#y) = 1 do. main0 y return. end.
     if. ((#$y) = 1) *. ((#y) = +/y) do. (0 Z: 1) else. tmp =: ,/main1"(1) y end. 
-NB. le ELSE du dernier IF dégrade les dimensions du résultat. 
-NB. La ligne ci-dessous permet de retravailler le résultat.
+    NB. le ELSE du dernier IF dégrade les dimensions du résultat. 
+    NB. La ligne ci-dessous permet de retravailler le résultat.
     tres =: ~.tmp
-NB. tres =: ( (*/@:}: , {:)@:$ $ ;) tmp
+    NB. tres =: ( (*/@:}: , {:)@:$ $ ;) tmp
 )
 
-100 ] F:. main2 1 + i.2500
+NB. 100 ] F:. main2 1 + i.2500
 
 combil =: 4 : 0
-NB. x = (base, len, value) et y est la liste en cours de construction, cette liste est vide au début.
-    base    =. 0 { x
-    len     =. 1 { x
-    value   =. 2 { x
+    NB. x = (base, len, value) et y est la liste en cours de construction, cette liste est vide au début.
+    base    =: 0 { x
+    len     =: 1 { x
+    value   =: 2 { x
     if. ( ((+/y) + len * base) < value ) +. (base > value) do. '' return. end.
-    if. ( value - (+/y) ) > base do.
-        if. (#y) = 0 do. (base, (len - 1), value) combil base return.
-            else. (base, (len - 1), value) combil (y, base) return.
+    if. ( value - (+/y) ) > base 
+        do.
+            if. (#y) = 0 do. (base, (len - 1), value) combil base return.
+                else. (base, (len - 1), value) combil (y, base) return.
+            end.
     end.
-    if. (value-(+/y)) <: base *. (value-(+/y))>0 do. (base,(len - 1),value) combil y,(value-(+/y)-(len-1)) return. end.
+    if. ((value-(+/y)) <: base) *. (value-(+/y))>0 do. (base,(len - 1),value) combil y,(value-(+/y))-(len-1) return. end.
     y
+)
+
+pivot =: 4 : 0
+    NB. x est la liste et y un élément de la liste
+    id =. x i. y
+    if. id = (#y) do. echo (":y), 'n''est pas dans la liste d''entrée' return. end.
+    if. (0 <: id-1) *. ((id+1) <: (#y)-1) do.
+        p =. (id-1) { x
+        f =. (id+1) { x
+        if. p >: y > f+1 do. 1 return. else. 0 return. end.
+    else. 0 return. end.
+)
+
+pivot2 =: 4 : 0
+    NB. x est une liste et y un indice de la liste
+    if. y > #x 
+        do. echo 'l''indice en entrée ',(":y),' est invalide'
+            0 return. end.
+    if. 0 < y < (#x) - 1 
+        do. if. (((y-1){x) >: (y{x)) *. ((y{x) - ((y+1){x)) >: 2  do. 1 return.
+                else. 0 return. end.
+        else. 0 return. end.
+)
+pivot3 =: (] pivot2"(1,0) i.@:#)
+NB. la fonction ci-dessous permet d'avoir l'index du pivot le plus petit
+spid =: >./@:I.@:(] pivot2"(1,0) i.@:#)
+
+lisse =: 3 : 0
+    NB. elle lisse la liste y pour trouver une autre liste de taille #y dont la somme vaut +/y
+    id =. spid y
+    val =. (<:@:(id&{), >:@:((id+1)&{)) y
+    res =. val (id, (id+1))} y
+)
+
+lisse2 =: 3 : 0
+NB. elle lisse la liste y pour trouver une autre liste de taille #y dont la somme vaut +/y
+    id =. y
+    val =. (<:@:(id&{), >:@:((id+1)&{)) y
+    res =. val (id, (id+1))} y
 )
