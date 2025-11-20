@@ -86,8 +86,80 @@ lisse =: 3 : 0
 )
 
 lisse2 =: 3 : 0
-NB. elle lisse la liste y pour trouver une autre liste de taille #y dont la somme vaut +/y
+    NB. elle lisse la liste y pour trouver une autre liste de taille #y dont la somme vaut +/y
     id =. y
     val =. (<:@:(id&{), >:@:((id+1)&{)) y
     res =. val (id, (id+1))} y
 )
+
+lissage =: 4 : 0
+    NB. x est un atome au sens du langage J et y est une liste.
+    echo 'génération des possibilités pour : ',(":y)
+    if. 0 < +/ pivot3 y do. lisse y return. else. (0 Z: 1) return. end.
+) 
+NB. (35 35 29 1) ] F:. lissage i.2500
+
+fct76 =: 3 : 0
+    NB. de façon générale quand on a une liste ordonnée (a1 a2.. aN),
+    NB. de façon décroissante numériquement et dont la somme
+    NB. donne une valeur V, on peut passer à une autre liste en prenant 
+    NB. e, qui est la plus petite valeur de la liste supérieure à 1. 
+    NB. Faire la somme de tous les éléments de la liste inférieure à e et y ajouter e,
+    NB. appelons cette somme N1, alors la représentation de N1 sous forme d'addition 
+    NB. avec e-1 comme valeur la plus grande est obtenu à partir de la fonction combil.
+    if. ($y) = 0 do. (y-1),1 return. end.  
+    e   =. <./ (1&<@:] # ]) y              
+    idm =. y i: e                          
+    s   =. +/ ((i.#y) -. (i.idm)) { y      
+    res =. ((i.idm) { y), ((e-1), (>.s%(e-1)), s) combil '' 
+)
+
+fld =: 4 : 0
+    if. (#y) = (+/y) do. (_2 Z: 1) end.
+    NB.echo 'itération ',(":x), ' en cours'
+    fct76 y
+)
+100 ] F:. fld (i.2500000)
+
+
+9 1 0 0 0 0 0 0 0 0
+8 2 0 0 0 0 0 0 0 0
+8 1 1 0 0 0 0 0 0 0
+7 3 0 0 0 0 0 0 0 0
+7 2 1 0 0 0 0 0 0 0
+7 1 1 1 0 0 0 0 0 0
+6 4 0 0 0 0 0 0 0 0
+6 3 1 0 0 0 0 0 0 0
+6 2 2 0 0 0 0 0 0 0
+6 2 1 1 0 0 0 0 0 0
+6 1 1 1 1 0 0 0 0 0
+5 5 0 0 0 0 0 0 0 0
+5 4 1 0 0 0 0 0 0 0
+5 3 2 0 0 0 0 0 0 0
+5 3 1 1 0 0 0 0 0 0
+5 2 2 1 0 0 0 0 0 0
+5 2 1 1 1 0 0 0 0 0
+5 1 1 1 1 1 0 0 0 0
+4 4 2 0 0 0 0 0 0 0
+4 4 1 1 0 0 0 0 0 0
+4 3 3 0 0 0 0 0 0 0
+4 3 2 1 0 0 0 0 0 0
+4 3 1 1 1 0 0 0 0 0
+4 2 2 2 0 0 0 0 0 0
+4 2 2 1 1 0 0 0 0 0
+4 2 1 1 1 1 0 0 0 0
+4 1 1 1 1 1 1 0 0 0
+3 3 3 1 0 0 0 0 0 0
+3 3 2 2 0 0 0 0 0 0
+3 3 2 1 1 0 0 0 0 0
+3 3 1 1 1 1 0 0 0 0
+3 2 2 2 1 0 0 0 0 0
+3 2 2 1 1 1 0 0 0 0
+3 2 1 1 1 1 1 0 0 0
+3 1 1 1 1 1 1 1 0 0
+2 2 2 2 2 0 0 0 0 0
+2 2 2 2 1 1 0 0 0 0
+2 2 2 1 1 1 1 0 0 0
+2 2 1 1 1 1 1 1 0 0
+2 1 1 1 1 1 1 1 1 0
+1 1 1 1 1 1 1 1 1 1
