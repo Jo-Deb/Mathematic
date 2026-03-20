@@ -119,4 +119,83 @@ fld =: 4 : 0
     NB.echo 'itération ',(":x), ' en cours'
     fct76 y
 )
-100 ] F:. fld (i.10000000)
+
+NB. 100 ] F:. fld (i.10000000)
+
+NB. version 2
+NB. ti est le tableau dans lequel on conservera toutes les valeurs calculées.
+ti =: ((%&2,2:)@:#$]) (0,0,1,0,2,1,3,2,4,4,5,6,6,10,7,14,8,20,9,29)
+
+NB. la fonction suivante est pour calculer la liste des valeurs à ajouter dans ti en fct de y
+list76 =: 3 : '(i.(y+1)) -. (i.#ti)'
+
+express76 =: 4 : 0
+    NB. Permet d'exprimer y en fonction de x, sous la forme d'une liste ou tous 
+    NB. les éléments sont inférieures ou égalent à x et la somme de la liste = y
+    c =. (0,x)#:y
+    if. ({:c) > 0 do.((#&x)@:{.,{:)c else. (#&x)@:{.c end.
+) 
+score =: 4 : 0
+    NB.Permet de calculer le score d'une liste dans le cadre du problème euler76.
+    NB.le score d'une liste est le nbr de liste qu'on peut avoir en décomposant
+    NB. les sommes possibles qui représentent le dernier digit. 
+    c =. (+/@:(=&1), +/@:(=&2)) y
+    if. c -: (0, 0) do.
+        le =. (_1 { y) { ti 
+        lescr =. 1 getCol le
+        (x+1+lescr),2 return.
+        NB.(x+1+ (1 getCol((_1{y){ti))),2 return.
+    else.
+        ((x+1+(1{c)),1 + +/c) return.
+    end.
+)
+main3 =: 3 : 0
+    NB.Une fonction récursive qui calcule le nombre de façon différente d'exprimer
+    NB. y sous forme de somme.
+    echo 'en cours de calcul de ',(":y)
+    if. (#y) = 1 do. 
+        if. y < #ti do. 1 getCol (y{ti) return. 
+        else. 
+            echo 'à l''intérieur du else, on va aller dans la boucle récursive'
+            main3 (1,2, (y-1), 1) return. 
+        end.
+    end.
+    echo 'y est : ',(":y)
+    lu  =. 2}.y
+    scr =. 0{y
+    slt =. 1{y
+    c=.(+/@:(=&1), +/@:(=&2)) lu
+    if. (#lu) = +/c do.
+        echo 'nbr combinaison pour',(":+/lu), ' est ',(":scr)
+        ti =: ti,((+/lu), scr)
+        return.
+    end.
+    b   =. ((- slt){y) - 1
+    rf  =. b express76 +/(- slt){.y
+    scr =. scr score ((- slt)}.lu), rf
+    main3 scr,((- slt)}.lu),rf
+)
+foldMain =: 4 : 0
+    NB. Cette fonction est proche de la fonction main3, leur objectif est le même mais
+    NB. foldMain est faite pour fonctionner avec le fold. Quelques rappels sur le langage J
+    NB. {. extraire un nbr d'élément (cmptm dyad), }. retirer un nbr d'élément (cmptm dyad)
+    if.(#y) = 1 do.
+        if. y < (#ti) do. 1 getCol y { ti return.    
+        else. (1, 2, (y-1), 1) return.
+        end.
+    end.
+    lu  =. 2 }. y
+    scr =. 0{y
+    slt =. 1{y
+    c   =. (+/@:(=&1), +/@:(=&2)) lu
+    if. (#lu) = +/c do. (1 Z: 1)
+       echo 'nbr combinaison pour ',(":+/lu), ' est ',(":scr)
+       ti =: ti, ((+/lu), scr) return.
+    end.
+    b   =. ((-slt){y) - 1
+    rf  =. b express76 +/(-slt){.lu
+    scr =. scr score ((-slt)}.lu), rf
+    scr,((-slt)}.lu),rf
+)
+
+launch =: 3 : ' y ] F.. foldMain (i.1000000)'
