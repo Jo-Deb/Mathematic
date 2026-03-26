@@ -5,7 +5,8 @@ NB. récupère la fin de la liste x à partir de index(y)+1
 endList =: 4 : ' ((1: + i.&y) }. ]) x' 
 
 main0 =: 3 : 0
-    NB. si y = 5 par exemple, retourne le tableau 4 1; 3 2. Si y = 6 retourne le tableau 5 1, 4 2, 3 3
+    NB. si y = 5 par exemple, retourne le tableau 4 1; 3 2. 
+    NB. Si y = 6 retourne le tableau 5 1, 4 2, 3 3
     if. y > 1 do.
         col =. 1 + i.(<. y%2)
         (y&-,. ]) col
