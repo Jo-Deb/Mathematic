@@ -200,3 +200,22 @@ foldMain =: 4 : 0
 )
 
 launch =: 3 : ' y ] F.. foldMain (i.1000000)'
+NB. réaliser une fonction qui génère la combinaison suivante sans prendre en compte le dernier élément de la liste
+nextListe =: 3 : 0
+    NB.Si on a une liste à 1 élément
+    if. (#y) = 1 do. (y-1), 1 return. end.
+    NB.Obtenir l'index de l'élément l'index de l'élément le plus petit supérieure à 1 n'étant pas le dernier
+    id =. (] i: 1:) (1&<) }: y
+    echo 'nextListe id = ',(":id)
+    NB.Obtenir la racine de la liste c-à-d la liste des éléments qui ne changent pas
+    if. id > 0 do. rac =. (i. id) { y else. rac =. '' end.
+    echo 'nextListe rac = ',(":rac)
+    cible =. +/ id }. y
+    base =. (id { y) - 1
+    res =. rac, (base express76 cible)
+)
+vnext =: 4 : 0
+    echo 'itération ',(":x)
+    nextListe y
+)
+100 ] F.. vnext (i.1000000)
