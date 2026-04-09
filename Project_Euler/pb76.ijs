@@ -219,3 +219,17 @@ vnext =: 4 : 0
     nextListe y
 )
 100 ] F.. vnext (i.1000000)
+nextPivot =: 3 : 'i:&1 (2&<:)@:((_1&}.) - (1&}.)) y'
+racine =: 4 : 'x {. y'
+cible =: 4 : '+/ x }. y'
+base =: 4 : '(x { y) - 1'
+
+decompose =: 3 : 0
+    if (#y) = 1 *. y > 0 do. (y-1), 1 return. end.
+    if (#y) = +/y do. y return. end.
+    id =. nextPivot y
+    if id = #y do. id =. 0 { y 
+    deb =. id racine y
+    fin =. id (base express76 cible) y
+    deb , fin
+)
