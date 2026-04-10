@@ -225,11 +225,20 @@ cible =: 4 : '+/ x }. y'
 base =: 4 : '(x { y) - 1'
 
 decompose =: 3 : 0
-    if (#y) = 1 *. y > 0 do. (y-1), 1 return. end.
-    if (#y) = +/y do. y return. end.
+    if. (#y) = 1 *. y > 0 do. (y-1), 1 return. end.
+    if. (#y) = (+/y) do. y return. end.
     id =. nextPivot y
-    if id = #y do. id =. 0 { y 
+    echo 'id = ', (":id)
+    if. id = (#y)-1 do. id =. 0 end.
+    echo 'la nouvelle valeur de l''id est', (":id)
     deb =. id racine y
     fin =. id (base express76 cible) y
-    deb , fin
+    res =. deb , fin
+)
+
+fdecompose =: 4 : 0
+    echo 'iteration ', (":x), ' en cours'
+    l =. decompose y
+    if. (#l) = (+/l) do. (1 Z: 1) return. end.
+    l
 )
