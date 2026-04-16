@@ -218,7 +218,7 @@ vnext =: 4 : 0
     echo 'itération ',(":x)
     nextListe y
 )
-100 ] F.. vnext (i.1000000)
+NB. 100 ] F.. vnext (i.1000000)
 nextPivot =: 3 : 'i:&1 (2&<:)@:((_1&}.) - (1&}.)) y'
 racine =: 4 : 'x {. y'
 cible =: 4 : '+/ x }. y'
@@ -241,4 +241,19 @@ fdecompose =: 4 : 0
     l =. decompose y
     if. (#l) = (+/l) do. (1 Z: 1) return. end.
     l
+)
+launch"0 list76 70
+NB. récupérer la plus petite sous-liste avec deux nombres supérieures à 2
+sousListe76 =: 3 : 0 
+    NB. récupérer le 1er indice de la sous-liste
+    id=. <./ _2 {. I. 2&< y
+    if. (#id) = 0 do. 0 return. end.
+    id {. y
+)
+NB. comparer deux listes dans le cadre du problème 76
+comparaisonListe =: 4 : 0
+    NB. On trie les deux listes, on retire les 0 et on fait les comparaison
+    lx =. (0&< # ]) x \: x   
+    ly =. (0&< # ]) y \: y
+    lx -: ly  
 )
