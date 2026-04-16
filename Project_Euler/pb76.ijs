@@ -238,7 +238,6 @@ decompose =: 3 : 0
 
 fdecompose =: 4 : 0
     echo 'iteration ', (":x), ' en cours'
+    if. (#y) = (+/y) do. (1 Z: 1) return. end.
     l =. decompose y
-    if. (#l) = (+/l) do. (1 Z: 1) return. end.
-    l
 )
