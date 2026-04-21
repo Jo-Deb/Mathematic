@@ -257,3 +257,9 @@ comparaisonListe =: 4 : 0
     ly =. (0&< # ]) y \: y
     lx -: ly  
 )
+next_iteration =: 4 : 0
+   NB. x est l'indice du pivot et y est la liste
+   deb =. x racine y
+   fin =. x (base express76 cible) y
+   res =. deb, fin
+)
