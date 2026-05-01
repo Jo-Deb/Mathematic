@@ -263,3 +263,42 @@ next_iteration =: 4 : 0
    fin =. x (base express76 cible) y
    res =. deb, fin
 )
+
+NB.la fonction ci-dessous calcule le score et l'index
+idxEtScr =: 3 : 0
+	NB.test pour voir si on est à la fin
+	if. (#y) = +/y do. (0,1) return. end.
+	NB. ci-dessous on regarde si les 2 derniers éléments sont inférieurs à 2
+	if. 1 > +/ (2&<) _2{.y do.
+		id =. nextPivot y
+		sc =. 1 + +/(2&=) (id+1) }. y
+		(id,sc) return.
+	end.
+	handlingSublist y
+)
+
+handlingSublist =: 3 : 0
+	NB. si la somme des deux derniers nombres est supérieure à 70 
+	NB. on retourne la valeur de l'index et le score du dernier nombre
+	if. 70 > +/ _2 {. y do. ((#y)-2), 1 getCol (_1{.y){ti return. end.
+	((#y)-3), scr76 _2{.y
+)
+
+NB. ci-dessous, calculer le score d'une liste à 2 éléments dont la somme est inférieure à 20.
+scr76 =: 3 : 0
+	NB. si j'ai A + B avec A > B et que je connaisse le score pour C=A+B
+	NB. alors score(A+B)=score(C)- [ score((A+B-1)+1) + score((A+B-2)+2)... + score((A+B-(B-1))+ B-1)]
+	NB. le calcul décrit ci-dessus est ce qu'on essaie de faire ci-dessous  
+	cible=. +/y
+	half =. <. cible%2
+	t =. (\:~ (-half) {. i.cible),.(1 + i.half)
+	echo 't est égale à ',(":t)
+	NB. récupérer tous les éléments qui précède y dans t
+	l =. (t i. y) {. t
+	echo 'l est : ', (":l)
+	NB. calcluler le score de tous les éléments dans l
+	s =.(#l) +  +/ 1 getCol (1 getCol l) { ti
+	echo 's est égale à ', (":s)
+	NB. calcul du score pour y
+	(1 getCol cible{ti) - s
+)
