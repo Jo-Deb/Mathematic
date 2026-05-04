@@ -113,6 +113,8 @@ fct76 =: 3 : 0
     idm =. y i: e                          
     s   =. +/ ((i.#y) -. (i.idm)) { y      
     res =. ((i.idm) { y), ((e-1), (>.s%(e-1)), s) combil '' 
+    (":res) fappends 'test76.txt'
+    res
 )
 
 fld =: 4 : 0
@@ -137,9 +139,10 @@ express76 =: 4 : 0
     if. ({:c) > 0 do.((#&x)@:{.,{:)c else. (#&x)@:{.c end.
 ) 
 score =: 4 : 0
-    NB.Permet de calculer le score d'une liste dans le cadre du problème euler76.
-    NB.le score d'une liste est le nbr de liste qu'on peut avoir en décomposant
-    NB. les sommes possibles qui représentent le dernier digit. 
+	NB.Permet de calculer le score d'une liste dans le cadre du problème euler76.
+   NB.le score d'une liste est le nbr de liste qu'on peut avoir en décomposant
+   NB. les sommes possibles qui représentent le dernier digit. 
+	echo 'x égale ',(":x), ' et y égale ',(":y)
     c =. (+/@:(=&1), +/@:(=&2)) y
     if. c -: (0, 0) do.
         le =. (_1 { y) { ti 
@@ -196,6 +199,7 @@ foldMain =: 4 : 0
     b   =. ((-slt){y) - 1
     rf  =. b express76 +/(-slt){.lu
     scr =. scr score ((-slt)}.lu), rf
+	echo 'le score calculé pour ', (":((-slt)}.lu), rf), ' est ',(":scr)
     scr,((-slt)}.lu),rf
 )
 
