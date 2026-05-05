@@ -127,7 +127,7 @@ NB. 100 ] F:. fld (i.10000000)
 
 NB. version 2
 NB. ti est le tableau dans lequel on conservera toutes les valeurs calculées.
-ti =: ((%&2,2:)@:#$]) (0,0,1,0,2,1,3,2,4,4,5,6,6,10,7,14,8,20,9,29)
+ti =: ((%&2,2:)@:#$]) (0,0,1,0,2,1,3,2,4,4,5,6,6,10,7,14,8,21,9,29)
 
 NB. la fonction suivante est pour calculer la liste des valeurs à ajouter dans ti en fct de y
 list76 =: 3 : '(i.(y+1)) -. (i.#ti)'
@@ -270,6 +270,7 @@ next_iteration =: 4 : 0
 
 NB.la fonction ci-dessous calcule le score et l'index
 idxEtScr =: 3 : 0
+    if. (#y) = 1 do. 0, 0 return. end.
 	NB.test pour voir si on est à la fin
 	if. (#y) = +/y do. (0,1) return. end.
 	NB. ci-dessous on regarde si les 2 derniers éléments sont inférieurs à 2
@@ -284,7 +285,10 @@ idxEtScr =: 3 : 0
 handlingSublist =: 3 : 0
 	NB. si la somme des deux derniers nombres est supérieure à 70 
 	NB. on retourne la valeur de l'index et le score du dernier nombre
-	if. 70 > +/ _2 {. y do. ((#y)-2), 1 getCol (_1{.y){ti return. end.
+	if. 70 < +/ _2 {. y do. 
+        if. (_1 { y) = 1 do. 0, 1 return.
+        else. ((#y)-2), 1 getCol (_1{.y){ti return. end.
+    end.
 	((#y)-3), scr76 _2{.y
 )
 
