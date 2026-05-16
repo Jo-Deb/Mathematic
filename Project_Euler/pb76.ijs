@@ -113,6 +113,8 @@ fct76 =: 3 : 0
     idm =. y i: e                          
     s   =. +/ ((i.#y) -. (i.idm)) { y      
     res =. ((i.idm) { y), ((e-1), (>.s%(e-1)), s) combil '' 
+    (":res) fappends 'test76.txt'
+    res
 )
 
 fld =: 4 : 0
@@ -125,7 +127,7 @@ NB. 100 ] F:. fld (i.10000000)
 
 NB. version 2
 NB. ti est le tableau dans lequel on conservera toutes les valeurs calculées.
-ti =: ((%&2,2:)@:#$]) (0,0,1,0,2,1,3,2,4,4,5,6,6,10,7,14,8,20,9,29)
+ti =: ((%&2,2:)@:#$]) (0,0,1,0,2,1,3,2,4,4,5,6,6,10,7,14,8,21,9,29)
 
 NB. la fonction suivante est pour calculer la liste des valeurs à ajouter dans ti en fct de y
 list76 =: 3 : '(i.(y+1)) -. (i.#ti)'
@@ -137,9 +139,10 @@ express76 =: 4 : 0
     if. ({:c) > 0 do.((#&x)@:{.,{:)c else. (#&x)@:{.c end.
 ) 
 score =: 4 : 0
-    NB.Permet de calculer le score d'une liste dans le cadre du problème euler76.
-    NB.le score d'une liste est le nbr de liste qu'on peut avoir en décomposant
-    NB. les sommes possibles qui représentent le dernier digit. 
+	NB.Permet de calculer le score d'une liste dans le cadre du problème euler76.
+   NB.le score d'une liste est le nbr de liste qu'on peut avoir en décomposant
+   NB. les sommes possibles qui représentent le dernier digit. 
+	echo 'x égale ',(":x), ' et y égale ',(":y)
     c =. (+/@:(=&1), +/@:(=&2)) y
     if. c -: (0, 0) do.
         le =. (_1 { y) { ti 
@@ -196,6 +199,7 @@ foldMain =: 4 : 0
     b   =. ((-slt){y) - 1
     rf  =. b express76 +/(-slt){.lu
     scr =. scr score ((-slt)}.lu), rf
+	echo 'le score calculé pour ', (":((-slt)}.lu), rf), ' est ',(":scr)
     scr,((-slt)}.lu),rf
 )
 
@@ -255,4 +259,53 @@ comparaisonListe =: 4 : 0
     lx =. (0&< # ]) x \: x   
     ly =. (0&< # ]) y \: y
     lx -: ly  
+)
+next_iteration =: 4 : 0
+   NB. x est l'indice du pivot et y est la liste
+   deb =. x racine y
+   fin =. x (base express76 cible) y
+   res =. deb, fin
+)
+
+NB.la fonction ci-dessous calcule le score et l'index
+idxEtScr =: 3 : 0
+    if. (#y) = 1 do. 0, 0 return. end.
+	NB.test pour voir si on est à la fin
+	if. (#y) = +/y do. (0,1) return. end.
+	NB. ci-dessous on regarde si les 2 derniers éléments sont inférieurs à 2
+	if. 1 > +/ (2&<) _2{.y do.
+		id =. nextPivot y
+		sc =. 1 + +/(2&=) (id+1) }. y
+		(id,sc) return.
+	end.
+	handlingSublist y
+)
+
+handlingSublist =: 3 : 0
+	NB. si la somme des deux derniers nombres est supérieure à 70 
+	NB. on retourne la valeur de l'index et le score du dernier nombre
+	if. 70 < +/ _2 {. y do. 
+        if. (_1 { y) = 1 do. 0, 1 return.
+        else. ((#y)-2), 1 getCol (_1{.y){ti return. end.
+    end.
+	((#y)-3), scr76 _2{.y
+)
+
+NB. ci-dessous, calculer le score d'une liste à 2 éléments dont la somme est inférieure à 20.
+scr76 =: 3 : 0
+	NB. si j'ai A + B avec A > B et que je connaisse le score pour C=A+B
+	NB. alors score(A+B)=score(C)- [ score((A+B-1)+1) + score((A+B-2)+2)... + score((A+B-(B-1))+ B-1)]
+	NB. le calcul décrit ci-dessus est ce qu'on essaie de faire ci-dessous  
+	cible=. +/y
+	half =. <. cible%2
+	t =. (\:~ (-half) {. i.cible),.(1 + i.half)
+	echo 't est égale à ',(":t)
+	NB. récupérer tous les éléments qui précède y dans t
+	l =. (t i. y) {. t
+	echo 'l est : ', (":l)
+	NB. calcluler le score de tous les éléments dans l
+	s =.(#l) +  +/ 1 getCol (1 getCol l) { ti
+	echo 's est égale à ', (":s)
+	NB. calcul du score pour y
+	(1 getCol cible{ti) - s
 )
