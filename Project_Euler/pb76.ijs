@@ -270,6 +270,7 @@ next_iteration =: 4 : 0
 
 NB.la fonction ci-dessous calcule le score et l'index
 idxEtScr =: 3 : 0
+	NB. echo 'In idxEtScr'
     if. (#y) = 1 do. 0, 0 return. end.
 	NB.test pour voir si on est à la fin
 	if. (#y) = +/y do. (0,1) return. end.
@@ -283,13 +284,17 @@ idxEtScr =: 3 : 0
 )
 
 handlingSublist =: 3 : 0
+	NB. echo 'In handlingSublist'
 	NB. si la somme des deux derniers nombres est supérieure à 70 
 	NB. on retourne la valeur de l'index et le score du dernier nombre
 	if. 70 < +/ _2 {. y do. 
         if. (_1 { y) = 1 do. 0, 1 return.
-        else. ((#y)-2), 1 getCol (_1{.y){ti return. end.
+        else. ((#y)-2), 1 + 1 getCol (_1{.y){ti return. end.
     end.
-	((#y)-3), scr76 _2{.y
+    max =. 40 maxListe76 y
+    id =. ((#y) - (#max)) - 1
+    id, scrBox max
+	NB.((#y)-3), scr76 _2{.y
 )
 
 NB. ci-dessous, calculer le score d'une liste à 2 éléments dont la somme est inférieure à 20.
@@ -297,16 +302,62 @@ scr76 =: 3 : 0
 	NB. si j'ai A + B avec A > B et que je connaisse le score pour C=A+B
 	NB. alors score(A+B)=score(C)- [ score((A+B-1)+1) + score((A+B-2)+2)... + score((A+B-(B-1))+ B-1)]
 	NB. le calcul décrit ci-dessus est ce qu'on essaie de faire ci-dessous  
+	NB. echo 'In scr76'
 	cible=. +/y
 	half =. <. cible%2
 	t =. (\:~ (-half) {. i.cible),.(1 + i.half)
-	echo 't est égale à ',(":t)
+	NB. echo 't est égale à ',(":t)
 	NB. récupérer tous les éléments qui précède y dans t
 	l =. (t i. y) {. t
-	echo 'l est : ', (":l)
+	NB. echo 'l est : ', (":l)
 	NB. calcluler le score de tous les éléments dans l
 	s =.(#l) +  +/ 1 getCol (1 getCol l) { ti
-	echo 's est égale à ', (":s)
+	NB. echo 's est égale à ', (":s)
 	NB. calcul du score pour y
 	(1 getCol cible{ti) - s
+)
+
+NB. une fonction à utiliser avec le fold, elle combine les fonctions du dessus 
+fin76 =: 4 : 0
+    echo 'iteration ',(":x),' en cours'
+    if. (#y) = 1 do. 0,0,100 return. end.
+    ly =. 2 }. y NB. on retire l'index et le score et on garde le reste.
+    if. (#ly) = +/ly do. (_2 Z: 1) end.
+    NB. if. (ly comparaisonListe (99,1)) do. 0,1,ly return. end.
+    id =. 0 { y
+    (idxEtScr, ]) id next_iteration ly
+)
+
+NB. la méthode précédente n'est pas suffisante, il y a plus de 8000000 de liste à traiter.
+NB. Il faut pouvoir calculer le score d'une liste de longueur variable, la seule condition étant que son score est inférieure
+NB. disons à 50; une telle méthode demande plus de mémoire pour conserver toutes les listes déjà calculées mais au final, 
+NB. il y a moins de calculs à faire. Pour y arriver il faut maitriser les listes de box, c'est ce qu'on va faire par la suite.
+NB. 0 et 1 ne peuvent pas s'écrire comme des sommes
+tbox =. (<,<) ''
+NB.Une fonction pour remplir tbox
+ftbox =: 3 : 0
+	lw =. (i.y) -. (i.2)
+	for_ijk. lw do.
+		tbox =: tbox, < ijk ] F:. fld (i.1000000)
+	end.
+)
+
+NB.écrire une fonction qui permet de trouver la plus grande liste dont la somme est inférieure à une valeur donnée.
+maxListe76 =: 4 : 0
+	li =. i.#y
+    NB.L'index où commence la plus grande liste inférieure ou égale à x
+    id =. 1 i.~ x&>: +/ li }."(0,1) y
+    id }. y
+)
+sortUp =: 3 : ' y \: y'
+NB. une autre fonction score, celle-ci s'appuie sur le table tbox
+scrBox =: 3 : 0
+    if.(#y) = 1 do. 
+        if. y = 1 do. 1 return.
+            else. 1 + # > y { tbox return.
+        end.
+    end.
+    cible =. +/y
+    id =. (y comparaisonListe"(1,1) > cible { tbox) i. 1
+    (# > cible { tbox) - id
 )
