@@ -361,3 +361,10 @@ scrBox =: 3 : 0
     id =. (y comparaisonListe"(1,1) > cible { tbox) i. 1
     (# > cible { tbox) - id
 )
+NB. test sauvegarde
+ascr =: 4 : 0
+    NB. x est la liste et y est le tableau
+    sous-ensemble =. (0 0 ,:((#y), (#x))) ];.0 y
+    idx =. sous-ensemble i. x
+    (#y) - idx
+)
