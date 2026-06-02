@@ -214,9 +214,9 @@ nextListe =: 3 : 0
     NB.Obtenir la racine de la liste c-à-d la liste des éléments qui ne changent pas
     if. id > 0 do. rac =. (i. id) { y else. rac =. '' end.
     echo 'nextListe rac = ',(":rac)
-    cible =. +/ id }. y
-    base =. (id { y) - 1
-    res =. rac, (base express76 cible)
+    sible =. +/ id }. y
+    baze =. (id { y) - 1
+    res =. rac, (baze express76 sible)
 )
 vnext =: 4 : 0
     echo 'itération ',(":x)
