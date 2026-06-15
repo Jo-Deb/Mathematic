@@ -226,7 +226,7 @@ NB. 100 ] F.. vnext (i.1000000)
 nextPivot =: 3 : 'i:&1 (2&<:)@:((_1&}.) - (1&}.)) y'
 racine =: 4 : 'x {. y'
 cible =: 4 : '+/ x }. y'
-base =: 4 : '(x { y) - 1'
+baseCalcul =: 4 : '(x { y) - 1'
 
 decompose =: 3 : 0
     if. (#y) = 1 *. y > 0 do. (y-1), 1 return. end.
@@ -236,7 +236,7 @@ decompose =: 3 : 0
     if. id = (#y)-1 do. id =. 0 end.
     echo 'la nouvelle valeur de l''id est', (":id)
     deb =. id racine y
-    fin =. id (base express76 cible) y
+    fin =. id (baseCalcul express76 cible) y
     res =. deb , fin
 )
 
@@ -263,32 +263,35 @@ comparaisonListe =: 4 : 0
 next_iteration =: 4 : 0
    NB. x est l'indice du pivot et y est la liste
    deb =. x racine y
-   fin =. x (base express76 cible) y
+   fin =. x (baseCalcul express76 cible) y
    res =. deb, fin
 )
 
 NB.la fonction ci-dessous calcule le score et l'index
 idxEtScr =: 3 : 0
-	NB. echo 'In idxEtScr'
+	echo 'In idxEtScr et y est ', (":y)
     if. (#y) = 1 do. 0, 0 return. end.
 	NB.test pour voir si on est à la fin
 	if. (#y) = +/y do. (0,1) return. end.
 	NB. ci-dessous on regarde si les 2 derniers éléments sont inférieurs à 2
 	if. 1 > +/ (2&<) _2{.y do.
+        echo 'idxEtScr: entrée dans le 3ème if'
 		id =. nextPivot y
 		sc =. 1 + +/(2&=) (id+1) }. y
 		(id,sc) return.
 	end.
+    echo 'idxEtScr: déclenchement de la fonction handlingSublist avec ', (":y)
 	handlingSublist y
 )
 
 handlingSublist =: 3 : 0
-	NB. echo 'In handlingSublist'
+	echo 'In handlingSublist, y = ',(":y)
 	NB. si la somme des deux derniers nombres est supérieure à 70 
 	NB. on retourne la valeur de l'index et le score du dernier nombre
-	if. 70 < +/ _2 {. y do. 
-        if. (_1 { y) = 1 do. 0, 1 return.
-        else. ((#y)-2), 1 + 1 getCol (_1{.y){ti return. end.
+	if. 70 < (+/ _2 {. y) do. 
+        elseif. (_1 { y) = 1 do. 0, 1 return.
+        elseif. (_1 { y) > 70 do. 0, 0 return.
+    else. ((#y)-2), 1 + 1 getCol (_1{.y){ti return.
     end.
     max =. 40 maxListe76 y
     id =. ((#y) - (#max)) - 1
@@ -318,8 +321,8 @@ scr76 =: 3 : 0
 
 NB. une fonction à utiliser avec le fold, elle combine les fonctions du dessus 
 fin76 =: 4 : 0
-    echo 'iteration ',(":x),' en cours'
-    if. (#y) = 1 do. 0,0,100 return. end.
+    echo 'iteration ',(":x),' en cours et y = ', (":y)
+    if. (#y) = 1 do. 0,0,y return. end.
     ly =. 2 }. y NB. on retire l'index et le score et on garde le reste.
     if. (#ly) = +/ly do. (_2 Z: 1) end.
     NB. if. (ly comparaisonListe (99,1)) do. 0,1,ly return. end.
@@ -351,14 +354,17 @@ maxListe76 =: 4 : 0
 sortUp =: 3 : ' y \: y'
 NB. une autre fonction score, celle-ci s'appuie sur le table tbox
 scrBox =: 3 : 0
+    echo 'Dans scrBox, y = ', (":y)
     if.(#y) = 1 do. 
         if. y = 1 do. 1 return.
-            else. 1 + # > y { tbox return.
+            else. 1 + # (> y { tbox) return.
         end.
     end.
-    cible =. +/y
-    id =. (y comparaisonListe"(1,1) > cible { tbox) i. 1
-    (# > cible { tbox) - id
+    valSomme =. +/y
+    y ascr > valSomme { tbox           NB. calcul score de la liste y
+    NB. les lignes de code ci-dessous ont été commentées car cette méthode n'était pas optimale.
+    NB. id =. (y comparaisonListe"(1,1) > cible { tbox) i. 1
+    NB. (# > cible { tbox) - id
 )
 NB. test sauvegarde
 ascr =: 4 : 0
