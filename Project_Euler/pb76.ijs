@@ -245,7 +245,7 @@ fdecompose =: 4 : 0
     if. (#y) = (+/y) do. (1 Z: 1) return. end.
     l =. decompose y
 )
-launch"0 list76 70
+launch"0 list76 50
 NB. récupérer la plus petite sous-liste avec deux nombres supérieures à 2
 sousListe76 =: 3 : 0 
     NB. récupérer le 1er indice de la sous-liste
@@ -286,17 +286,10 @@ idxEtScr =: 3 : 0
 
 handlingSublist =: 3 : 0
 	echo 'In handlingSublist, y = ',(":y)
-	NB. si la somme des deux derniers nombres est supérieure à 70 
-	NB. on retourne la valeur de l'index et le score du dernier nombre
-	if. 70 < (+/ _2 {. y) do. 
-        elseif. (_1 { y) = 1 do. 0, 1 return.
-        elseif. (_1 { y) > 70 do. 0, 0 return.
-    else. ((#y)-2), 1 + 1 getCol (_1{.y){ti return.
-    end.
-    max =. 40 maxListe76 y
+    max =. 50 maxListe76 y
+    if. (#max) = 1 do. 0, 1 + 1 getCol max { ti return. end.
     id =. ((#y) - (#max)) - 1
     id, scrBox max
-	NB.((#y)-3), scr76 _2{.y
 )
 
 NB. ci-dessous, calculer le score d'une liste à 2 éléments dont la somme est inférieure à 20.
@@ -349,6 +342,7 @@ maxListe76 =: 4 : 0
 	li =. i.#y
     NB.L'index où commence la plus grande liste inférieure ou égale à x
     id =. 1 i.~ x&>: +/ li }."(0,1) y
+    echo 'maxListe76 : la liste des index est ', (":id)
     id }. y
 )
 sortUp =: 3 : ' y \: y'
@@ -369,7 +363,7 @@ scrBox =: 3 : 0
 NB. test sauvegarde
 ascr =: 4 : 0
     NB. x est la liste et y est le tableau
-    sous-ensemble =. (0 0 ,:((#y), (#x))) ];.0 y
-    idx =. sous-ensemble i. x
+    sousEnsemble =. (0 0 ,:((#y), (#x))) ];.0 y
+    idx =. sousEnsemble i. x
     (#y) - idx
 )
