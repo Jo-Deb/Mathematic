@@ -223,7 +223,12 @@ vnext =: 4 : 0
     nextListe y
 )
 NB. 100 ] F.. vnext (i.1000000)
-nextPivot =: 3 : 'i:&1 (2&<:)@:((_1&}.) - (1&}.)) y'
+nextPivot =: 3 : 0
+    id =. i:&1 (2&<:)@:((_1&}.) - (1&}.)) y
+    if. id = (#y) - 1 do. id =. (] i: 1:) (2&<) }: y end.
+    if. id = (#y) - 1 do. id =. 0 end.
+    id
+)
 racine =: 4 : 'x {. y'
 cible =: 4 : '+/ x }. y'
 baseCalcul =: 4 : '(x { y) - 1'
