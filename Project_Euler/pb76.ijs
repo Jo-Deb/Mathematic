@@ -274,25 +274,26 @@ next_iteration =: 4 : 0
 
 NB.la fonction ci-dessous calcule le score et l'index
 idxEtScr =: 3 : 0
-	echo 'In idxEtScr et y est ', (":y)
     if. (#y) = 1 do. 0, 0 return. end.
 	NB.test pour voir si on est à la fin
 	if. (#y) = +/y do. (0,1) return. end.
 	NB. ci-dessous on regarde si les 2 derniers éléments sont inférieurs à 2
 	if. 1 > +/ (2&<) _2{.y do.
-        echo 'idxEtScr: entrée dans le 3ème if'
-		id =. nextPivot y
+        tml =. # 50 maxListe76 y 
+        lry =. (-tml) }. y
+        id =.  ((2&<) lry) i: 1 
+        NB. id =. ((#y) - (#max)) - 1 
+		NB. id =. nextPivot y
+        if. id = #lry do. id =. _1 end.
 		sc =. 1 + +/(2&=) (id+1) }. y
 		(id,sc) return.
 	end.
-    echo 'idxEtScr: déclenchement de la fonction handlingSublist avec ', (":y)
 	handlingSublist y
 )
 
 handlingSublist =: 3 : 0
-	echo 'In handlingSublist, y = ',(":y)
     max =. 50 maxListe76 y
-    if. (#max) = 1 do. 0, 1 + 1 getCol max { ti return. end.
+    if. ((#max) = 1) *. ((#y)<:2) do. 0, 1 + 1 getCol max { ti return. end.
     id =. ((#y) - (#max)) - 1
     id, scrBox max
 )
@@ -321,10 +322,12 @@ NB. une fonction à utiliser avec le fold, elle combine les fonctions du dessus
 fin76 =: 4 : 0
     echo 'iteration ',(":x),' en cours et y = ', (":y)
     if. (#y) = 1 do. 0,0,y return. end.
+    NB. Analyse de l'index pour voir si le calcul est terminé
+    id=. 0 { y
+    if. id < 0 do. (_2 Z: 1) end.
     ly =. 2 }. y NB. on retire l'index et le score et on garde le reste.
     if. (#ly) = +/ly do. (_2 Z: 1) end.
     NB. if. (ly comparaisonListe (99,1)) do. 0,1,ly return. end.
-    id =. 0 { y
     (idxEtScr, ]) id next_iteration ly
 )
 
@@ -356,14 +359,11 @@ scrBox =: 3 : 0
     echo 'Dans scrBox, y = ', (":y)
     if.(#y) = 1 do. 
         if. y = 1 do. 1 return.
-            else. 1 + # (> y { tbox) return.
+            else. 1 + 1 getCol y { ti return.
         end.
     end.
     valSomme =. +/y
     y ascr > valSomme { tbox           NB. calcul score de la liste y
-    NB. les lignes de code ci-dessous ont été commentées car cette méthode n'était pas optimale.
-    NB. id =. (y comparaisonListe"(1,1) > cible { tbox) i. 1
-    NB. (# > cible { tbox) - id
 )
 NB. test sauvegarde
 ascr =: 4 : 0
