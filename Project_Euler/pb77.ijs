@@ -7,10 +7,14 @@ noDoublon =: 3 : ' ((~:)@:(\:"1~) # ]) y'                                   NB. 
 crossJoin =: 4 : 'y ,.~ ((0 { $y),1) $ x'                                   NB. crossJoin entre l'atome x et le tableau y               
 fct1 =: 3 : 0
     NB. on attend une liste de deux éléments
+    echo 'fct1 : y = ', (":y)
     t =. > (1 { y) { tbs
     pp =. (0 { y)
     if. (([: # $) t) = 0 do. res =. (1,1) $ t else. res =.((<:&pp)@:(0&getCol) # ]) t end.
     if. (([: # $) res) = 1 do. res =. (1, $res) $ res end.
+    echo 'fct1 : res = ', (":res)
+    echo 'fct1 : les dimensions de res sont : ', (":$res)
+    if. (*/$res) = 0 do. res return. end.
     pp crossJoin res
 )
 
