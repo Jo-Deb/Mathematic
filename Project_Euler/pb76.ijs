@@ -11,7 +11,8 @@ randr =: 3 : 0
 )
 
 main0 =: 3 : 0
-    NB. si y = 5 par exemple, retourne le tableau 4 1; 3 2. Si y = 6 retourne le tableau 5 1, 4 2, 3 3
+    NB. si y = 5 par exemple, retourne le tableau 4 1; 3 2. 
+    NB. Si y = 6 retourne le tableau 5 1, 4 2, 3 3
     if. y > 1 do.
         col =. 1 + i.(<. y%2)
         (y&-,. ]) col
@@ -119,6 +120,8 @@ fct76 =: 3 : 0
     idm =. y i: e                          
     s   =. +/ ((i.#y) -. (i.idm)) { y      
     res =. ((i.idm) { y), ((e-1), (>.s%(e-1)), s) combil '' 
+    (":res) fappends 'test76.txt'
+    res
 )
 
 fld =: 4 : 0
@@ -126,4 +129,253 @@ fld =: 4 : 0
     NB.echo 'itération ',(":x), ' en cours'
     fct76 y
 )
-100 ] F:. fld (i.10000000)
+
+NB. 100 ] F:. fld (i.10000000)
+
+NB. version 2
+NB. ti est le tableau dans lequel on conservera toutes les valeurs calculées.
+ti =: ((%&2,2:)@:#$]) (0,0,1,0,2,1,3,2,4,4,5,6,6,10,7,14,8,21,9,29)
+
+NB. la fonction suivante est pour calculer la liste des valeurs à ajouter dans ti en fct de y
+list76 =: 3 : '(i.(y+1)) -. (i.#ti)'
+
+express76 =: 4 : 0
+    NB. Permet d'exprimer y en fonction de x, sous la forme d'une liste ou tous 
+    NB. les éléments sont inférieures ou égalent à x et la somme de la liste = y
+    c =. (0,x)#:y
+    if. ({:c) > 0 do.((#&x)@:{.,{:)c else. (#&x)@:{.c end.
+) 
+score =: 4 : 0
+	NB.Permet de calculer le score d'une liste dans le cadre du problème euler76.
+   NB.le score d'une liste est le nbr de liste qu'on peut avoir en décomposant
+   NB. les sommes possibles qui représentent le dernier digit. 
+	echo 'x égale ',(":x), ' et y égale ',(":y)
+    c =. (+/@:(=&1), +/@:(=&2)) y
+    if. c -: (0, 0) do.
+        le =. (_1 { y) { ti 
+        lescr =. 1 getCol le
+        (x+1+lescr),2 return.
+        NB.(x+1+ (1 getCol((_1{y){ti))),2 return.
+    else.
+        ((x+1+(1{c)),1 + +/c) return.
+    end.
+)
+main3 =: 3 : 0
+    NB.Une fonction récursive qui calcule le nombre de façon différente d'exprimer
+    NB. y sous forme de somme.
+    echo 'en cours de calcul de ',(":y)
+    if. (#y) = 1 do. 
+        if. y < #ti do. 1 getCol (y{ti) return. 
+        else. 
+            echo 'à l''intérieur du else, on va aller dans la boucle récursive'
+            main3 (1,2, (y-1), 1) return. 
+        end.
+    end.
+    echo 'y est : ',(":y)
+    lu  =. 2}.y
+    scr =. 0{y
+    slt =. 1{y
+    c=.(+/@:(=&1), +/@:(=&2)) lu
+    if. (#lu) = +/c do.
+        echo 'nbr combinaison pour',(":+/lu), ' est ',(":scr)
+        ti =: ti,((+/lu), scr)
+        return.
+    end.
+    b   =. ((- slt){y) - 1
+    rf  =. b express76 +/(- slt){.y
+    scr =. scr score ((- slt)}.lu), rf
+    main3 scr,((- slt)}.lu),rf
+)
+foldMain =: 4 : 0
+    NB. Cette fonction est proche de la fonction main3, leur objectif est le même mais
+    NB. foldMain est faite pour fonctionner avec le fold. Quelques rappels sur le langage J
+    NB. {. extraire un nbr d'élément (cmptm dyad), }. retirer un nbr d'élément (cmptm dyad)
+    if.(#y) = 1 do.
+        if. y < (#ti) do. 1 getCol y { ti return.    
+        else. (1, 2, (y-1), 1) return.
+        end.
+    end.
+    lu  =. 2 }. y
+    scr =. 0{y
+    slt =. 1{y
+    c   =. (+/@:(=&1), +/@:(=&2)) lu
+    if. (#lu) = +/c do. (1 Z: 1)
+       echo 'nbr combinaison pour ',(":+/lu), ' est ',(":scr)
+       ti =: ti, ((+/lu), scr) return.
+    end.
+    b   =. ((-slt){y) - 1
+    rf  =. b express76 +/(-slt){.lu
+    scr =. scr score ((-slt)}.lu), rf
+	echo 'le score calculé pour ', (":((-slt)}.lu), rf), ' est ',(":scr)
+    scr,((-slt)}.lu),rf
+)
+
+launch =: 3 : ' y ] F.. foldMain (i.1000000)'
+NB. réaliser une fonction qui génère la combinaison suivante sans prendre en compte le dernier élément de la liste
+nextListe =: 3 : 0
+    NB.Si on a une liste à 1 élément
+    if. (#y) = 1 do. (y-1), 1 return. end.
+    NB.Obtenir l'index de l'élément l'index de l'élément le plus petit supérieure à 1 n'étant pas le dernier
+    id =. (] i: 1:) (1&<) }: y
+    echo 'nextListe id = ',(":id)
+    NB.Obtenir la racine de la liste c-à-d la liste des éléments qui ne changent pas
+    if. id > 0 do. rac =. (i. id) { y else. rac =. '' end.
+    echo 'nextListe rac = ',(":rac)
+    sible =. +/ id }. y
+    baze =. (id { y) - 1
+    res =. rac, (baze express76 sible)
+)
+vnext =: 4 : 0
+    echo 'itération ',(":x)
+    nextListe y
+)
+NB. 100 ] F.. vnext (i.1000000)
+nextPivot =: 3 : 0
+    id =. i:&1 (2&<:)@:((_1&}.) - (1&}.)) y
+    if. id = (#y) - 1 do. id =. (] i: 1:) (2&<) }: y end.
+    if. id = (#y) - 1 do. id =. 0 end.
+    id
+)
+racine =: 4 : 'x {. y'
+cible =: 4 : '+/ x }. y'
+baseCalcul =: 4 : '(x { y) - 1'
+
+decompose =: 3 : 0
+    if. (#y) = 1 *. y > 0 do. (y-1), 1 return. end.
+    if. (#y) = (+/y) do. y return. end.
+    id =. nextPivot y
+    echo 'id = ', (":id)
+    if. id = (#y)-1 do. id =. 0 end.
+    echo 'la nouvelle valeur de l''id est', (":id)
+    deb =. id racine y
+    fin =. id (baseCalcul express76 cible) y
+    res =. deb , fin
+)
+
+fdecompose =: 4 : 0
+    echo 'iteration ', (":x), ' en cours'
+    if. (#y) = (+/y) do. (1 Z: 1) return. end.
+    l =. decompose y
+)
+launch"0 list76 50
+NB. récupérer la plus petite sous-liste avec deux nombres supérieures à 2
+sousListe76 =: 3 : 0 
+    NB. récupérer le 1er indice de la sous-liste
+    id=. <./ _2 {. I. 2&< y
+    if. (#id) = 0 do. 0 return. end.
+    id {. y
+)
+NB. comparer deux listes dans le cadre du problème 76
+comparaisonListe =: 4 : 0
+    NB. On trie les deux listes, on retire les 0 et on fait les comparaison
+    lx =. (0&< # ]) x \: x   
+    ly =. (0&< # ]) y \: y
+    lx -: ly  
+)
+next_iteration =: 4 : 0
+   NB. x est l'indice du pivot et y est la liste
+   deb =. x racine y
+   fin =. x (baseCalcul express76 cible) y
+   res =. deb, fin
+)
+
+NB.la fonction ci-dessous calcule le score et l'index
+idxEtScr =: 3 : 0
+    if. (#y) = 1 do. 0, 0 return. end.
+	NB.test pour voir si on est à la fin
+	if. (#y) = +/y do. (0,1) return. end.
+	NB. ci-dessous on regarde si les 2 derniers éléments sont inférieurs à 2
+	if. 1 > +/ (2&<) _2{.y do.
+        tml =. # 50 maxListe76 y 
+        lry =. (-tml) }. y
+        id =.  ((2&<) lry) i: 1 
+        NB. id =. ((#y) - (#max)) - 1 
+		NB. id =. nextPivot y
+        if. id = #lry do. id =. _1 end.
+		sc =. 1 + +/(2&=) (id+1) }. y
+		(id,sc) return.
+	end.
+	handlingSublist y
+)
+
+handlingSublist =: 3 : 0
+    max =. 50 maxListe76 y
+    if. ((#max) = 1) *. ((#y)<:2) do. 0, 1 + 1 getCol max { ti return. end.
+    id =. ((#y) - (#max)) - 1
+    id, scrBox max
+)
+
+NB. ci-dessous, calculer le score d'une liste à 2 éléments dont la somme est inférieure à 20.
+scr76 =: 3 : 0
+	NB. si j'ai A + B avec A > B et que je connaisse le score pour C=A+B
+	NB. alors score(A+B)=score(C)- [ score((A+B-1)+1) + score((A+B-2)+2)... + score((A+B-(B-1))+ B-1)]
+	NB. le calcul décrit ci-dessus est ce qu'on essaie de faire ci-dessous  
+	NB. echo 'In scr76'
+	cible=. +/y
+	half =. <. cible%2
+	t =. (\:~ (-half) {. i.cible),.(1 + i.half)
+	NB. echo 't est égale à ',(":t)
+	NB. récupérer tous les éléments qui précède y dans t
+	l =. (t i. y) {. t
+	NB. echo 'l est : ', (":l)
+	NB. calcluler le score de tous les éléments dans l
+	s =.(#l) +  +/ 1 getCol (1 getCol l) { ti
+	NB. echo 's est égale à ', (":s)
+	NB. calcul du score pour y
+	(1 getCol cible{ti) - s
+)
+
+NB. une fonction à utiliser avec le fold, elle combine les fonctions du dessus 
+fin76 =: 4 : 0
+    echo 'iteration ',(":x),' en cours et y = ', (":y)
+    if. (#y) = 1 do. 0,0,y return. end.
+    NB. Analyse de l'index pour voir si le calcul est terminé
+    id=. 0 { y
+    if. id < 0 do. (_2 Z: 1) end.
+    ly =. 2 }. y NB. on retire l'index et le score et on garde le reste.
+    if. (#ly) = +/ly do. (_2 Z: 1) end.
+    NB. if. (ly comparaisonListe (99,1)) do. 0,1,ly return. end.
+    (idxEtScr, ]) id next_iteration ly
+)
+
+NB. la méthode précédente n'est pas suffisante, il y a plus de 8000000 de liste à traiter.
+NB. Il faut pouvoir calculer le score d'une liste de longueur variable, la seule condition étant que son score est inférieure
+NB. disons à 50; une telle méthode demande plus de mémoire pour conserver toutes les listes déjà calculées mais au final, 
+NB. il y a moins de calculs à faire. Pour y arriver il faut maitriser les listes de box, c'est ce qu'on va faire par la suite.
+NB. 0 et 1 ne peuvent pas s'écrire comme des sommes
+tbox =. (<,<) ''
+NB.Une fonction pour remplir tbox
+ftbox =: 3 : 0
+	lw =. (i.y) -. (i.2)
+	for_ijk. lw do.
+		tbox =: tbox, < ijk ] F:. fld (i.1000000)
+	end.
+)
+
+NB.écrire une fonction qui permet de trouver la plus grande liste dont la somme est inférieure à une valeur donnée.
+maxListe76 =: 4 : 0
+	li =. i.#y
+    NB.L'index où commence la plus grande liste inférieure ou égale à x
+    id =. 1 i.~ x&>: +/ li }."(0,1) y
+    echo 'maxListe76 : la liste des index est ', (":id)
+    id }. y
+)
+sortUp =: 3 : ' y \: y'
+NB. une autre fonction score, celle-ci s'appuie sur le table tbox
+scrBox =: 3 : 0
+    echo 'Dans scrBox, y = ', (":y)
+    if.(#y) = 1 do. 
+        if. y = 1 do. 1 return.
+            else. 1 + 1 getCol y { ti return.
+        end.
+    end.
+    valSomme =. +/y
+    y ascr > valSomme { tbox           NB. calcul score de la liste y
+)
+NB. test sauvegarde
+ascr =: 4 : 0
+    NB. x est la liste et y est le tableau
+    sousEnsemble =. (0 0 ,:((#y), (#x))) ];.0 y
+    idx =. sousEnsemble i. x
+    (#y) - idx
+)
