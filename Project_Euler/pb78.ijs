@@ -1,0 +1,2 @@
+res =: 2 1 $ 1 1                                                    NB. initialisation du tableau qui va contenir toutes les valeurs p(n,k) 
+liste_PNK =: 3 : '((( (]+1:),1:) $ ]) ,. i.@:(+&1)) y'              NB. génération d'un tableau pour listant les p(n,k) à calculer  
