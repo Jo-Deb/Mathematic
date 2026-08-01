@@ -1,2 +1,19 @@
-res =: 2 1 $ 1 1                                                    NB. initialisation du tableau qui va contenir toutes les valeurs p(n,k) 
-liste_PNK =: 3 : '((( (]+1:),1:) $ ]) ,. i.@:(+&1)) y'              NB. génération d'un tableau pour listant les p(n,k) à calculer  
+res =: (1 3 $ 0 1 1), (1 3 $ 1 1 1)                                                                
+liste_PNK =: 3 : '(((],1:) $ ]) ,. }.@:i.@:(+&1)) y'                            
+testCondition =: 4 : '(1*((x=y)+.(y=1))) + (2*((y=0)+.(y>x))) + 3*((x>y)*.(y>1)) '
+getElement =: 4 : '((< (x-1),(y-1)) { res) + ((<(x-y),y) { res)'
+agenda =: 4 : 'x (0:`1:`0:`getElement@.testCondition) y'"(0,0)
+pnFirst =: 3 : '((0&{ - 1:) agenda (1&{ - 1:)) y'"1
+pnSecond =: 3 : '((0&{ - 1&{) agenda (1&{)) y'"1
+partition =: 3 : 0
+    t =. liste_PNK y
+    r =. y ,(+/,]) (0:`1:`0:`getElement@.testCondition)/"1 t
+)
+NB. Je mets ici bas les commentaires du code
+NB. res : initialisation du tableau qui va contenir toutes les valeurs p(n,k) 
+NB. liste_PNK : fonction qui génère un tableau listant les p(n,k) à calculer
+NB. testCondition : fonction qui sera utiliser dans un agenda pour déterminer la valeur à retourner
+NB. si testCondition donne 1 on retournera 1 pour 2 ce sera 0 et pour 3 une fonction sera appliquée
+NB. les entrées de la fonction testCondition sont x = n et y = k, on implémente l'algorithme : https://tinyurl.com/msfbuuvt
+NB. getElement : récupère une valeur dans le tableau res. x indique la ligne, y la colonne.
+NB. partition doit permettre de calculer pn(y), si pour tout x < y pn(x) et pn(x, k) est connu, x, k étant des entiers positifs
