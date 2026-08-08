@@ -1,6 +1,6 @@
 res =: (1 2 $ 1x 1x), (1 2 $ 1x 1x)                                                                
 liste_PNK =: 3 : '(((],1:) $ ]) ,. }.@:i.@:(+&1)) y'                            
-testCondition =: 4 : '(1*((x=y)+.(y=1))) + (2*((y=0)+.(y>x))) + 3*((x>y)*.(y>1)) '
+testCondition =: 4 : '(1*((x=y)+.(y=1))) + (2*((y=0)+.(y>x))) + 3*((x>y)*.(y>1))'
 getElement =: 4 : '((< (x-1),(y-1)) { res) + ((<(x-y),y) { res)'
 agenda =: 4 : 'x (0:`1:`0:`getElement@.testCondition) y'"(0,0)
 pnFirst =: 3 : '((0&{ - 1:) agenda (1&{ - 1:)) y'"1
@@ -14,9 +14,14 @@ nbp =: nombrePentagonaux i.101
 lpn =: (1 1 2 3)
 getPentagonalNumber =: 3 : '( (+/"1@:I.@:(<:&y)@:|) # ]) nbp'"0
 partitionEuler =: 3 : 0
-    lb =. ( * ,: ]) ,}. getPentagonalNumber y
-    pn =. +/ (0 { lb) * (|. 1 { lb) { lpn
-)"0
+    lb =. ( * ,: (y&-)) ,}. getPentagonalNumber y
+    echo 'partitionEuler : lb = ',(":lb)
+    valeurPartition =. , (1 { lb) { lpn
+    echo 'valeurPartition = ', (":valeurPartition)
+    listeSigne =. , 0 { lb
+    echo 'voici la listeSigne ',(":listeSigne)
+    pn =. +/ listeSigne * valeurPartition
+)
 
 NB. Je mets ici bas les commentaires du code
 NB. res : initialisation du tableau qui va contenir toutes les valeurs p(n,k) 
