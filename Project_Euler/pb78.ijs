@@ -12,15 +12,14 @@ partition =: 3 : 0
 nombrePentagonaux =: 3 : 'x: (%&2) ( ( ((*&3)@:*: + ]),( (*&3)@:*: - ]) ) * (_1:`1:@.(2&|)) ) y'"0
 nbp =: nombrePentagonaux i.101
 lpn =: (1 1 2 3)
-getPentagonalNumber =: 3 : '( (+/"1@:I.@:(<:&y)@:|) # ]) nbp'"0
+NB. getPentagonalNumber =: 3 : '( (+/"1@:I.@:(<:&y)@:|) # ]) nbp'"0
+getPentagonalNumber =: 3 : '(((I.@:(<:&y)@:|) { ]) ,y{. }. nbp'
 partitionEuler =: 3 : 0
-    lb =. ( * ,: (y&-)@:|) ,}. getPentagonalNumber y
-    echo 'partitionEuler : lb = ',(":lb)
+    if. y < # lpn do. y { lpn return. end.
+    lb =. ( * ,: (y&-)@:|) getPentagonalNumber y
     valeurPartition =. , (1 { lb) { lpn
-    echo 'valeurPartition = ', (":valeurPartition)
     listeSigne =. , 0 { lb
-    echo 'voici la listeSigne ',(":listeSigne)
-    pn =. x: +/ listeSigne * valeurPartition
+    lpn =: lpn , x: +/ listeSigne * valeurPartition
 )
 
 NB. Je mets ici bas les commentaires du code
